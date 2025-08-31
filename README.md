@@ -1,7 +1,7 @@
 <p align="center">
     <img src="./thumbnail.jpg" width="100%" style="margin-left: auto;margin-right: auto;display: block;">
 </p>
-<h1 align="center">Nao-MD ESM</h1>
+<h1 align="center">RyzumiMD-ESM</h1>
 
 </p>
 <p align="center">

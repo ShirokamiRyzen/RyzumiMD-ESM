@@ -1,36 +1,29 @@
-import cp from 'child_process';
-import { promisify } from 'util';
+import { promisify } from 'util'
+import { exec as execCallback } from 'child_process'
+import os from 'os'
 
-let exec = promisify(cp.exec).bind(cp);
+const exec = promisify(execCallback);
 
-var handler = async (m) => {
-    try {        
-        let options = '--share --bytes';
-        
-        let progressMessage = await conn.reply(m.chat, "Pengujian sedang berlangsung...", m);
+const handler = async (m, { conn }) => {
+    m.reply(wait);
 
-        let o = await exec(`python3 speed.py ${options}`);
-        
-        let { stdout, stderr } = o;
-        
-        if (stdout.trim()) {
-            await conn.reply(m.chat, "Uji kecepatan berhasil!", m);
-            await conn.reply(m.chat, stdout);
-        }
-        
-        if (stderr.trim()) {
-            await conn.reply(m.chat, "Uji kecepatan gagal dengan pesan error:", m);
-            await conn.reply(m.chat, stderr);
-        }
-        
-    } catch (e) {
-        console.error(e);
-        await conn.reply(m.chat, `Terjadi kesalahan tidak terduga selama uji kecepatan.`, m);
+    try {
+        const isWindows = os.platform() === 'win32';
+        const pythonCmd = isWindows ? 'python' : 'python3';
+        const command = `${pythonCmd} speed.py --share --secure`;
+
+        const { stdout } = await exec(command);
+        await m.reply(stdout.trim());
+    } catch (error) {
+        m.reply('Error: ' + error.message);
     }
 };
 
-handler.help = ['testspeed','speedtest'];
+handler.help = ['speedtest'];
 handler.tags = ['info'];
-handler.command = /^(speedtest|teskecepatan|testkecepatan|cekkecepatan|checkserver|cekserver|cekinet|checkinet|cekinternet|checkinternet|testspeed|tesspeed|testspeeds)$/i
+handler.command = /^(speedtest)$/i;
 
-export default handler;
+handler.register = true
+handler.rowner = true
+
+export default handler

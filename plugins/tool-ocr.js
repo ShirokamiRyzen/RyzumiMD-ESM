@@ -1,6 +1,5 @@
-import { uploadToPomf2 } from '../lib/uploadImage.js'
+import { uploadPomf } from '../lib/uploadImage.js'
 import ocrapi from 'ocr-space-api-wrapper'
-const { MessageType } = (await import('@adiwajshing/baileys')).default
 
 async function performOCR(url) {
   try {
@@ -20,9 +19,9 @@ let handler = async (m, { conn, text, command, usedPrefix }) => {
     if (!/image\/(jpe?g|png)/.test(mime)) throw `Jenis ${mime} tidak didukung`
 
     let img = await q.download()
-    let url = await uploadToPomf2(img)
+    let url = await uploadPomf(img)
 
-    m.reply('tunggu sebentar...')
+    m.reply(wait)
 
     let maxRetries = 99
     let retryCount = 0
@@ -34,11 +33,8 @@ let handler = async (m, { conn, text, command, usedPrefix }) => {
     } while (!hasil && retryCount < maxRetries)
 
     if (hasil && hasil.ParsedResults && hasil.ParsedResults.length > 0) {
-      
       let parsedText = hasil.ParsedResults[0].ParsedText;
-      
       await m.reply(`${parsedText}`);
-      
     } else {
       throw 'Tidak dapat menemukan teks dalam gambar'
     }

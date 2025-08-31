@@ -1,47 +1,41 @@
 let handler = async (m, { conn, text, usedPrefix, command }) => {
-    let who
-    if (m.isGroup) 
-        who = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : false
-    else 
-        who = m.chat
-
-    if (!who) throw `Tag atau balas seseorang!`
-    let user = global.db.data.users[who]
-    if (!user) throw `User tidak ditemukan di database!`
-    
-    let txt = text.replace('@' + who.split`@`[0], '').trim()
-    if (!txt) throw `Masukkan jumlah hari premium!`
-    if (isNaN(txt)) return m.reply(`Hanya boleh angka!\n\nContoh:\n${usedPrefix + command} @${m.sender.split`@`[0]} 7`)
-
-    let jumlahHari = 86400000 * parseInt(txt) // 1 hari = 86.400.000 ms
-    let now = Date.now()
-
-    if (!user.premiumTime || now >= user.premiumTime) {
-        user.premiumTime = now + jumlahHari
+    let user;
+    if (m.isGroup) {
+        user = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : false;
     } else {
-        user.premiumTime += jumlahHari
+        user = text.split(' ')[0];
+        user = user.replace('@', '') + '@s.whatsapp.net';
     }
 
-    user.premium = true
+    let userData = db.data.users[user];
+    if (!userData) throw `User not found!`;
 
-    let sisaMs = user.premiumTime - now
-    let sisaHari = Math.floor(sisaMs / (86400000))
-    let sisaJam = Math.floor((sisaMs % 86400000) / 3600000)
-    let sisaMenit = Math.floor((sisaMs % 3600000) / 60000)
+    // Extract the user's phone number from the text
+    let phoneNumber = user.split('@')[0];
 
-    m.reply(`✔️ *Berhasil menambahkan ${user.name} sebagai premium!*
-    
-📛 *Nama:* ${user.name}
-📆 *Durasi Ditambahkan:* ${txt} hari
-⏳ *Sisa Waktu:* ${sisaHari} hari ${sisaJam} jam ${sisaMenit} menit
-`)
-}
+    if (!phoneNumber) throw `where the number of days?`;
+    if (isNaN(phoneNumber)) return m.reply(`only number!\n\nexample:\n${usedPrefix + command} @${m.sender.split`@`[0]} 7`);
 
-handler.help = ['addprem [@user] <hari>']
+    let txt = text.split(' ')[1]; // Extract the second part of the text (duration)
+
+    var jumlahHari = 86400000 * txt;
+    var now = new Date() * 1;
+
+    if (userData.role === 'Free user') userData.role = 'Premium user';
+    if (now < userData.premiumTime) userData.premiumTime += jumlahHari;
+    else userData.premiumTime = now + jumlahHari;
+    userData.premium = true;
+
+    m.reply(`✔️ Success
+📛 *Name:* ${userData.name}
+📆 *Days:* ${txt} days
+📉 *Countdown:* ${userData.premiumTime - now}`);
+};
+
+handler.help = ['addprem <phone number> <days>']
 handler.tags = ['owner']
-handler.command = /^(add|tambah|\+)p(rem)?$/i
+handler.command = /^addprem?$/i
 
-handler.group = true
 handler.rowner = true
 
 export default handler

@@ -1,4 +1,4 @@
-import os, { cpus as _cpus, freemem, platform, hostname, totalmem } from "os";
+import os, { cpus as _cpus, platform, hostname } from "os";
 import osu from "node-os-utils";
 import fetch from "node-fetch";
 import { performance } from "perf_hooks";
@@ -107,7 +107,7 @@ const handler = async (m, { conn }) => {
     m.chat,
     `${designElements.star} *SYSTEM MONITOR LOADING* ${
       designElements.star
-    }\n\n${"⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏".split("").join(" ")} Please wait...`
+    }\n\n${wait}`
   );
 
   const startTime = performance.now();
@@ -361,9 +361,8 @@ const handler = async (m, { conn }) => {
 
   
   const responseMsg = `
-${designElements.header}
-${designElements.star} *SYSTEM MONITOR DASHBOARD* ${designElements.star}
-${designElements.footer}
+*SYSTEM MONITOR DASHBOARD*
+
 
 ${designElements.diamond} *PERFORMANCE*
 ${indicators.good} *Response Time:* ${responseTime}ms
@@ -466,10 +465,6 @@ ${designElements.diamond} *NODEJS MEMORY USAGE*
 \`\`\`
 ${memoryUsageFormatted}
 \`\`\`
-
-${designElements.header}
-${designElements.star} *SYSTEM MONITOR COMPLETE* ${designElements.star}
-${designElements.footer}
 `;
 
   const more = String.fromCharCode(8206);

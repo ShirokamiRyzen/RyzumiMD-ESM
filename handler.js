@@ -5,7 +5,6 @@ import path, { join } from 'path'
 import { unwatchFile, watchFile, readFileSync } from 'fs'
 import chalk from 'chalk'
 import knights from 'knights-canvas'
-import fetch from 'node-fetch'
 
 /**
  * @type {import('@adiwajshing/baileys')}
@@ -53,6 +52,8 @@ export async function handler(chatUpdate) {
                     user.banned = false
             } else
                 global.db.data.users[m.sender] = {
+                    registered: false,
+                    role: 'Free user',
                     exp: 0,
                     limit: 25,
                     afk: -1,

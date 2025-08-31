@@ -188,14 +188,23 @@ if (!opts['test']) {
 }
 
 function clearTmp() {
-  const tmp = [tmpdir(), join(__dirname, './tmp')]
-  const filename = []
-  tmp.forEach(dirname => readdirSync(dirname).forEach(file => filename.push(join(dirname, file))))
-  return filename.map(file => {
-    const stats = statSync(file)
-    if (stats.isFile() && (Date.now() - stats.mtimeMs >= 1000 * 60 * 3)) return unlinkSync(file) // 3 minutes
-    return false
-  })
+  const rootTmp = join(__dirname, './tmp')
+  const files = existsSync(rootTmp) ? readdirSync(rootTmp) : []
+  for (const f of files) {
+    const file = join(rootTmp, f)
+    try {
+      const s = statSync(file)
+      if (s.isFile() && (Date.now() - s.mtimeMs >= 1000 * 60 * 3)) {
+        unlinkSync(file)
+      }
+    } catch (err) {
+      if (err.code === 'EBUSY' || err.code === 'EPERM') {
+        console.warn(`Lewati file terkunci: ${file}`)
+      } else {
+        console.error(`Gagal hapus ${file}: ${err.message}`)
+      }
+    }
+  }
 }
 
 async function clearSessions(folder = './sessions') {
