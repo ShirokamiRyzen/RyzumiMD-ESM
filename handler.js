@@ -7,15 +7,15 @@ import chalk from 'chalk'
 import knights from 'knights-canvas'
 
 /**
- * @type {import('@adiwajshing/baileys')}
+ * @type {import('@whiskeysocket/baileys')}
  */
-const { proto } = (await import('@adiwajshing/baileys')).default
+const { proto } = (await import('@whiskeysocket/baileys')).default
 const isNumber = x => typeof x === 'number' && !isNaN(x)
 const delay = ms => isNumber(ms) && new Promise(resolve => setTimeout(resolve, ms))
 
 /**
  * Handle messages upsert
- * @param {import('@adiwajshing/baileys').BaileysEventMap<unknown>['messages.upsert']} groupsUpdate 
+ * @param {import('@whiskeysocket/baileys').BaileysEventMap<unknown>['messages.upsert']} groupsUpdate 
  */
 
 export async function handler(chatUpdate) {
@@ -30,6 +30,11 @@ export async function handler(chatUpdate) {
         await global.loadDatabase()
     try {
         m = smsg(this, m) || m
+        // Ensure sender is normalized using lidMap, so downstream code uses mapped JID
+        try {
+            const map = global.db?.data?.lidMap || {}
+            if (m && m.sender && map[m.sender]) m.sender = map[m.sender]
+        } catch {}
         if (!m)
             return
         m.exp = 0
@@ -168,8 +173,12 @@ export async function handler(chatUpdate) {
         let _user = global.db.data && global.db.data.users && global.db.data.users[m.sender]
         const groupMetadata = (m.isGroup ? ((conn.chats[m.chat] || {}).metadata || await this.groupMetadata(m.chat).catch(_ => null)) : {}) || {}
         const participants = (m.isGroup ? groupMetadata.participants : []) || []
-        const user = (m.isGroup ? participants.find(u => conn.decodeJid(u.id) === m.sender) : {}) || {} // User Data
-        const bot = (m.isGroup ? participants.find(u => conn.decodeJid(u.id) == this.user.jid) : {}) || {} // Your Data
+        const normId = (id) => {
+            const dec = conn.decodeJid(id)
+            return (global.db?.data?.lidMap?.[dec]) || dec
+        }
+        const user = (m.isGroup ? participants.find(u => normId(u.id) === m.sender) : {}) || {} // User Data
+        const bot = (m.isGroup ? participants.find(u => normId(u.id) == this.user.jid) : {}) || {} // Your Data
         const isRAdmin = user?.admin == 'superadmin' || false
         const isAdmin = isRAdmin || user?.admin == 'admin' || false // Is User Admin?
         const isBotAdmin = bot?.admin || false // Are you Admin?
@@ -437,7 +446,7 @@ export async function handler(chatUpdate) {
 }
 /**
  * Handle groups participants update
- * @param {import('@adiwajshing/baileys').BaileysEventMap<unknown>['group-participants.update']} groupsUpdate 
+ * @param {import('@whiskeysocket/baileys').BaileysEventMap<unknown>['group-participants.update']} groupsUpdate 
  */
 export async function participantsUpdate({ id, participants, action }) {
     if (opts['self'])
@@ -512,7 +521,7 @@ sourceUrl: global.social
 
 /**
  * Handler groups update
- * @param {import('@adiwajshing/baileys').BaileysEventMap<unknown>['groups.update']} groupsUpdate 
+ * @param {import('@whiskeysocket/baileys').BaileysEventMap<unknown>['groups.update']} groupsUpdate 
  */
 export async function groupsUpdate(groupsUpdate) {
     if (opts['self'])

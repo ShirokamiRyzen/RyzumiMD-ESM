@@ -10,10 +10,11 @@ sftp/
 database.json
 config.js
 bot.sh
+test.json
 
 plugins/_monitor-mc.js
 plugins/_autoviewonce.js
 plugins/_RyzumiAPI-IP.js
 plugins/_cf_API.js
 plugins/ai-farel.js
-Nao-MD.zip
+RyzumiMD.zip

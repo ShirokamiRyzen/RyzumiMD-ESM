@@ -25,23 +25,23 @@
         "MD",
         "baileys-md"
     ],
-    "homepage": "https://github.com/ShirokamiRyzen/Nao-MD",
+    "homepage": "https://github.com/ShirokamiRyzenRyzumiMD-ESM",
     "author": {
         "name": "ShirokamiRyzen"
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/ShirokamiRyzen/Nao-MD.git"
+        "url": "git+https://github.com/ShirokamiRyzenRyzumiMD-ESM.git"
     },
     "bugs": {
-        "url": "https://github.com/ShirokamiRyzen/Nao-MD/issues"
+        "url": "https://github.com/ShirokamiRyzenRyzumiMD-ESM/issues"
     },
     "license": "GPL-3.0-or-later",
     "dependencies": {
-        "@adiwajshing/baileys": "npm:baileys",
         "@bochilteam/scraper": "^5.0.1",
         "@ibaraki-douji/pixivts": "^2.4.1",
         "@vitalets/google-translate-api": "^9.2.0",
+        "@whiskeysocket/baileys": "npm:baileys",
         "awesome-phonenumber": "^5.10.0",
         "axios": "^1.4.0",
         "cfonts": "^3.2.0",

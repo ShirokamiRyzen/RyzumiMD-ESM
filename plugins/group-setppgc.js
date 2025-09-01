@@ -1,5 +1,5 @@
 import { webp2png } from '../lib/webp2mp4.js'
-import { S_WHATSAPP_NET } from '@adiwajshing/baileys'
+import { S_WHATSAPP_NET } from '@whiskeysocket/baileys'
 
 let handler = async (m, { conn, args }) => {
   let q = m.quoted || m;

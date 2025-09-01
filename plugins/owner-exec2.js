@@ -3,7 +3,7 @@ import util from 'util'
 
 export const handler = async (m, { conn, text }) => {
   if (!text) {
-    await conn.reply(m.chat, "Contoh penggunaan: !eval 2 + 2", m)
+  await conn.reply(m.chat, "Contoh: .eval return m.key;  |  atau  .eval console.log(m.key)", m)
     return
   }
 
@@ -42,4 +42,5 @@ export const handler = async (m, { conn, text }) => {
 
 handler.command = /^eval|js$/i
 handler.owner = true
+
 export default handler

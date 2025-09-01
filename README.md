@@ -8,12 +8,8 @@
 <a href="https://github.com/ShirokamiRyzen"><img title="Author" src="https://img.shields.io/badge/AUTHOR-ShirokamiRyzen-green.svg?style=for-the-badge&logo=github"></a>
 
 ##
-<p align="center">
-<a><img src="https://img.shields.io/badge/Maintaned%3F-Actively%20Developed-blue?style=flat-square"></a>
-
-##
 [![BOT WHATSAPP](https://img.shields.io/badge/WhatsApp%20BOT-25D366?style=for-the-badge&logo=whatsapp&logoColor=white)](https://api.whatsapp.com/send/?phone=6285864034767&text=.menu)
-[![CHANNEL](https://img.shields.io/badge/Channel-25D366?style=for-the-badge&logo=whatsapp&logoColor=white)](https://whatsapp.com/channel/0029VaGoqK589indDi4Am40J)
+[![CHANNEL](https://img.shields.io/badge/Channel-25D366?style=for-the-badge&logo=whatsapp&logoColor=white)](https://whatsapp.com/channel/0029Vb2qO9Q5vKAGd2t7ap1F)
 [![ONWER](https://img.shields.io/badge/Owner%20BOT-25D366?style=for-the-badge&logo=whatsapp&logoColor=white)](https://wa.me/6285174269046)
  
 
@@ -45,15 +41,15 @@
 
 ## Requirements
 
-* NodeJS (v18 up)
+* NodeJS V20+
 * FFMPEG
 * Imagemagick
 * NodeJS basic knowledges (dont be an idiot)
 
 #### Setup bot on your Machine
 ```bash
-$ git clone https://github.com/ShirokamiRyzen/Nao-MD
-$ cd Nao-MD
+$ git clone https://github.com/ShirokamiRyzen/RyzumiMD-ESM
+$ cd RyzumiMD-ESM
 $ npm i
 ```
 
@@ -85,7 +81,7 @@ npm start
 [![ShirokamiRyzen](https://github.com/ShirokamiRyzen.png?size=100)](https://github.com/ShirokamiRyzen)
 #### Contributor
 [![ShirokamiRyzen](https://github.com/ShirokamiRyzen.png?size=100)](https://github.com/ShirokamiRyzen)
-[![KilerBots](https://github.com/KilerBots.png?size=100)](https://github.com/KilerBots)
+[![AgusXzz](https://github.com/AgusXzz.png?size=100)](https://github.com/AgusXzz)
 [![MythEclipse](https://github.com/MythEclipse.png?size=100)](https://github.com/MythEclipse)
 
 ---------

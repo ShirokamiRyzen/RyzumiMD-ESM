@@ -48,7 +48,7 @@ const {
   jidNormalizedUser,
   makeCacheableSignalKeyStore,
   PHONENUMBER_MCC
-} = await import('@adiwajshing/baileys')
+} = await import('@whiskeysocket/baileys')
 import { Low, JSONFile } from 'lowdb'
 import { makeWASocket, protoType, serialize } from './lib/simple.js'
 import cloudDBAdapter from './lib/cloudDBAdapter.js'
@@ -102,7 +102,9 @@ global.loadDatabase = async function loadDatabase() {
     stats: {},
     msgs: {},
     sticker: {},
-    settings: {},
+  settings: {},
+  // Map of WhatsApp LID (privacy-masked JIDs like 100xxx@lid) to classic JID (xxx@s.whatsapp.net)
+  lidMap: {},
     ...(db.data || {})
   }
   global.db.chain = chain(db.data)
