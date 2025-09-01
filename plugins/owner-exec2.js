@@ -1,45 +1,21 @@
-import { createRequire } from 'module'
-import util from 'util'
-
-export const handler = async (m, { conn, text }) => {
-  if (!text) {
-    await conn.reply(m.chat, "Contoh penggunaan: !eval 2 + 2", m)
-    return
-  }
-
-  const nodeRequire = createRequire(import.meta.url)
-
-  let output = ""
-  const originalConsoleLog = console.log
-  console.log = (...args) => {
-    output += args.map(a =>
-      typeof a === "string" ? a : util.inspect(a, { depth: 5, maxArrayLength: 100 })
-    ).join(" ") + "\n"
-  }
-
+import cp, { exec as _exec } from 'child_process'
+import { promisify } from 'util'
+let exec = promisify(_exec).bind(cp)
+let handler = async (m, { conn, isOwner, command, text }) => {
+  if (global.conn.user.jid != conn.user.jid) return
+  m.reply('Executing...')
+  let o
   try {
-    const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor
-    const fn = new AsyncFunction(
-      "m", "conn", "require", "util",
-      // biar support await & return; user bebas tulis ekspresi atau statement
-      text
-    )
-
-    const result = await fn(m, conn, nodeRequire, util)
-    if (typeof result !== "undefined") {
-      output += `Result: ${
-        typeof result === "string" ? result : util.inspect(result, { depth: 5, maxArrayLength: 100 })
-      }`
-    }
+    o = await exec(command.trimStart()  + ' ' + text.trimEnd())
   } catch (e) {
-    output += `Error: ${e && e.stack ? e.stack : e}`
+    o = e
   } finally {
-    console.log = originalConsoleLog
+    let { stdout, stderr } = o
+    if (stdout.trim()) m.reply(stdout)
+    if (stderr.trim()) m.reply(stderr)
   }
-
-  await m.reply(output.trim(), false, false, { smlcap: false })
 }
-
-handler.command = /^eval|js$/i
+handler.customPrefix = /^[$] /
+handler.command = new RegExp
 handler.owner = true
 export default handler

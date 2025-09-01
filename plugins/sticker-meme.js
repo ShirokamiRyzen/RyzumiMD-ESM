@@ -1,5 +1,4 @@
 import { uploadPomf } from '../lib/uploadImage.js'
-import { sticker } from '../lib/sticker.js'
 
 let handler = async (m, { conn, text, usedPrefix, command }) => {
     let [atas, bawah] = text.split`|`
@@ -10,9 +9,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     let img = await q.download()
     let url = await uploadPomf(img)
     let meme = `https://api.memegen.link/images/custom/${encodeURIComponent(atas ? atas : '')}/${encodeURIComponent(bawah ? bawah : '')}.png?background=${url}`;
-    const memeBuffer = await (await fetch(meme)).buffer();
-    let stiker = await sticker(memeBuffer, undefined, global.stickpack, global.wm);
-    if (stiker) await conn.sendFile(m.chat, stiker, '', m, '', { asSticker: 1 });
+    conn.sendSticker(m.chat, meme, m)
 }
 
 handler.help = ['smeme <teks atas>|<teks bawah>']

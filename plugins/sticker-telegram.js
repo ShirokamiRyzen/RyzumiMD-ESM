@@ -1,5 +1,4 @@
 import fetch from "node-fetch"
-import { sticker } from '../lib/sticker.js'
 
 let handler = async (m, { conn, args, usedPrefix, command }) => {
     if (!args[0]) throw `Contoh:\n${usedPrefix + command} https://t.me/addstickers/sshaaaaa`
@@ -19,10 +18,8 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
         if (!s.is_animated && s.image_url) {
             try {
                 let imgRes = await fetch(s.image_url)
-                let buffer = await imgRes.buffer()
-                let stiker = await sticker(buffer, false, global.stickpack, global.stickauth)
-                if (stiker) await conn.sendFile(m.chat, stiker, 'sticker.webp', '', m, { quoted: m })
-                await delay(1000)
+                conn.sendSticker(m.chat, imgRes, m)
+                await delay(5000)
             } catch (e) {
                 console.error(`Gagal proses stiker: ${e}`)
             }
@@ -35,7 +32,6 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 handler.help = ['stickertele']
 handler.tags = ['sticker']
 handler.command = /^(stic?kertele(gram)?)$/i
-
 handler.limit = 15
 handler.register = true
 

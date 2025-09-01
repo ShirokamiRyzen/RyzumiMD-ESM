@@ -8,8 +8,8 @@
   Regards from YanXiao ♡
 */
 
-process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
-// process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1';
+// process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1';
 
 import './config.js'
 
@@ -32,11 +32,9 @@ import { hideBin } from 'yargs/helpers';
 const argv = yargs(hideBin(process.argv)).argv;
 
 import { spawn } from 'child_process'
-import lodash from 'lodash'
 import syntaxerror from 'syntax-error'
 import chalk from 'chalk'
 import { tmpdir } from 'os'
-import readline from 'readline'
 import { format } from 'util'
 import pino from 'pino'
 import ws from 'ws'
@@ -47,18 +45,12 @@ const {
   makeInMemoryStore,
   jidNormalizedUser,
   makeCacheableSignalKeyStore,
-  PHONENUMBER_MCC
+  Browsers
 } = await import('@adiwajshing/baileys')
 import { Low, JSONFile } from 'lowdb'
 import { makeWASocket, protoType, serialize } from './lib/simple.js'
-import cloudDBAdapter from './lib/cloudDBAdapter.js'
-import {
-  mongoDB,
-  mongoDBV2
-} from './lib/mongoDB.js'
 
 const { CONNECTING } = ws
-const { chain } = lodash
 const PORT = process.env.PORT || process.env.SERVER_PORT || 3000
 
 protoType()
@@ -77,14 +69,8 @@ const __dirname = global.__dirname(import.meta.url)
 
 global.opts = new Object(yargs(process.argv.slice(2)).exitProcess(false).parse())
 global.prefix = new RegExp('^[' + (opts['prefix'] || '‎xzXZ/i!#$%+£¢€¥^°=¶∆×÷π√✓©®:;?&.\\-').replace(/[|\\{}()[\]^$+*?.\-\^]/g, '\\$&') + ']')
+global.db = new Low(new JSONFile(`database.json`));
 
-global.db = new Low(
-  /https?:\/\//.test(opts['db'] || '') ?
-    new cloudDBAdapter(opts['db']) : /mongodb(\+srv)?:\/\//i.test(opts['db']) ?
-      (opts['mongodbv2'] ? new mongoDBV2(opts['db']) : new mongoDB(opts['db'])) :
-      new JSONFile(`${opts._[0] ? opts._[0] + '_' : ''}database.json`)
-)
-global.DATABASE = global.db // Backwards Compatibility
 global.loadDatabase = async function loadDatabase() {
   if (db.READ) return new Promise((resolve) => setInterval(async function () {
     if (!db.READ) {
@@ -105,28 +91,13 @@ global.loadDatabase = async function loadDatabase() {
     settings: {},
     ...(db.data || {})
   }
-  global.db.chain = chain(db.data)
 }
 loadDatabase()
-const usePairingCode = !process.argv.includes('--use-pairing-code')
-const useMobile = process.argv.includes('--mobile')
 
-var question = function (text) {
-  return new Promise(function (resolve) {
-    rl.question(text, resolve);
-  });
-};
-const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
-
-const { version, isLatest } = await fetchLatestBaileysVersion()
 const { state, saveCreds } = await useMultiFileAuthState('./sessions')
 const connectionOptions = {
-  version,
   logger: pino({ level: 'fatal' }),
-  printQRInTerminal: !usePairingCode,
-  // Optional If Linked Device Could'nt Connected
-  // browser: ['Mac OS', 'chrome', '125.0.6422.53']
-  browser: ['Mac OS', 'safari', '5.1.10'],
+  browser: browser: ['Mac OS', 'safari', '5.1.10'],
   auth: {
     creds: state.creds,
     keys: makeCacheableSignalKeyStore(state.keys, pino().child({
@@ -169,8 +140,8 @@ global.conn = makeWASocket(connectionOptions)
 conn.isInit = false
 
 if (!conn.authState.creds.registered) {
-  console.log(chalk.bgWhite(chalk.blue('Generating code...')))
   setTimeout(async () => {
+    console.log(chalk.bgWhite(chalk.blue('Generating code...')))
     let code = await conn.requestPairingCode(global.pairing)
     code = code?.match(/.{1,4}/g)?.join('-') || code
     console.log(chalk.black(chalk.bgGreen(`Your Pairing Code : `)), chalk.black(chalk.white(code)))
@@ -204,31 +175,6 @@ function clearTmp() {
         console.error(`Gagal hapus ${file}: ${err.message}`)
       }
     }
-  }
-}
-
-async function clearSessions(folder = './sessions') {
-  try {
-    const filenames = await readdirSync(folder);
-    const deletedFiles = await Promise.all(filenames.map(async (file) => {
-      try {
-        const filePath = path.join(folder, file);
-        const stats = await statSync(filePath);
-        if (stats.isFile() && file !== 'creds.json') {
-          await unlinkSync(filePath);
-          console.log('Deleted session:'.main, filePath.info);
-          return filePath;
-        }
-      } catch (err) {
-        console.error(`Error processing ${file}: ${err.message}`);
-      }
-    }));
-    return deletedFiles.filter((file) => file !== null);
-  } catch (err) {
-    console.error(`Error in Clear Sessions: ${err.message}`);
-    return [];
-  } finally {
-    setTimeout(() => clearSessions(folder), 1 * 3600000); // 1 Hours
   }
 }
 
