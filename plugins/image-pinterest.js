@@ -1,5 +1,5 @@
 import fetch from 'node-fetch'
-import pkg from '@adiwajshing/baileys'
+import pkg from '@whiskeysocket/baileys'
 const { generateWAMessageContent, generateWAMessageFromContent, proto } = pkg
 
 const handler = async (m, { usedPrefix, command, conn, args }) => {
