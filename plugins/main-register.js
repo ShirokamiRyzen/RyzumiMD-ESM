@@ -71,6 +71,6 @@ handler.help = ['daftar', 'register'].map(v => v + ' <nama>.<umur>')
 handler.command = /^(daftar|reg(ister)?)$/i
 
 handler.owner = false
-handler.group = false
+handler.private = true
 
 export default handler
