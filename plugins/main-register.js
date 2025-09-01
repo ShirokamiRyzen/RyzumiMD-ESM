@@ -54,16 +54,9 @@ ${sn}
 Dengan menggunakan Ryzumi-MD ESM, Anda setuju dengan ketentuan berikut:
 
 1. *DILARANG KERAS MERUBAH TIMER/PESAN SEMENTARA*
-Bot akan secara otomatis melakukan banning terhadap nomormu, untuk unban silahkan lapor owner (+${global.nomorown}).
-
 2. *DILARANG MENGIRIM MEDIA NSFW*
-Bot akan otomatis mendeteksi media dan melakukan banning terhadap nomormu, untuk unban silahkan lapor owner (+${global.nomorown}).
-
 3. *DILARANG SPAM NOMOR BOT*
-Bot akan melakukan ban permanent jika ada indikasi spam pada nomormu.
-
 4. *CHAT OWNER BILA PERLU*
-Tidak ada gunanya chat ke nomor bot, karena nomor bot tersimpan di server dan owner tidak akan melihat chatmu.
 
 Dengan menggunakan Ryzumi-MD ESM, Anda setuju dengan semua ketentuan yang berlaku.
 
@@ -77,6 +70,7 @@ handler.help = ['daftar', 'register'].map(v => v + ' <nama>.<umur>')
 
 handler.command = /^(daftar|reg(ister)?)$/i
 
-handler.owner = true
+handler.owner = false
 handler.group = false
+
 export default handler
