@@ -1,44 +1,54 @@
-import { File } from "megajs"
+import axios from 'axios'
 
 let handler = async (m, { conn, args, usedPrefix, text, command }) => {
-    try {
-        if (!text) return m.reply(`Contoh:\n${usedPrefix + command} https://mega.nz/file/0FUA2bzb#vSu3Ud9Ft_HDz6zPvfIg_y62vE1qF8EmoYT3kY16zxo`);
-        
-        const file = File.fromURL(text);
-        await file.loadAttributes();
-        
-        if (file.size >= 300000000) return m.reply('Error: ukuran file terlalu besar (Ukuran Max: 300MB)');
-        
-        m.reply(`*_Mohon tunggu beberapa menit..._*\n${file.name} sedang diunduh...`);
-        
-        const data = await file.downloadBuffer();
-        
-        // Menambahkan ekstensi yang didukung (zip, rar, 7z, jpg, png) ke dalam daftar
-        if (/mp4/.test(file.name)) {
-            await conn.sendMessage(m.chat, { document: data, mimetype: "video/mp4", filename: `${file.name}.mp4` }, { quoted: m });
-        } else if (/pdf/.test(file.name)) {
-            await conn.sendMessage(m.chat, { document: data, mimetype: "application/pdf", filename: `${file.name}.pdf` }, { quoted: m });
-        } else if (/zip/.test(file.name)) {
-            await conn.sendMessage(m.chat, { document: data, mimetype: "application/zip", filename: `${file.name}.zip` }, { quoted: m });
-        } else if (/rar/.test(file.name)) {
-            await conn.sendMessage(m.chat, { document: data, mimetype: "application/x-rar-compressed", filename: `${file.name}.rar` }, { quoted: m });
-        } else if (/7z/.test(file.name)) {
-            await conn.sendMessage(m.chat, { document: data, mimetype: "application/x-7z-compressed", filename: `${file.name}.7z` }, { quoted: m });
-        } else if (/jpg|jpeg/.test(file.name)) {
-            await conn.sendMessage(m.chat, { document: data, mimetype: "image/jpeg", filename: `${file.name}.jpg` }, { quoted: m });
-        } else if (/png/.test(file.name)) {
-            await conn.sendMessage(m.chat, { document: data, mimetype: "image/png", filename: `${file.name}.png` }, { quoted: m });
-        } else {
-            return m.reply('Error: Format file tidak didukung');
-        }
-    } catch (error) {
-        return m.reply(`Error: ${error.message}`);
+  try {
+    if (!text) return m.reply(`Contoh:\n${usedPrefix + command} https://mega.nz/file/NnEA1DIT#GXPSel8LJk2mnp7E_i69OXkSGq-x_bLceIi63p3BNZk`)
+
+    const apiUrl = `${APIs.ryzumi}/api/downloader/mega?url=${encodeURIComponent(text)}`
+    const { data } = await axios.get(apiUrl, { headers: { accept: 'application/json' } })
+
+    const item = data?.result?.find(x => x.type === 'file') || data?.result?.[0]
+    if (!item) return m.reply('Error: File tidak ditemukan')
+    if (!item.link) return m.reply('Error: Link unduhan tidak tersedia')
+
+    // Cek limit ukuran (500 MB)
+    if (item.size >= 500_000_000) return m.reply('Error: ukuran file terlalu besar (Ukuran Max: 500MB)')
+
+    m.reply(`*_Mohon tunggu sebentar..._*\n${item.name} sedang diproses...`)
+
+    // Deteksi mimetype dari ekstensi
+    const ext = (item.name.split('.').pop() || '').toLowerCase()
+    const mimeMap = {
+      mp4: 'video/mp4',
+      pdf: 'application/pdf',
+      zip: 'application/zip',
+      rar: 'application/x-rar-compressed',
+      '7z': 'application/x-7z-compressed',
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      png: 'image/png',
+      apk: 'application/vnd.android.package-archive',
+      mp3: 'audio/mpeg',
+      wav: 'audio/wav'
     }
+    const mimetype = mimeMap[ext] || 'application/octet-stream'
+
+    // Kirim langsung dari URL (hemat memori)
+    await conn.sendMessage(
+      m.chat,
+      { document: { url: item.link }, mimetype, filename: item.name },
+      { quoted: m }
+    )
+  } catch (error) {
+    console.log(error)
+    return m.reply(`Error: ${error?.message || error}`)
+  }
 }
 
-handler.help = ["mega"]
-handler.tags = ["downloader"]
+handler.help = ['mega']
+handler.tags = ['downloader']
 handler.command = /^(mega)$/i
+
 handler.limit = true
 handler.register = true
 
