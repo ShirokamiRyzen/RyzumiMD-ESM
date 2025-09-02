@@ -82,8 +82,6 @@ global.loadDatabase = async function loadDatabase() {
     msgs: {},
     sticker: {},
     settings: {},
-    // Map of WhatsApp LID (privacy-masked JIDs like 100xxx@lid) to classic JID (xxx@s.whatsapp.net)
-    lidMap: {},
       ...(db.data || {})
   }
 }

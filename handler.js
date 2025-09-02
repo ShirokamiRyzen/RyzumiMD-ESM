@@ -30,11 +30,6 @@ export async function handler(chatUpdate) {
         await global.loadDatabase()
     try {
         m = smsg(this, m) || m
-        // Ensure sender is normalized using lidMap, so downstream code uses mapped JID
-        try {
-            const map = global.db?.data?.lidMap || {}
-            if (m && m.sender && map[m.sender]) m.sender = map[m.sender]
-        } catch {}
         if (!m)
             return
         m.exp = 0
@@ -173,12 +168,8 @@ export async function handler(chatUpdate) {
         let _user = global.db.data && global.db.data.users && global.db.data.users[m.sender]
         const groupMetadata = (m.isGroup ? ((conn.chats[m.chat] || {}).metadata || await this.groupMetadata(m.chat).catch(_ => null)) : {}) || {}
         const participants = (m.isGroup ? groupMetadata.participants : []) || []
-        const normId = (id) => {
-            const dec = conn.decodeJid(id)
-            return (global.db?.data?.lidMap?.[dec]) || dec
-        }
-        const user = (m.isGroup ? participants.find(u => normId(u.id) === m.sender) : {}) || {} // User Data
-        const bot = (m.isGroup ? participants.find(u => normId(u.id) == this.user.jid) : {}) || {} // Your Data
+        const user = (m.isGroup ? participants.find(u => conn.decodeJid(u.id) === m.sender) : {}) || {} // User Data
+        const bot = (m.isGroup ? participants.find(u => conn.decodeJid(u.id) == this.user.jid) : {}) || {} // Your Data
         const isRAdmin = user?.admin == 'superadmin' || false
         const isAdmin = isRAdmin || user?.admin == 'admin' || false // Is User Admin?
         const isBotAdmin = bot?.admin || false // Are you Admin?
