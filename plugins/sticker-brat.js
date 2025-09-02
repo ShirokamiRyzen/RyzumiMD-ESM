@@ -1,36 +1,24 @@
 import fetch from 'node-fetch'
-import { Sticker } from 'wa-sticker-formatter'
 
-let handler = async (m, { conn, text }) => {
+let handler = async (m, { conn, command, text }) => {
   if (!text || !text.trim()) throw 'Masukkan teks yang valid!'
 
   try {
-    let url = `${APIs.ryzumi}/api/image/brat?text=${encodeURIComponent(text.trim())}`
-
-    // Fetch gambar
-    let res = await fetch(url)
-    if (!res.ok) throw `Gagal mengambil gambar dari API! Status: ${res.status}`
-
-    // Ambil buffer gambar
-    let imageBuffer = await res.buffer()
-
-    let sticker = new Sticker(imageBuffer, {
-      pack: global.stickpack,
-      author: global.stickauth
-    })
-
-    await conn.sendFile(m.chat, await sticker.toBuffer(), 'sticker.webp', '', m, { asSticker: true })
-
+    let end = '/api/image/brat?text='
+    if (/vid|video/i.test(command)) {
+      end = '/api/image/brat/animated?text='
+    }
+    let url = APIs.ryzumi + end + encodeURIComponent(text.trim())
+    conn.sendSticker(m.chat, url, m)
   } catch (err) {
-    console.error('Error:', err.message || err)
-    await conn.sendMessage(m.chat, { text: `Error: ${err.message || 'Gagal mengambil gambar.'}` }, { quoted: m })
+    console.error('Error:', err)
+    await m.reply(`Error: ${err.message || 'Gagal mengambil gambar.'}`)
   }
 }
 
-handler.help = ['brat']
+handler.help = ['brat', 'bratvid']
 handler.tags = ['sticker']
-handler.command = /^(brat)$/i
-
+handler.command = /^(brat|brat(vid|video))$/i
 handler.register = true
 
 export default handler
