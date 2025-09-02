@@ -44,6 +44,7 @@ let handler = async (m, { conn, text }) => {
 handler.help = ['deleteuser']
 handler.tags = ['owner']
 handler.command = /^(d(el)?(ete)?u(ser)?|ha?pu?su(ser)?)$/i
+
 handler.owner = true
 
 export default handler
