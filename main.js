@@ -32,11 +32,9 @@ import { hideBin } from 'yargs/helpers';
 const argv = yargs(hideBin(process.argv)).argv;
 
 import { spawn } from 'child_process'
-import lodash from 'lodash'
 import syntaxerror from 'syntax-error'
 import chalk from 'chalk'
 import { tmpdir } from 'os'
-import readline from 'readline'
 import { format } from 'util'
 import pino from 'pino'
 import ws from 'ws'
@@ -46,19 +44,12 @@ const {
   fetchLatestBaileysVersion,
   makeInMemoryStore,
   jidNormalizedUser,
-  makeCacheableSignalKeyStore,
-  PHONENUMBER_MCC
+  makeCacheableSignalKeyStore
 } = await import('@whiskeysocket/baileys')
 import { Low, JSONFile } from 'lowdb'
 import { makeWASocket, protoType, serialize } from './lib/simple.js'
-import cloudDBAdapter from './lib/cloudDBAdapter.js'
-import {
-  mongoDB,
-  mongoDBV2
-} from './lib/mongoDB.js'
 
 const { CONNECTING } = ws
-const { chain } = lodash
 const PORT = process.env.PORT || process.env.SERVER_PORT || 3000
 
 protoType()
@@ -67,24 +58,12 @@ serialize()
 global.API = (name, path = '/', query = {}, apikeyqueryname) => (name in global.APIs ? global.APIs[name] : name) + path + (query || apikeyqueryname ? '?' + new URLSearchParams(Object.entries({ ...query, ...(apikeyqueryname ? { [apikeyqueryname]: global.APIKeys[name in global.APIs ? global.APIs[name] : name] } : {}) })) : '')
 // global.Fn = function functionCallBack(fn, ...args) { return fn.call(global.conn, ...args) }
 
-global.adReply = {};
-
-global.timestamp = {
-  start: new Date
-}
-
 const __dirname = global.__dirname(import.meta.url)
 
 global.opts = new Object(yargs(process.argv.slice(2)).exitProcess(false).parse())
 global.prefix = new RegExp('^[' + (opts['prefix'] || '‎xzXZ/i!#$%+£¢€¥^°=¶∆×÷π√✓©®:;?&.\\-').replace(/[|\\{}()[\]^$+*?.\-\^]/g, '\\$&') + ']')
+global.db = new Low(new JSONFile(`database.json`));
 
-global.db = new Low(
-  /https?:\/\//.test(opts['db'] || '') ?
-    new cloudDBAdapter(opts['db']) : /mongodb(\+srv)?:\/\//i.test(opts['db']) ?
-      (opts['mongodbv2'] ? new mongoDBV2(opts['db']) : new mongoDB(opts['db'])) :
-      new JSONFile(`${opts._[0] ? opts._[0] + '_' : ''}database.json`)
-)
-global.DATABASE = global.db // Backwards Compatibility
 global.loadDatabase = async function loadDatabase() {
   if (db.READ) return new Promise((resolve) => setInterval(async function () {
     if (!db.READ) {
@@ -102,32 +81,17 @@ global.loadDatabase = async function loadDatabase() {
     stats: {},
     msgs: {},
     sticker: {},
-  settings: {},
-  // Map of WhatsApp LID (privacy-masked JIDs like 100xxx@lid) to classic JID (xxx@s.whatsapp.net)
-  lidMap: {},
-    ...(db.data || {})
+    settings: {},
+    // Map of WhatsApp LID (privacy-masked JIDs like 100xxx@lid) to classic JID (xxx@s.whatsapp.net)
+    lidMap: {},
+      ...(db.data || {})
   }
-  global.db.chain = chain(db.data)
 }
 loadDatabase()
-const usePairingCode = !process.argv.includes('--use-pairing-code')
-const useMobile = process.argv.includes('--mobile')
 
-var question = function (text) {
-  return new Promise(function (resolve) {
-    rl.question(text, resolve);
-  });
-};
-const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
-
-const { version, isLatest } = await fetchLatestBaileysVersion()
 const { state, saveCreds } = await useMultiFileAuthState('./sessions')
 const connectionOptions = {
-  version,
   logger: pino({ level: 'fatal' }),
-  printQRInTerminal: !usePairingCode,
-  // Optional If Linked Device Could'nt Connected
-  // browser: ['Mac OS', 'chrome', '125.0.6422.53']
   browser: ['Mac OS', 'safari', '5.1.10'],
   auth: {
     creds: state.creds,
@@ -209,31 +173,6 @@ function clearTmp() {
   }
 }
 
-async function clearSessions(folder = './sessions') {
-  try {
-    const filenames = await readdirSync(folder);
-    const deletedFiles = await Promise.all(filenames.map(async (file) => {
-      try {
-        const filePath = path.join(folder, file);
-        const stats = await statSync(filePath);
-        if (stats.isFile() && file !== 'creds.json') {
-          await unlinkSync(filePath);
-          console.log('Deleted session:'.main, filePath.info);
-          return filePath;
-        }
-      } catch (err) {
-        console.error(`Error processing ${file}: ${err.message}`);
-      }
-    }));
-    return deletedFiles.filter((file) => file !== null);
-  } catch (err) {
-    console.error(`Error in Clear Sessions: ${err.message}`);
-    return [];
-  } finally {
-    setTimeout(() => clearSessions(folder), 1 * 3600000); // 1 Hours
-  }
-}
-
 async function connectionUpdate(update) {
   const { receivedPendingNotifications, connection, lastDisconnect, isOnline, isNewLogin } = update;
 
@@ -260,8 +199,6 @@ async function connectionUpdate(update) {
   if (connection == 'close') {
     console.log(chalk.red('⏱️ Koneksi terputus & mencoba menyambung ulang...'));
   }
-
-  global.timestamp.connect = new Date;
 
   if (lastDisconnect && lastDisconnect.error && lastDisconnect.error.output && lastDisconnect.error.output.statusCode !== DisconnectReason.loggedOut && conn.ws.readyState !== CONNECTING) {
     console.log(await global.reloadHandler(true));
@@ -354,12 +291,12 @@ async function filesInit() {
       const module = await import(file)
       global.plugins[filename] = module.default || module
     } catch (e) {
-      conn.logger.error(e)
+      conn.logger.error(`❌ Failed to load plugins ${filename}: ${e}`)
       delete global.plugins[filename]
     }
   }
 }
-filesInit().then(_ => console.log(Object.keys(global.plugins))).catch(console.error)
+filesInit().then(_ => console.log(`Successfully Loaded ${Object.keys(global.plugins).length} Plugins`)).catch(console.error)
 
 global.reload = async (_ev, filename) => {
   if (pluginFilter(filename)) {
@@ -415,7 +352,7 @@ async function _quickTest() {
   }));
 
   let [ffmpeg, ffprobe, ffmpegWebp, convert, magick, gm, find] = test;
-  console.log(test);
+  //console.log(test);
 
   let s = global.support = {
     ffmpeg,
