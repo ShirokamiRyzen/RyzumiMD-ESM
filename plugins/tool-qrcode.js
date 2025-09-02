@@ -3,7 +3,7 @@ let handler = async (m, { conn, text }) => {
     conn.sendFile(m.chat, `https://quickchart.io/qr?size=300&margin=2&text=${encodeURIComponent(text)}`, 'qrcode.png', '¯\\_(ツ)_/¯', m)
 }
 
-handler.help = ['qrcode <teks>')
+handler.help = ['qrcode <teks>']
 handler.tags = ['tools']
 handler.command = /^qr(code)?$/i
 

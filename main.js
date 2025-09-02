@@ -291,7 +291,7 @@ async function filesInit() {
       const module = await import(file)
       global.plugins[filename] = module.default || module
     } catch (e) {
-      conn.logger.error(e)
+      conn.logger.error(`❌ Failed to load plugins ${filename}: ${e}`)
       delete global.plugins[filename]
     }
   }
