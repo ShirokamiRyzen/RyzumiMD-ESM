@@ -50,7 +50,7 @@ import { Low, JSONFile } from 'lowdb'
 import { makeWASocket, protoType, serialize } from './lib/simple.js'
 
 const { CONNECTING } = ws
-const PORT = process.env.PORT || process.env.SERVER_PORT || 3000
+const PORT = process.env.PORT || process.env.SERVER_PORT || 3010
 
 protoType()
 serialize()
