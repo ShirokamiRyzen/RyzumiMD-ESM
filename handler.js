@@ -1,15 +1,13 @@
-import { smsg } from './lib/simple.js'
 import { format } from 'util'
 import { fileURLToPath } from 'url'
-import path, { join } from 'path'
+import path from 'path'
 import { unwatchFile, watchFile, readFileSync } from 'fs'
 import chalk from 'chalk'
-import knights from 'knights-canvas'
+import fetch from 'node-fetch'
 
-/**
- * @type {import('@whiskeysocket/baileys')}
- */
-const { proto } = (await import('@whiskeysocket/baileys')).default
+import { smsg } from './lib/simple.js'
+import { uploadPomf } from './lib/uploadImage.js'
+
 const isNumber = x => typeof x === 'number' && !isNaN(x)
 const delay = ms => isNumber(ms) && new Promise(resolve => setTimeout(resolve, ms))
 
@@ -19,7 +17,6 @@ const delay = ms => isNumber(ms) && new Promise(resolve => setTimeout(resolve, m
  */
 
 export async function handler(chatUpdate) {
-    this.msgqueque = this.msgqueque || []
     if (!chatUpdate) return
     this.pushMessage(chatUpdate.messages).catch(console.error)
     let m = chatUpdate.messages[chatUpdate.messages.length - 1]
@@ -144,7 +141,7 @@ export async function handler(chatUpdate) {
                 continue
             if (plugin.disabled)
                 continue
-            const __filename = join(___dirname, name)
+            const __filename = path.join(___dirname, name)
             if (typeof plugin.all === 'function') {
                 try {
                     await plugin.all.call(this, m, {
@@ -404,42 +401,36 @@ export async function participantsUpdate({ id, participants, action }) {
         case 'add':
         case 'remove':
             if (chat.welcome) {
-                let groupMetadata = await this.groupMetadata(id) || (conn.chats[id] || {}).metadata
+                let groupMetadata = (conn.chats[id] || {}).metadata || await this.groupMetadata(id)
                 for (let user of participants) {
-                    let nickgc = await conn.getName(id)
-                    let pp = 'https://telegra.ph/file/24fa902ead26340f3df2c.png'
-                    let ppgc = 'https://telegra.ph/file/24fa902ead26340f3df2c.png'
+                    let nickgc = await this.getName(id)
+                    let pp, ppgc;
                     try {
-                        pp = await this.profilePictureUrl(user, 'image')
-                        ppgc = await this.profilePictureUrl(id, 'image')
-                    } catch (e) { } finally {
-                        text = (action === 'add' ? (chat.sWelcome || this.welcome || conn.welcome || 'Welcome, @user!').replace('@subject', await this.getName(id)).replace('@desc', groupMetadata.desc?.toString() || 'unknow') :
-                            (chat.sBye || this.bye || conn.bye || 'Bye, @user!')).replace('@user', `@` + user.split('@')[0])
-                        let wel = await new knights.Welcome2()
-                            .setAvatar(pp)
-                            .setUsername(this.getName(user))
-                            .setBg("https://telegra.ph/file/666ccbfc3201704454ba5.jpg")
-                            .setGroupname(groupMetadata.subject)
-                            .setMember(groupMetadata.participants.length)
-                            .toAttachment()
+                        let pps = await this.profilePictureUrl(user, 'image').catch(_ => 'https://telegra.ph/file/24fa902ead26340f3df2c.png')
+                        let ppB = await (await fetch(pps)).buffer()
+                        pp = await uploadPomf(ppB)
 
-                        let lea = await new knights.Goodbye()
-                            .setUsername(this.getName(user))
-                            .setGuildName(groupMetadata.subject)
-                            .setGuildIcon(ppgc)
-                            .setMemberCount(groupMetadata.participants.length)
-                            .setAvatar(pp)
-                            .setBackground("https://telegra.ph/file/0db212539fe8a014017e3.jpg")
-                            .toAttachment()
+                        if (action === 'remove') {
+                        let ppgcs = await this.profilePictureUrl(id, 'image').catch(_ => 'https://telegra.ph/file/24fa902ead26340f3df2c.png')
+                        let ppgcB = await (await fetch(ppgcs)).buffer()
+                        ppgc = await uploadPomf(ppgcB)
+                        }
+                        } finally {
+                        text = (action === 'add' ? (chat.sWelcome || this.welcome || 'Welcome, @user!').replace('@subject', nickgc).replace('@desc', groupMetadata.desc?.toString() || 'unknow') :
+                            (chat.sBye || this.bye || 'Bye, @user!')).replace('@user', `@` + user.split('@')[0])
+                        let username = await this.getName(user)
+                        let gcname = groupMetadata.subject
+                        let gcMem = groupMetadata.participants.length
+                        let wel = `https://api.ryzumi.vip/api/image/welcome?username=${username}&group=${gcname}&avatar=${pp}&bg=https://telegra.ph/file/666ccbfc3201704454ba5.jpg&member=${gcMem}`
+                        let lea = `https://api.ryzumi.vip/api/image/leave?username=${username}&group=${gcname}&avatar=${pp}&icon=${ppgc}&bg=https://telegra.ph/file/0db212539fe8a014017e3.jpg&member=${gcMem}`
 
                         this.sendMessage(id, {
                             text: text,
                             contextInfo: {
                                 mentionedJid: [user],
                                 externalAdReply: {
-                                    showAdAttribution: true,
                                     mediaType: 1,
-                                    thumbnail: action === 'add' ? wel.toBuffer() : lea.toBuffer(),
+                                    thumbnailUrl: action === 'add' ? wel : lea,
                                     title: action === 'add' ? 'Welcome To ' + nickgc : 'Leaving From ' + nickgc,
                                     renderLargerThumbnail: true,
                                     sourceUrl: global.social

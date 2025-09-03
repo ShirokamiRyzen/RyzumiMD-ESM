@@ -26,7 +26,7 @@ Daftar berhasil!
 Serial Number: 
 ${sn}
 
-**Ketentuan Layanan (TOS) - Nao-MD ESM**
+**Ketentuan Layanan (TOS) - RyzumiMD ESM**
 Dengan menggunakan Nao-MD ESM, Anda setuju dengan ketentuan berikut:
 
 1. *DILARANG KERAS MERUBAH TIMER/PESAN SEMENTARA*
