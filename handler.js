@@ -1,18 +1,13 @@
-import { smsg } from './lib/simple.js'
 import { format } from 'util'
 import { fileURLToPath } from 'url'
-import path, { join } from 'path'
+import path from 'path'
 import { unwatchFile, watchFile, readFileSync } from 'fs'
 import chalk from 'chalk'
-import knights from 'knights-canvas'
-
 import fetch from 'node-fetch'
+
+import { smsg } from './lib/simple.js'
 import { uploadPomf } from './lib/uploadImage.js'
 
-/**
- * @type {import('@whiskeysocket/baileys')}
- */
-const { proto } = (await import('@whiskeysocket/baileys')).default
 const isNumber = x => typeof x === 'number' && !isNaN(x)
 const delay = ms => isNumber(ms) && new Promise(resolve => setTimeout(resolve, ms))
 
@@ -146,7 +141,7 @@ export async function handler(chatUpdate) {
                 continue
             if (plugin.disabled)
                 continue
-            const __filename = join(___dirname, name)
+            const __filename = path.join(___dirname, name)
             if (typeof plugin.all === 'function') {
                 try {
                     await plugin.all.call(this, m, {
