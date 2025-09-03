@@ -30,10 +30,7 @@ export async function handler(chatUpdate) {
         m.limit = false
         try {
             // TODO: use loop to insert data instead of this
-            const senderJid = typeof m.sender === 'string' ? m.sender : (m.sender?.id || m.key?.participant || '')
-            if (typeof senderJid === 'string' && (senderJid.endsWith('@broadcast') || senderJid.endsWith('@newsletter'))) return
-            // ensure m.sender is normalized to JID string for downstream usage
-            if (typeof m.sender !== 'string' && senderJid) m.sender = senderJid
+            if (m.sender.endsWith('@broadcast') || m.sender.endsWith('@newsletter')) return
             let user = global.db.data.users[m.sender]
             if (typeof user !== 'object')
                 global.db.data.users[m.sender] = {}
@@ -111,10 +108,10 @@ export async function handler(chatUpdate) {
         } catch (e) {
             console.error(e)
         }
-    if (opts['pconly'] && typeof m.chat === 'string' && m.chat.endsWith('g.us')) return
-    if (opts['gconly'] && typeof m.chat === 'string' && !m.chat.endsWith('g.us')) return
+        if (opts['pconly'] && m.chat.endsWith('g.us')) return
+        if (opts['gconly'] && !m.chat.endsWith('g.us')) return
         if (typeof m.text !== 'string') m.text = ''
-    const isROwner = [conn.decodeJid(global.conn.user.id), ...global.owner.map(([number]) => number)].map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(typeof m.sender === 'string' ? m.sender : '')
+        const isROwner = [conn.decodeJid(global.conn.user.id), ...global.owner.map(([number]) => number)].map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender)
         const isOwner = isROwner || m.fromMe
         const isMods = isOwner || global.mods.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender)
         const isPrems = isROwner || global.db.data.users[m.sender].premiumTime > 0
@@ -128,12 +125,11 @@ export async function handler(chatUpdate) {
         m.exp += Math.ceil(Math.random() * 10)
 
         let usedPrefix
-    let _user = global.db.data && global.db.data.users && global.db.data.users[typeof m.sender === 'string' ? m.sender : '']
-    const groupMetadata = (m.isGroup ? ((conn.chats[m.chat] || {}).metadata || await this.groupMetadata(m.chat).catch(_ => null)) : {}) || {}
-    const participants = (m.isGroup ? groupMetadata.participants : []) || []
-    // Avoid async getJid here; compare raw ids with fallbacks
-    const user = (m.isGroup ? participants.find(u => (u.id === m.sender) || (u.jid === m.sender)) : {}) || {} // User Data
-    const bot = (m.isGroup ? participants.find(u => (u.id === this.user.jid) || (u.jid === this.user.jid)) : {}) || {} // Your Data
+        let _user = global.db.data && global.db.data.users && global.db.data.users[m.sender]
+        const groupMetadata = (m.isGroup ? ((conn.chats[m.chat] || {}).metadata || await this.groupMetadata(m.chat).catch(_ => null)) : {}) || {}
+        const participants = (m.isGroup ? groupMetadata.participants : []) || []
+        const user = (m.isGroup ? participants.find(u => conn.getJid(u.id, m.chat) === m.sender) : {}) || {} // User Data
+        const bot = (m.isGroup ? participants.find(u => conn.getJid(u.id, m.chat) == this.user.jid) : {}) || {} // Your Data
         const isRAdmin = user?.admin == 'superadmin' || false
         const isAdmin = isRAdmin || user?.admin == 'admin' || false // Is User Admin?
         const isBotAdmin = bot?.admin || false // Are you Admin?
@@ -393,10 +389,10 @@ export async function handler(chatUpdate) {
  * Handle groups participants update
  * @param {import('@whiskeysocket/baileys').BaileysEventMap<unknown>['group-participants.update']} groupsUpdate 
  */
-export async function participantsUpdate({ id, participants, action, simulate = false }) {
+export async function participantsUpdate({ id, participants, action }) {
     if (opts['self']) return
     // if (id in conn.chats) return // First login will spam
-    if (this.isInit && !simulate) return
+    if (this.isInit) return
     if (global.db.data == null)
         await loadDatabase()
     let chat = global.db.data.chats[id] || {}
@@ -407,15 +403,12 @@ export async function participantsUpdate({ id, participants, action, simulate = 
             if (chat.welcome) {
                 let groupMetadata = (conn.chats[id] || {}).metadata || await this.groupMetadata(id)
                 for (let user of participants) {
-                    // Normalize to proper user JID (avoid LID)
-                    const raw = typeof user === 'string' ? user : (user?.id || user?.jid || user)
-                    const userJid = this.decodeJid ? this.decodeJid(this.getJid ? this.getJid(raw, id) : raw) : raw
                     // Resolve group/user names safely
                     let nickgc = await this.getName(id)
                     let pps, pp, ppgcs, ppgc
                     try {
                         // Try to get participant avatar and upload; fall back to direct URL if upload fails
-                        pps = await this.profilePictureUrl(userJid, 'image').catch(_ => 'https://telegra.ph/file/24fa902ead26340f3df2c.png')
+                        pps = await this.profilePictureUrl(user, 'image').catch(_ => 'https://telegra.ph/file/24fa902ead26340f3df2c.png')
                         const ppB = await (await fetch(pps)).buffer().catch(_ => null)
                         if (ppB) pp = await uploadPomf(ppB).catch(_ => null)
 
@@ -431,14 +424,11 @@ export async function participantsUpdate({ id, participants, action, simulate = 
                                 .replace('@subject', nickgc)
                                 .replace('@desc', groupMetadata.desc?.toString() || 'unknown')
                             : (chat.sBye || this.bye || 'Bye, @user!')
-                        ).replace('@user', '@' + userJid.split('@')[0])
+                        ).replace('@user', '@' + user.split('@')[0])
 
                         // Build API image URLs with proper URL-encoding and safe fallbacks
                         const enc = (v) => encodeURIComponent(String(v ?? ''))
-                        let username = await this.getName(userJid)
-                        // Fallback if name is private/unavailable or looks like a LID artifact
-                        const bare = userJid.split('@')[0]
-                        if (!username || /@|lid/i.test(username) || /^\d{7,}$/.test(username)) username = bare
+                        const username = (await this.getName(user)) || user.split('@')[0]
                         const gcname = groupMetadata.subject || nickgc
                         const gcMem = groupMetadata.participants?.length || 0
                         const avatarUrl = pp || pps // prefer uploaded URL, else direct profile picture
@@ -446,8 +436,8 @@ export async function participantsUpdate({ id, participants, action, simulate = 
                         const welcomeBg = 'https://telegra.ph/file/666ccbfc3201704454ba5.jpg'
                         const leaveBg = 'https://telegra.ph/file/0db212539fe8a014017e3.jpg'
 
-                        const wel = `${global.APIs.ryzumi}/api/image/welcome?username=${enc(username)}&group=${enc(gcname)}&avatar=${enc(avatarUrl)}&bg=${enc(welcomeBg)}&member=${gcMem}`
-                        const lea = `${global.APIs.ryzumi}/api/image/leave?username=${enc(username)}&group=${enc(gcname)}&avatar=${enc(avatarUrl)}&bg=${enc(leaveBg)}&member=${gcMem}`
+                        const wel = `${APIs.ryzumi}/api/image/welcome?username=${enc(username)}&group=${enc(gcname)}&avatar=${enc(avatarUrl)}&bg=${enc(welcomeBg)}&member=${gcMem}`
+                        const lea = `${APIs.ryzumi}/api/image/leave?username=${enc(username)}&group=${enc(gcname)}&avatar=${enc(avatarUrl)}&bg=${enc(leaveBg)}&member=${gcMem}`
 
                         // Fetch actual thumbnail to ensure it renders (prevents blank leave image)
                         let thumbBuffer = null
@@ -459,7 +449,7 @@ export async function participantsUpdate({ id, participants, action, simulate = 
                         this.sendMessage(id, {
                             text,
                             contextInfo: {
-                                mentionedJid: [userJid],
+                                mentionedJid: [user],
                                 externalAdReply: {
                                     mediaType: 1,
                                     ...(thumbBuffer ? { thumbnail: thumbBuffer } : { thumbnailUrl: action === 'add' ? wel : lea }),
