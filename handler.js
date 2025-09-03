@@ -433,18 +433,27 @@ export async function participantsUpdate({ id, participants, action, simulate = 
                         const gcMem = groupMetadata.participants?.length || 0
                         const avatarUrl = pp || pps // prefer uploaded URL, else direct profile picture
 
+                        // Cache-busting token unique per event + user to avoid CDN/WA thumbnail cache
+                        const cb = `${Date.now()}-${Math.random().toString(36).slice(2)}-${user.split('@')[0]}`
+                        const avatarForApi = `${avatarUrl}${avatarUrl.includes('?') ? '&' : '?'}cb=${cb}`
+
                         const welcomeBg = 'https://telegra.ph/file/666ccbfc3201704454ba5.jpg'
                         const leaveBg = 'https://telegra.ph/file/0db212539fe8a014017e3.jpg'
 
-                        const wel = `${APIs.ryzumi}/api/image/welcome?username=${enc(username)}&group=${enc(gcname)}&avatar=${enc(avatarUrl)}&bg=${enc(welcomeBg)}&member=${gcMem}`
-                        const lea = `${APIs.ryzumi}/api/image/leave?username=${enc(username)}&group=${enc(gcname)}&avatar=${enc(avatarUrl)}&bg=${enc(leaveBg)}&member=${gcMem}`
+                        // Construct API urls with additional cache-busting query
+                        const wel = `${APIs.ryzumi}/api/image/welcome?username=${enc(username)}&group=${enc(gcname)}&avatar=${enc(avatarForApi)}&bg=${enc(welcomeBg)}&member=${gcMem}&cb=${cb}`
+                        const lea = `${APIs.ryzumi}/api/image/leave?username=${enc(username)}&group=${enc(gcname)}&avatar=${enc(avatarForApi)}&bg=${enc(leaveBg)}&member=${gcMem}&cb=${cb}`
 
-                        // Fetch actual thumbnail to ensure it renders (prevents blank leave image)
+                        // Always embed a fresh thumbnail buffer to avoid WhatsApp caching
+                        const targetUrl = (action === 'add' ? wel : lea) + `&t=${cb}`
                         let thumbBuffer = null
                         try {
-                            const url = action === 'add' ? wel : lea
-                            thumbBuffer = await (await fetch(url)).buffer()
-                        } catch { /* ignore */ }
+                            const res = await fetch(targetUrl, { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } })
+                            thumbBuffer = await res.buffer()
+                        } catch { /* ignore and fall back below */ }
+
+                        // As a last fallback, build a tiny unique buffer to break cache if API fails
+                        const tinyFallback = Buffer.from(Math.random().toString(36).slice(2))
 
                         this.sendMessage(id, {
                             text,
@@ -452,10 +461,12 @@ export async function participantsUpdate({ id, participants, action, simulate = 
                                 mentionedJid: [user],
                                 externalAdReply: {
                                     mediaType: 1,
-                                    ...(thumbBuffer ? { thumbnail: thumbBuffer } : { thumbnailUrl: action === 'add' ? wel : lea }),
+                                    // Force unique thumbnail bytes; never use thumbnailUrl which WhatsApp may cache aggressively
+                                    thumbnail: thumbBuffer && thumbBuffer.length ? thumbBuffer : tinyFallback,
                                     title: action === 'add' ? ('Welcome To ' + nickgc) : ('Leaving From ' + nickgc),
                                     renderLargerThumbnail: true,
-                                    sourceUrl: global.social
+                                    // also vary sourceUrl so WA treats previews as distinct
+                                    sourceUrl: `${global.sgc || 'https://example.com/'}?cb=${cb}`
                                 }
                             }
                         })
