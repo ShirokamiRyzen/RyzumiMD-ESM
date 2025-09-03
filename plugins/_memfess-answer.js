@@ -3,6 +3,16 @@ import { uploadPomf } from '../lib/uploadImage.js'
 export async function before(m) {
     if (!m.chat.endsWith('@s.whatsapp.net')) return !0
 
+    const raw = m.message || {}
+    const mtype = m.mtype || (Object.keys(raw)[0] || '')
+    const isSystem =
+        mtype === 'protocolMessage' ||
+        !!raw.protocolMessage ||
+        !!m.messageStubType ||
+        !!raw.senderKeyDistributionMessage ||
+        !!raw.extendedTextMessage?.contextInfo?.disappearingMode
+    if (isSystem) return !0
+
     this.menfess = this.menfess || {}
     const mf = Object.values(this.menfess).find(v => v.status === false && v.penerima === m.sender)
     if (!mf) return !0
@@ -20,10 +30,10 @@ export async function before(m) {
             if (buf && Buffer.isBuffer(buf)) {
                 mediaUrl = await uploadPomf(buf)
             }
-        } catch (e) {
-            mediaUrl = null
-        }
+        } catch { }
     }
+
+    if (!bodyText && !mediaUrl) return !0
 
     let caption = `Hai kak, kamu menerima balasan nih.\n\n`
     if (bodyText) caption += `Pesan balasannya:\n${bodyText}\n`
@@ -34,7 +44,6 @@ export async function before(m) {
             caption
         })
     } else {
-        if (!bodyText) return m.reply('Kirim teks atau gambar ya.')
         await this.sendMessage(mf.dari, { text: caption })
     }
 
