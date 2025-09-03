@@ -403,12 +403,14 @@ export async function participantsUpdate({ id, participants, action }) {
             if (chat.welcome) {
                 let groupMetadata = (conn.chats[id] || {}).metadata || await this.groupMetadata(id)
                 for (let user of participants) {
+                    // Normalize to proper user JID (avoid LID)
+                    const userJid = this.getJid ? this.getJid(user, id) : user
                     // Resolve group/user names safely
                     let nickgc = await this.getName(id)
                     let pps, pp, ppgcs, ppgc
                     try {
                         // Try to get participant avatar and upload; fall back to direct URL if upload fails
-                        pps = await this.profilePictureUrl(user, 'image').catch(_ => 'https://telegra.ph/file/24fa902ead26340f3df2c.png')
+                        pps = await this.profilePictureUrl(userJid, 'image').catch(_ => 'https://telegra.ph/file/24fa902ead26340f3df2c.png')
                         const ppB = await (await fetch(pps)).buffer().catch(_ => null)
                         if (ppB) pp = await uploadPomf(ppB).catch(_ => null)
 
@@ -424,11 +426,14 @@ export async function participantsUpdate({ id, participants, action }) {
                                 .replace('@subject', nickgc)
                                 .replace('@desc', groupMetadata.desc?.toString() || 'unknown')
                             : (chat.sBye || this.bye || 'Bye, @user!')
-                        ).replace('@user', '@' + user.split('@')[0])
+                        ).replace('@user', '@' + userJid.split('@')[0])
 
                         // Build API image URLs with proper URL-encoding and safe fallbacks
                         const enc = (v) => encodeURIComponent(String(v ?? ''))
-                        const username = (await this.getName(user)) || user.split('@')[0]
+                        let username = await this.getName(userJid)
+                        // Fallback if name is private/unavailable or looks like a LID artifact
+                        const bare = userJid.split('@')[0]
+                        if (!username || /@|lid/i.test(username) || /^\d{7,}$/.test(username)) username = bare
                         const gcname = groupMetadata.subject || nickgc
                         const gcMem = groupMetadata.participants?.length || 0
                         const avatarUrl = pp || pps // prefer uploaded URL, else direct profile picture
@@ -449,7 +454,7 @@ export async function participantsUpdate({ id, participants, action }) {
                         this.sendMessage(id, {
                             text,
                             contextInfo: {
-                                mentionedJid: [user],
+                                mentionedJid: [userJid],
                                 externalAdReply: {
                                     mediaType: 1,
                                     ...(thumbBuffer ? { thumbnail: thumbBuffer } : { thumbnailUrl: action === 'add' ? wel : lea }),
