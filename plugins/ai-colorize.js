@@ -24,7 +24,6 @@ let handler = async (m, { conn, usedPrefix }) => {
 handler.help = ['colorize'];
 handler.tags = ['ai'];
 handler.command = /^(colorize)$/i;
-
 handler.register = true
 handler.limit = 3
 

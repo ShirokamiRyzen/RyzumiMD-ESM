@@ -1,15 +1,9 @@
 import fetch from "node-fetch"
 
 let handler = async (m, { conn, text, usedPrefix, command }) => {
-    let wm = global.wm;
-
-    if (!text) {
-        throw `This command generates images from text prompts.\n\nExample usage:\n${usedPrefix + command} anime girl with glasses, pink short hair, in a uniform, anime style, full body, bokeh`;
-    }
+    if (!text) throw `This command generates images from text prompts.\n\nExample usage:\n${usedPrefix + command} anime girl with glasses, pink short hair, in a uniform, anime style, full body, bokeh`;
     await m.reply(wait);
-
     const apiUrl = `${APIs.ryzumi}/api/ai/v2/text2img?prompt=${encodeURIComponent(text)}`;
-
     try {
         let response = await fetch(apiUrl, {
             headers: {
@@ -27,7 +21,6 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 handler.help = ['flux']
 handler.tags = ['ai']
 handler.command = /^(flux|flux)$/i
-
 handler.premium = false
 handler.limit = 15
 handler.register = true
