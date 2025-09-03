@@ -142,7 +142,6 @@ if (!conn.authState.creds.registered) {
 }
 
 if (!opts['test']) {
-  (await import('./server.js')).default(PORT)
   setInterval(async () => {
     if (global.db.data) await global.db.write().catch(console.error)
     // if (opts['autocleartmp']) try {

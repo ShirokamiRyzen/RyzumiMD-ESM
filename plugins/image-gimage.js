@@ -1,25 +1,40 @@
-import { googleImage } from '@bochilteam/scraper'
+const fetch = globalThis.fetch ?? (await import('node-fetch')).default;
 
 var handler = async (m, { conn, text, usedPrefix, command }) => {
-    if (!text) throw `Use example ${usedPrefix}${command} Minecraft`
-    
-    if (/(hentai|lewd|nude|bokep|porn|sex|furry|bugil|pussy|telanjang|pusy|memek|mmk|tobrut|ngewe|boob|boobs|jilboobs|jilboob|gay)/i.test(text) && global.db.data.users[m.sender].role === 'Free user') {
-        return conn.reply(m.chat, 'Hayoo mau ngapain lu?\n\nPesan ini otomatis diteruskan ke owner', m)
-    }
-    
-    const res = await googleImage(text)
-    let image = res.getRandom()
-    let link = image
-    conn.sendFile(m.chat, link, 'google.jpg', `*${htki} Google Image ${htka}*
-🔎 *Result:* ${text}
-🌎 *Source:* Google
-`, m)
-}
+  if (!text) throw `Contoh: ${usedPrefix}${command} Minecraft`;
 
-handler.help = ['gimage <query>', 'image <query>']
-handler.tags = ['internet']
-handler.command = /^(gimage|image)$/i
+  try {
+    const url = `${APIs.ryzumi}/api/search/gimage?query=${encodeURIComponent(text)}`;
+    const res = await fetch(url, { method: 'GET', headers: { accept: 'application/json' } });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const data = await res.json();
+    if (!Array.isArray(data) || data.length === 0) {
+      return conn.reply(m.chat, 'Maaf, nggak ada hasil untuk pencarian itu.', m);
+    }
+
+    const pick = data[Math.floor(Math.random() * data.length)];
+    const link = pick.image || pick.url;
+
+    await conn.sendFile(
+      m.chat,
+      link,
+      'google.jpg',
+      `*${htki} Google Image ${htka}*\n🔎 *Result:* ${text}\n🌎 *Source:* Google\n`,
+      m
+    );
+  } catch (e) {
+    console.error(e);
+    conn.reply(m.chat, 'Lagi ada gangguan saat ambil gambar. Coba ulangi ya, Sayang~', m);
+  }
+};
+
+handler.help = ['gimage <query>', 'image <query>'];
+handler.tags = ['internet'];
+handler.command = /^(gimage|image)$/i;
 
 handler.register = true
+handler.limit = true
 
 export default handler

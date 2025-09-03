@@ -19,7 +19,6 @@ handler.all = async function (m) {
     ])
 
     global.fetch = (await import('node-fetch')).default
-    global.bochil = await import('@bochilteam/scraper')
     global.fs = fs
 
     global.ucapan = ucapan()
