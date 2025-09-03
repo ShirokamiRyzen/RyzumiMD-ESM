@@ -30,7 +30,10 @@ export async function handler(chatUpdate) {
         m.limit = false
         try {
             // TODO: use loop to insert data instead of this
-            if (m.sender.endsWith('@broadcast') || m.sender.endsWith('@newsletter')) return
+            const senderJid = typeof m.sender === 'string' ? m.sender : (m.sender?.id || m.key?.participant || '')
+            if (typeof senderJid === 'string' && (senderJid.endsWith('@broadcast') || senderJid.endsWith('@newsletter'))) return
+            // ensure m.sender is normalized to JID string for downstream usage
+            if (typeof m.sender !== 'string' && senderJid) m.sender = senderJid
             let user = global.db.data.users[m.sender]
             if (typeof user !== 'object')
                 global.db.data.users[m.sender] = {}
@@ -108,10 +111,10 @@ export async function handler(chatUpdate) {
         } catch (e) {
             console.error(e)
         }
-        if (opts['pconly'] && m.chat.endsWith('g.us')) return
-        if (opts['gconly'] && !m.chat.endsWith('g.us')) return
+    if (opts['pconly'] && typeof m.chat === 'string' && m.chat.endsWith('g.us')) return
+    if (opts['gconly'] && typeof m.chat === 'string' && !m.chat.endsWith('g.us')) return
         if (typeof m.text !== 'string') m.text = ''
-        const isROwner = [conn.decodeJid(global.conn.user.id), ...global.owner.map(([number]) => number)].map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender)
+    const isROwner = [conn.decodeJid(global.conn.user.id), ...global.owner.map(([number]) => number)].map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(typeof m.sender === 'string' ? m.sender : '')
         const isOwner = isROwner || m.fromMe
         const isMods = isOwner || global.mods.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender)
         const isPrems = isROwner || global.db.data.users[m.sender].premiumTime > 0
@@ -125,7 +128,7 @@ export async function handler(chatUpdate) {
         m.exp += Math.ceil(Math.random() * 10)
 
         let usedPrefix
-        let _user = global.db.data && global.db.data.users && global.db.data.users[m.sender]
+    let _user = global.db.data && global.db.data.users && global.db.data.users[typeof m.sender === 'string' ? m.sender : '']
     const groupMetadata = (m.isGroup ? ((conn.chats[m.chat] || {}).metadata || await this.groupMetadata(m.chat).catch(_ => null)) : {}) || {}
     const participants = (m.isGroup ? groupMetadata.participants : []) || []
     // Avoid async getJid here; compare raw ids with fallbacks
@@ -405,7 +408,8 @@ export async function participantsUpdate({ id, participants, action, simulate = 
                 let groupMetadata = (conn.chats[id] || {}).metadata || await this.groupMetadata(id)
                 for (let user of participants) {
                     // Normalize to proper user JID (avoid LID)
-                    const userJid = this.getJid ? await this.getJid(user, id) : user
+                    const raw = typeof user === 'string' ? user : (user?.id || user?.jid || user)
+                    const userJid = this.decodeJid ? this.decodeJid(this.getJid ? this.getJid(raw, id) : raw) : raw
                     // Resolve group/user names safely
                     let nickgc = await this.getName(id)
                     let pps, pp, ppgcs, ppgc
@@ -442,8 +446,8 @@ export async function participantsUpdate({ id, participants, action, simulate = 
                         const welcomeBg = 'https://telegra.ph/file/666ccbfc3201704454ba5.jpg'
                         const leaveBg = 'https://telegra.ph/file/0db212539fe8a014017e3.jpg'
 
-                        const wel = `${APIs.ryzumi}/api/image/welcome?username=${enc(username)}&group=${enc(gcname)}&avatar=${enc(avatarUrl)}&bg=${enc(welcomeBg)}&member=${gcMem}`
-                        const lea = `${APIs.ryzumi}/api/image/leave?username=${enc(username)}&group=${enc(gcname)}&avatar=${enc(avatarUrl)}&bg=${enc(leaveBg)}&member=${gcMem}`
+                        const wel = `${global.APIs.ryzumi}/api/image/welcome?username=${enc(username)}&group=${enc(gcname)}&avatar=${enc(avatarUrl)}&bg=${enc(welcomeBg)}&member=${gcMem}`
+                        const lea = `${global.APIs.ryzumi}/api/image/leave?username=${enc(username)}&group=${enc(gcname)}&avatar=${enc(avatarUrl)}&bg=${enc(leaveBg)}&member=${gcMem}`
 
                         // Fetch actual thumbnail to ensure it renders (prevents blank leave image)
                         let thumbBuffer = null
