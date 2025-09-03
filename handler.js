@@ -406,23 +406,24 @@ export async function participantsUpdate({ id, participants, action }) {
         case 'add':
         case 'remove':
             if (chat.welcome) {
-                let groupMetadata = await this.groupMetadata(id) || (conn.chats[id] || {}).metadata
+                let groupMetadata = (conn.chats[id] || {}).metadata || await this.groupMetadata(id)
                 for (let user of participants) {
-                    let nickgc = await conn.getName(id)
+                    let nickgc = await this.getName(id)
                     let pp, ppgc;
                     try {
                         let pps = await this.profilePictureUrl(user, 'image').catch(_ => 'https://telegra.ph/file/24fa902ead26340f3df2c.png')
-                        let ppgcs = await this.profilePictureUrl(id, 'image').catch(_ => 'https://telegra.ph/file/24fa902ead26340f3df2c.png')
-
-                        let ppB= await (await fetch(pps)).buffer()
-                        let ppgcB = await (await fetch(ppgcs)).buffer()
-
+                        let ppB = await (await fetch(pps)).buffer()
                         pp = await uploadPomf(ppB)
+
+                        if (action === 'remove') {
+                        let ppgcs = await this.profilePictureUrl(id, 'image').catch(_ => 'https://telegra.ph/file/24fa902ead26340f3df2c.png')
+                        let ppgcB = await (await fetch(ppgcs)).buffer()
                         ppgc = await uploadPomf(ppgcB)
+                        }
                         } finally {
-                        text = (action === 'add' ? (chat.sWelcome || this.welcome || conn.welcome || 'Welcome, @user!').replace('@subject', await this.getName(id)).replace('@desc', groupMetadata.desc?.toString() || 'unknow') :
-                            (chat.sBye || this.bye || conn.bye || 'Bye, @user!')).replace('@user', `@` + user.split('@')[0])
-                        let username = this.getName(user)
+                        text = (action === 'add' ? (chat.sWelcome || this.welcome || 'Welcome, @user!').replace('@subject', nickgc).replace('@desc', groupMetadata.desc?.toString() || 'unknow') :
+                            (chat.sBye || this.bye || 'Bye, @user!')).replace('@user', `@` + user.split('@')[0])
+                        let username = await this.getName(user)
                         let gcname = groupMetadata.subject
                         let gcMem = groupMetadata.participants.length
                         let wel = `https://api.ryzumi.vip/api/image/welcome?username=${username}&group=${gcname}&avatar=${pp}&bg=https://telegra.ph/file/666ccbfc3201704454ba5.jpg&member=${gcMem}`
