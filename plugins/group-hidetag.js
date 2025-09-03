@@ -1,4 +1,14 @@
 let handler = async (m, { conn, text, participants }) => {
+  const fallbackText = (
+    m.quoted?.text ||
+    m.quoted?.caption ||
+    m.quoted?.message?.extendedTextMessage?.text ||
+    m.quoted?.message?.conversation ||
+    ''
+  ).trim()
+  const msgText = (text || '').trim() || fallbackText
+  if (!msgText) throw 'Masukkan teks setelah perintah atau balas pesan berteks lalu ketik .hidetag'
+
   const fkontak = {
     "key": {
       "participants": "0@s.whatsapp.net",
@@ -14,7 +24,11 @@ let handler = async (m, { conn, text, participants }) => {
     "participant": "0@s.whatsapp.net"
   }
 
-  conn.sendMessage(m.chat, { text: text, mentions: participants.map(a => a.id) }, { quoted: fkontak })
+  await conn.sendMessage(
+    m.chat,
+    { text: msgText, mentions: participants.map(a => a.id) },
+    { quoted: fkontak }
+  )
 }
 
 handler.help = ['hidetag']
