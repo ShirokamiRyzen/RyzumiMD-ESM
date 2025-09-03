@@ -98,12 +98,12 @@ export async function handler(chatUpdate) {
             let settings = global.db.data.settings[this.user.jid]
             if (typeof settings !== 'object') global.db.data.settings[this.user.jid] = {}
             if (settings) {
-                if (!('public' in settings)) settings.public = false
+                if (!('public' in settings)) settings.public = true
                 if (!('autoread' in settings)) settings.autoread = false
                 if (!('restrict' in settings)) settings.restrict = false
                 if (!('anticall' in settings)) settings.anticall = true
             } else global.db.data.settings[this.user.jid] = {
-                public: false,
+                public: true,
                 autoread: false,
                 anticall: true,
                 restrict: false
@@ -118,8 +118,11 @@ export async function handler(chatUpdate) {
         const isOwner = isROwner || m.fromMe
         const isMods = isOwner || global.mods.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender)
         const isPrems = isROwner || global.db.data.users[m.sender].premiumTime > 0
-        // Block if not owner, not from bot itself, and bot is not in public mode
-        if (!isOwner && !m.fromMe && !global.db.data.settings[this.user.jid].public) return
+        // Respect self/public mode from opts and DB. Public if DB says public or self mode is off.
+        const selfMode = !!(global.opts && global.opts.self)
+        const dbPublic = !!(global.db.data.settings[this.user.jid] && global.db.data.settings[this.user.jid].public)
+        const isPublic = dbPublic || !selfMode
+        if (!isPublic && !isOwner && !m.fromMe) return
 
         if (m.isBaileys) return
         m.exp += Math.ceil(Math.random() * 10)

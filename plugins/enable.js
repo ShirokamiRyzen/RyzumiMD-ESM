@@ -63,6 +63,8 @@ var handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin, isR
         return await conn.reply(m.chat, 'Only regular owner can use this command!', m);
       }
       global.opts['self'] = isEnable;
+      // Keep DB public flag in sync: self => public false
+      if (global.db?.data?.settings?.[conn.user.jid]) global.db.data.settings[conn.user.jid].public = !isEnable;
       break;
     case 'public':
       isAll = true;
@@ -70,6 +72,8 @@ var handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin, isR
         return await conn.reply(m.chat, 'Only regular owner can use this command!', m);
       }
       global.opts['self'] = !isEnable;
+      // public => DB public true/false
+      if (global.db?.data?.settings?.[conn.user.jid]) global.db.data.settings[conn.user.jid].public = !!isEnable;
       break;
     case 'antilink':
       if (m.isGroup) {
