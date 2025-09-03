@@ -53,7 +53,7 @@ export async function handler(chatUpdate) {
                     afkReason: '',
                     banned: false,
                 }
-            if(!m.isGroup) return
+            if(m.isGroup) {
             let chat = global.db.data.chats[m.chat]
             if (typeof chat !== 'object')
                 global.db.data.chats[m.chat] = {}
@@ -94,19 +94,18 @@ export async function handler(chatUpdate) {
 	                premiumTime: false,
                     premnsfw: false, 
                 }
+            }
             let settings = global.db.data.settings[this.user.jid]
             if (typeof settings !== 'object') global.db.data.settings[this.user.jid] = {}
             if (settings) {
-                if (!('self' in settings)) settings.self = false
+                if (!('public' in settings)) settings.public = false
                 if (!('autoread' in settings)) settings.autoread = false
                 if (!('restrict' in settings)) settings.restrict = false
                 if (!('anticall' in settings)) settings.anticall = true
-                if (!('restartDB' in settings)) settings.restartDB = 0
             } else global.db.data.settings[this.user.jid] = {
-                self: false,
+                public: false,
                 autoread: false,
                 anticall: true,
-                restartDB: 0,
                 restrict: false
             }
         } catch (e) {
@@ -119,7 +118,7 @@ export async function handler(chatUpdate) {
         const isOwner = isROwner || m.fromMe
         const isMods = isOwner || global.mods.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender)
         const isPrems = isROwner || db.data.users[m.sender].premiumTime > 0
-	    if (!isOwner && !m.fromMe && opts['self']) return;
+        if (!isOwner && && !m.fromMe && !global.db.data.settings[this.user.jid].public) return;
 
         if (m.isBaileys) return
         m.exp += Math.ceil(Math.random() * 10)
@@ -380,7 +379,7 @@ export async function handler(chatUpdate) {
         } catch (e) {
             console.log(m, m.quoted, e)
         }
-        if (global.db.data.settings[this.user.jid].autoread)
+        if (global.db.data.settings[this.user.jid]?.autoread)
             await conn.readMessages([m.key]) 
   }
 }
