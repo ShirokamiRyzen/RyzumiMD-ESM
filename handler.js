@@ -422,7 +422,7 @@ export async function participantsUpdate({ id, participants, action }) {
                         let gcname = groupMetadata.subject
                         let gcMem = groupMetadata.participants.length
                         let wel = `https://api.ryzumi.vip/api/image/welcome?username=${username}&group=${gcname}&avatar=${pp}&bg=https://telegra.ph/file/666ccbfc3201704454ba5.jpg&member=${gcMem}`
-                        let lea = `https://api.ryzumi.vip/api/image/leave?username=${username}&group=${gcname}&avatar=${pp}&icon=${ppgc}&bg=https://telegra.ph/file/0db212539fe8a014017e3.jpg&member=${gcMem}`
+                        let lea = `https://api.ryzumi.vip/api/image/leave?username=${username}&group=${gcname}&avatar=${pp}&bg=https://telegra.ph/file/0db212539fe8a014017e3.jpg&member=${gcMem}`
 
                         this.sendMessage(id, {
                             text: text,
