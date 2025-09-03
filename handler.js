@@ -128,8 +128,8 @@ export async function handler(chatUpdate) {
         let _user = global.db.data && global.db.data.users && global.db.data.users[m.sender]
         const groupMetadata = (m.isGroup ? ((conn.chats[m.chat] || {}).metadata || await this.groupMetadata(m.chat).catch(_ => null)) : {}) || {}
         const participants = (m.isGroup ? groupMetadata.participants : []) || []
-        const user = (m.isGroup ? participants.find(u => conn.getJid(u.id, m.chat) === m.sender) : {}) || {} // User Data
-        const bot = (m.isGroup ? participants.find(u => conn.getJid(u.id, m.chat) == this.user.jid) : {}) || {} // Your Data
+        const user = (m.isGroup ? participants.find(u => (u.id === m.sender) || (u.jid === m.sender)) : {}) || {} // User Data
+        const bot = (m.isGroup ? participants.find(u => (u.id === this.user.jid) || (u.jid === this.user.jid)) : {}) || {} // Your Data
         const isRAdmin = user?.admin == 'superadmin' || false
         const isAdmin = isRAdmin || user?.admin == 'admin' || false // Is User Admin?
         const isBotAdmin = bot?.admin || false // Are you Admin?
@@ -389,10 +389,10 @@ export async function handler(chatUpdate) {
  * Handle groups participants update
  * @param {import('@whiskeysocket/baileys').BaileysEventMap<unknown>['group-participants.update']} groupsUpdate 
  */
-export async function participantsUpdate({ id, participants, action }) {
+export async function participantsUpdate({ id, participants, action, simulate = false }) {
     if (opts['self']) return
     // if (id in conn.chats) return // First login will spam
-    if (this.isInit) return
+    if (this.isInit && !simulate) return
     if (global.db.data == null)
         await loadDatabase()
     let chat = global.db.data.chats[id] || {}
