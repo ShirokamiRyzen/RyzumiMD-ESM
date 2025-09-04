@@ -403,53 +403,32 @@ export async function participantsUpdate({ id, participants, action, simulate = 
             if (chat.welcome) {
                 let groupMetadata = (conn.chats[id] || {}).metadata || await this.groupMetadata(id)
                 for (let user of participants) {
-                    // Resolve group/user names safely
-                    let nickgc = await this.getName(id)
-                    let pps, pp, ppgcs, ppgc
+                if(action === 'add') await delay(1000)
+                    const userJid = await this.getJid(user, id)
+                    let pp;
                     try {
-                        // Try to get participant avatar and upload; fall back to direct URL if upload fails
-                        pps = await this.profilePictureUrl(user, 'image').catch(_ => 'https://telegra.ph/file/24fa902ead26340f3df2c.png')
-                        const ppB = await (await fetch(pps)).buffer().catch(_ => null)
-                        if (ppB) pp = await uploadPomf(ppB).catch(_ => null)
-
-                        if (action === 'remove') {
-                            ppgcs = await this.profilePictureUrl(id, 'image').catch(_ => 'https://telegra.ph/file/24fa902ead26340f3df2c.png')
-                            const ppgcB = await (await fetch(ppgcs)).buffer().catch(_ => null)
-                            if (ppgcB) ppgc = await uploadPomf(ppgcB).catch(_ => null)
-                        }
+                        let pps = await this.profilePictureUrl(userJid, 'image').catch(_ => 'https://telegra.ph/file/24fa902ead26340f3df2c.png')
+                        let ppB = await (await fetch(pps)).buffer()
+                        if (ppB) pp = await uploadPomf(ppB)
                     } finally {
-                        // Build caption text
-                        text = (action === 'add'
-                            ? (chat.sWelcome || this.welcome || 'Welcome, @user!')
-                                .replace('@subject', nickgc)
-                                .replace('@desc', groupMetadata.desc?.toString() || 'unknown')
-                            : (chat.sBye || this.bye || 'Bye, @user!')
-                        ).replace('@user', '@' + user.split('@')[0])
-
-                        // Build API image URLs with proper URL-encoding and safe fallbacks
-                        const enc = (v) => encodeURIComponent(String(v ?? ''))
-                        const username = (await this.getName(user)) || user.split('@')[0]
-                        const gcname = groupMetadata.subject || nickgc
+                        const username = await this.getName(userJid)
+                        const gcname = groupMetadata.subject || 'Unknown'
                         const gcMem = groupMetadata.participants?.length || 0
-                        const avatarUrl = pp || pps // prefer uploaded URL, else direct profile picture
-
                         const welcomeBg = 'https://telegra.ph/file/666ccbfc3201704454ba5.jpg'
                         const leaveBg = 'https://telegra.ph/file/0db212539fe8a014017e3.jpg'
+                        
+                        text = (action === 'add' ? (chat.sWelcome || this.welcome || 'Welcome, @user!').replace('@subject', gcname).replace('@desc', groupMetadata.desc || '')
+                            : (chat.sBye || this.bye || 'Bye, @user!')).replace('@user', '@' + userJid.split('@')[0])
 
-                        const wel = `${APIs.ryzumi}/api/image/welcome?username=${enc(username)}&group=${enc(gcname)}&avatar=${enc(avatarUrl)}&bg=${enc(welcomeBg)}&member=${gcMem}`
-                        const lea = `${APIs.ryzumi}/api/image/leave?username=${enc(username)}&group=${enc(gcname)}&avatar=${enc(avatarUrl)}&bg=${enc(leaveBg)}&member=${gcMem}`
+                        const wel = `${APIs.ryzumi}/api/image/welcome?username=${username}&group=${gcname}&avatar=${pp}&bg=${welcomeBg}&member=${gcMem}`
+                        const lea = `${APIs.ryzumi}/api/image/leave?username=${username}&group=${gcname}&avatar=${pp}&bg=${leaveBg}&member=${gcMem}`
 
-                        // Fetch actual image buffer
-                        const url = action === 'add' ? wel : lea
-                        let thumbBuffer = null
-                        try {
-                            thumbBuffer = await (await fetch(url, { headers: { 'Cache-Control': 'no-cache' } })).buffer()
-                        } catch { /* ignore */ }
-
-                        await this.sendMessage(id, {
-                            image: thumbBuffer ? thumbBuffer : { url },
+                        this.sendMessage(id, {
+                            image: { url: action === 'add' ? wel : lea },
                             caption: text,
-                            mentions: [user]
+                            contextInfo: {
+                                mentionedJid: [userJid]
+                            },
                         })
                     }
                 }

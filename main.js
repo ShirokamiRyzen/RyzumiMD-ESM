@@ -50,7 +50,6 @@ import { Low, JSONFile } from 'lowdb'
 import { makeWASocket, protoType, serialize } from './lib/simple.js'
 
 const { CONNECTING } = ws
-const PORT = process.env.PORT || process.env.SERVER_PORT || 3010
 
 protoType()
 serialize()
@@ -141,33 +140,14 @@ if (!conn.authState.creds.registered) {
   }, 3000)
 }
 
-if (!opts['test']) {
-  setInterval(async () => {
-    if (global.db.data) await global.db.write().catch(console.error)
-    // if (opts['autocleartmp']) try {
-    clearTmp()
-    //  } catch (e) { console.error(e) }
-  }, 60 * 1000)
-}
-
-function clearTmp() {
-  const rootTmp = join(__dirname, './tmp')
-  const files = existsSync(rootTmp) ? readdirSync(rootTmp) : []
-  for (const f of files) {
-    const file = join(rootTmp, f)
-    try {
-      const s = statSync(file)
-      if (s.isFile() && (Date.now() - s.mtimeMs >= 1000 * 60 * 3)) {
-        unlinkSync(file)
-      }
-    } catch (err) {
-      if (err.code === 'EBUSY' || err.code === 'EPERM') {
-        console.warn(`Lewati file terkunci: ${file}`)
-      } else {
-        console.error(`Gagal hapus ${file}: ${err.message}`)
-      }
+if(global.db) {
+   setInterval(async () => {
+    if(global.db.data) await global.db.write().catch(console.error);
+    if ((global.support || {}).find) {
+      const tmp = [tmpdir(), 'tmp'];
+      tmp.forEach(filename => spawn('find', [filename, '-amin', '3', '-type', 'f', '-delete']));
     }
-  }
+  }, 2000);
 }
 
 async function connectionUpdate(update) {
