@@ -4,7 +4,7 @@
 import axios from 'axios'
 
 let handler = async (m, { conn, args }) => {
-    if (!args[0]) throw 'Please provide a Facebook video URL';a
+    if (!args[0]) throw 'Please provide a Facebook video URL';
     m.reply(wait);
 
     try {
@@ -18,7 +18,7 @@ let handler = async (m, { conn, args }) => {
         if (video && video.url) {
              conn.sendMessage(
                 m.chat, {
-                video: { video.url },
+                video: { url: video.url },
                 mimetype: "video/mp4",
                 fileName: `video.mp4`,
                 caption: `Ini kak videonya @${m.sender.split('@')[0]}`,
