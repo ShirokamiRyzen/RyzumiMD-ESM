@@ -1,17 +1,8 @@
 import util from 'util'
-import { jidDecode } from '@whiskeysocket/baileys'
-
 export const handler = async (m, { conn, usedPrefix, command }) => {
   try {
     const key = m.key || {}
     const msg = m.messages || m.message || {}
-
-    // fungsi bantu untuk dapatin nomor dari jid
-    const decodeJid = (jid) => {
-      if (!jid) return null
-      const result = jidDecode(jid)
-      return result?.user ? result.user : jid
-    }
 
     const info = {
       chat: m.chat,
@@ -25,12 +16,12 @@ export const handler = async (m, { conn, usedPrefix, command }) => {
         remoteJid: key.remoteJid,
         fromMe: key.fromMe,
         participant: key.participant,
-        participantPn: key.participantPn || decodeJid(key.participant) // fallback decode
+        participantPn: key.participantPn || conn.decodeJid(key.participant) // fallback decode
       },
       participant: m.participant,
       contextInfo_participant: msg?.extendedTextMessage?.contextInfo?.participant || msg?.conversation?.contextInfo?.participant,
       contextInfo_participantPn: msg?.extendedTextMessage?.contextInfo?.participantPn || msg?.conversation?.contextInfo?.participantPn,
-      decodedSender: decodeJid(m.sender), // tambahan: nomor hasil decode
+      decodedSender: conn.decodeJid(m.sender), // tambahan: nomor hasil decode
       mtype: m.mtype,
       hasQuoted: !!m.quoted,
       quoted: m.quoted ? {
@@ -38,7 +29,7 @@ export const handler = async (m, { conn, usedPrefix, command }) => {
         chat: m.quoted.chat,
         sender: m.quoted.sender,
         participant: m.quoted.messages?.contextInfo?.participant,
-        decodedQuotedSender: decodeJid(m.quoted.sender)
+        decodedQuotedSender: conn.decodeJid(m.quoted.sender)
       } : null,
     }
 

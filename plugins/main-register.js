@@ -9,11 +9,11 @@ let handler = async function (m, { text, usedPrefix }) {
   if (!name) throw 'Nama tidak boleh kosong (Alphanumeric)'
   if (!age) throw 'Umur tidak boleh kosong (Angka)'
   age = parseInt(age)
-  if (age > 120) throw 'Umur terlalu tua 😂'
+  if (age > 60) throw 'Tuwa Bangka Mana Paham Teknologi😂'
   if (age < 16) throw 'Esempe dilarang masuk 😂'
   user.name = name.trim()
   user.age = age
-  user.regTime = + new Date
+  user.regTime = Date.now()
   user.registered = true
   let sn = createHash('md5').update(m.sender).digest('hex')
   m.reply(`
@@ -26,8 +26,8 @@ Daftar berhasil!
 Serial Number: 
 ${sn}
 
-**Ketentuan Layanan (TOS) - RyzumiMD ESM**
-Dengan menggunakan Nao-MD ESM, Anda setuju dengan ketentuan berikut:
+**Ketentuan Layanan (TOS) - ${global.namebot}**
+Dengan menggunakan ${global.namebot}, Anda setuju dengan ketentuan berikut:
 
 1. *DILARANG KERAS MERUBAH TIMER/PESAN SEMENTARA*
 Bot akan secara otomatis melakukan banning terhadap nomormu, untuk unban silahkan lapor owner (+${global.nomorown}).
@@ -41,7 +41,7 @@ Bot akan melakukan ban permanent jika ada indikasi spam pada nomormu.
 4. *CHAT OWNER BILA PERLU*
 Tidak ada gunanya chat ke nomor bot, karena nomor bot tersimpan di server dan owner tidak akan melihat chatmu.
 
-Dengan menggunakan Nao-MD ESM, Anda setuju dengan semua ketentuan yang berlaku.
+Dengan menggunakan ${global.namebot}, Anda setuju dengan semua ketentuan yang berlaku.
 
 *Ketentuan ini terakhir diperbarui pada 12 Mei 2024.*
 

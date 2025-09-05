@@ -2,21 +2,17 @@ import axios from 'axios'
 
 let handler = async (m, { conn, args, usedPrefix, text, command }) => {
   try {
-    if (!text) return m.reply(`Contoh:\n${usedPrefix + command} https://mega.nz/file/NnEA1DIT#GXPSel8LJk2mnp7E_i69OXkSGq-x_bLceIi63p3BNZk`)
+    if (!text) throw `Contoh:\n${usedPrefix + command} https://mega.nz/file/NnEA1DIT#GXPSel8LJk2mnp7E_i69OXkSGq-x_bLceIi63p3BNZk`
 
-    const apiUrl = `${APIs.ryzumi}/api/downloader/mega?url=${encodeURIComponent(text)}`
-    const { data } = await axios.get(apiUrl, { headers: { accept: 'application/json' } })
-
+    const { data } = await axios.get(`${APIs.ryzumi}/api/downloader/mega?url=${encodeURIComponent(text)}`, { headers: { accept: 'application/json' } })
     const item = data?.result?.find(x => x.type === 'file') || data?.result?.[0]
     if (!item) return m.reply('Error: File tidak ditemukan')
     if (!item.link) return m.reply('Error: Link unduhan tidak tersedia')
 
-    // Cek limit ukuran (500 MB)
     if (item.size >= 500_000_000) return m.reply('Error: ukuran file terlalu besar (Ukuran Max: 500MB)')
 
     m.reply(`*_Mohon tunggu sebentar..._*\n${item.name} sedang diproses...`)
 
-    // Deteksi mimetype dari ekstensi
     const ext = (item.name.split('.').pop() || '').toLowerCase()
     const mimeMap = {
       mp4: 'video/mp4',
@@ -33,8 +29,7 @@ let handler = async (m, { conn, args, usedPrefix, text, command }) => {
     }
     const mimetype = mimeMap[ext] || 'application/octet-stream'
 
-    // Kirim langsung dari URL (hemat memori)
-    await conn.sendMessage(
+    conn.sendMessage(
       m.chat,
       { document: { url: item.link }, mimetype, filename: item.name },
       { quoted: m }

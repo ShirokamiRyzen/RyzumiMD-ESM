@@ -4,14 +4,11 @@
 import axios from 'axios'
 
 let handler = async (m, { conn, args }) => {
-    if (!args[0]) throw 'Please provide a Facebook video URL';
-    const sender = m.sender.split('@')[0];
-    const url = args[0];
-
+    if (!args[0]) throw 'Please provide a Facebook video URL';a
     m.reply(wait);
 
     try {
-        const { data } = await axios.get(`${APIs.ryzumi}/api/downloader/fbdl?url=${encodeURIComponent(url)}`);
+        const { data } = await axios.get(`${APIs.ryzumi}/api/downloader/fbdl?url=${encodeURIComponent(args[0])}`);
 
         if (!data.status || !data.data || data.data.length === 0) throw 'No available video found';
 
@@ -19,20 +16,15 @@ let handler = async (m, { conn, args }) => {
         let video = data.data.find(v => v.resolution === '720p (HD)') || data.data.find(v => v.resolution === '360p (SD)');
         
         if (video && video.url) {
-            const videoBuffer = await axios.get(video.url, { responseType: 'arraybuffer' }).then(res => res.data);
-            const caption = `Ini kak videonya @${sender}`;
-
-            await conn.sendMessage(
+             conn.sendMessage(
                 m.chat, {
-                video: videoBuffer,
+                video: { video.url },
                 mimetype: "video/mp4",
                 fileName: `video.mp4`,
-                caption: caption,
+                caption: `Ini kak videonya @${m.sender.split('@')[0]}`,
                 mentions: [m.sender],
-            }, {
-                quoted: m
-            }
-            );
+            }, { quoted: m });
+
         } else {
             throw 'No available video found';
         }
@@ -45,7 +37,6 @@ let handler = async (m, { conn, args }) => {
 handler.help = ['fb <url>']
 handler.tags = ['downloader']
 handler.command = /^(fbdownload|facebook|fb(dl)?)$/i
-
 handler.limit = true
 handler.register = true
 

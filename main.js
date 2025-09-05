@@ -45,7 +45,7 @@ const {
   makeInMemoryStore,
   jidNormalizedUser,
   makeCacheableSignalKeyStore
-} = await import('@whiskeysocket/baileys')
+} = await import('@whiskeysockets/baileys')
 import { Low, JSONFile } from 'lowdb'
 import { makeWASocket, protoType, serialize } from './lib/simple.js'
 

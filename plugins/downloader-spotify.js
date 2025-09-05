@@ -1,21 +1,15 @@
 import axios from 'axios'
 
-let delay = ms => new Promise(resolve => setTimeout(resolve, ms))
-
 let handler = async (m, { conn, args, usedPrefix, command }) => {
     if (!args[0]) throw `Usage: ${usedPrefix + command} <url>`
-
-    let url = args[0]
-
     m.reply(wait)
 
     try {
-        let response = await axios.get(`${APIs.ryzumi}/api/downloader/spotify?url=${encodeURIComponent(url)}`)
+        let response = await axios.get(`${APIs.ryzumi}/api/downloader/spotify?url=${encodeURIComponent(args[0])}`)
         let data = response.data
 
         if (data.success) {
             if (data.metadata.playlistName) {
-                // Jika URL yang diberikan adalah playlist
                 let playlistName = data.metadata.playlistName
                 let cover = data.metadata.cover
                 let tracks = data.tracks
@@ -27,15 +21,8 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 
                     if (track.success) {
                         let { title, artists, album, cover, releaseDate } = track.metadata
-                        let link = track.link  // Mengambil link dari dalam objek track
-
-                        // Mengunduh file audio sebagai buffer
-                        let audioResponse = await axios.get(link, { responseType: 'arraybuffer' })
-                        let audioBuffer = audioResponse.data
-
-                        // Mengirim file audio sebagai dokumen
-                        await conn.sendMessage(m.chat, {
-                            document: audioBuffer, // Buffer langsung dimasukkan di sini
+                         conn.sendMessage(m.chat, {
+                            document: { url: track.link },
                             mimetype: 'audio/mpeg',
                             fileName: `${title}.mp3`,
                             caption: `
@@ -47,8 +34,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
                             `,
                         }, { quoted: m })
 
-                        // Delay sebelum mengirimkan track berikutnya
-                        await delay(1500)
+                        await conn.delay(1500)
                     } else {
                         m.reply(`Error: Failed to download track ${i + 1}`)
                     }
@@ -56,15 +42,8 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
             } else {
                 // Jika URL yang diberikan adalah track tunggal
                 let { title, artists, album, cover, releaseDate } = data.metadata
-                let link = data.link  // Mengambil link dari response utama
-
-                // Mengunduh file audio sebagai buffer
-                let audioResponse = await axios.get(link, { responseType: 'arraybuffer' })
-                let audioBuffer = audioResponse.data
-
-                // Mengirim file audio sebagai dokumen
-                await conn.sendMessage(m.chat, {
-                    document: audioBuffer, // Buffer langsung dimasukkan di sini
+                 conn.sendMessage(m.chat, {
+                    document: { url: data.link },
                     mimetype: 'audio/mpeg',
                     fileName: `${title}.mp3`,
                     caption: `
@@ -88,7 +67,6 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 handler.help = ['spotify <url>']
 handler.tags = ['downloader']
 handler.command = /^(spotify(dl)?)$/i
-
 handler.limit = 2
 handler.register = true
 
