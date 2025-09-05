@@ -3,6 +3,7 @@ import fetch from 'node-fetch';
 let handler = m => m;
 
 handler.before = async (m) => {
+    if (!m.isGroup) return
     let chat = global.db.data.chats[m.chat];
     if (chat.simi && !chat.isBanned) {
         if (/^.*false|disnable|(turn)?off|0/i.test(m.text)) return;
