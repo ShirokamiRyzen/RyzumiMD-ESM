@@ -2,14 +2,10 @@ import axios from "axios"
 
 let handler = async (m, { conn, args, usedPrefix, command }) => {
     if (!args[0]) throw `Usage: ${usedPrefix + command} <url>`;
-
-    const sender = m.sender.split('@')[0];
-    let url = args[0];
-
     m.reply(wait);
 
     try {
-        let response = await axios.get(`${APIs.ryzumi}/api/downloader/aiodown?url=${encodeURIComponent(url)}`);
+        let response = await axios.get(`${APIs.ryzumi}/api/downloader/aiodown?url=${encodeURIComponent(args[0])}`);
         let data = response.data;
 
         if (!data.success) throw 'Gagal mengambil data video';
@@ -32,7 +28,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
             videoUrl = lowestQuality.url;
         }
 
-        let caption = `Ini kak videonya @${sender}`.trim();
+        let caption = `Ini kak videonya @${m.sender.split('@')[0]}`.trim();
         await conn.sendMessage(m.chat, { video: { url: videoUrl }, caption: caption, mentions: [m.sender], quoted: m });
 
     } catch (e) {
@@ -43,7 +39,6 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 handler.help = ['aio <url>']
 handler.tags = ['downloader']
 handler.command = /^(aio)$/i
-
 handler.register = true
 handler.limit = 1
 

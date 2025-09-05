@@ -6,15 +6,11 @@ import fetch from 'node-fetch'
 
 let handler = async (m, { conn, args }) => {
     if (!args[0]) throw 'Please provide a Threads URL';
-    const sender = m.sender.split('@')[0];
-    const url = args[0];
-
     m.reply(wait);
 
     try {
-        const { data } = await axios.get(`${APIs.ryzumi}/api/downloader/threads?url=${encodeURIComponent(url)}`);
+        const { data } = await axios.get(`${APIs.ryzumi}/api/downloader/threads?url=${encodeURIComponent(args[0])}`);
 
-        // Support both new and old API response shapes
         const images = data.image_urls || data.images || [];
         const videos = data.video_urls || data.videos || [];
 
@@ -24,17 +20,12 @@ let handler = async (m, { conn, args }) => {
 
         // Send video
         if (videos.length > 0) {
-            // New API returns raw URLs, old API returns objects with { download }
-            const firstVideo = videos[0];
-            const videoUrl = typeof firstVideo === 'string' ? firstVideo : firstVideo.download;
-            const videoBuffer = await fetch(videoUrl).then(res => res.buffer());
-
             await conn.sendMessage(
                 m.chat, {
-                    video: videoBuffer,
+                    video: { url: videos[0].download },
                     mimetype: "video/mp4",
                     fileName: `threads_video.mp4`,
-                    caption: `Ini kak videonya @${sender}`,
+                    caption: `Ini kak videonya @${m.sender.split('@')[0]}`,
                     mentions: [m.sender]
                 }, {
                     quoted: m
@@ -44,18 +35,11 @@ let handler = async (m, { conn, args }) => {
 
         // Send all images
         if (images.length > 0) {
-            let first = true;
             for (const item of images) {
-                const imgUrl = typeof item === 'string' ? item : item.download;
-                const imgBuffer = await fetch(imgUrl).then(res => res.buffer());
-
-                const caption = first ? `Ini kak gambarnya @${sender}` : '';
-                first = false;
-
-                await conn.sendMessage(
+                 conn.sendMessage(
                     m.chat, {
-                        image: imgBuffer,
-                        caption,
+                        image: { url: item.download },
+                        caption: `Ini kak videonya @${m.sender.split('@')[0]}`,
                         mentions: [m.sender]
                     }, {
                         quoted: m
@@ -73,7 +57,6 @@ let handler = async (m, { conn, args }) => {
 handler.help = ['threads'].map(v => v + ' <url>');
 handler.tags = ['downloader'];
 handler.command = /^(threads(dl)?)$/i;
-
 handler.limit = true
 handler.register = true
 

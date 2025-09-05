@@ -21,7 +21,7 @@ conn.reply(m.chat, `Succes deleted "plugins/${args[0]}.js"`, m)
 }
 handler.help = ['df']
 handler.tags = ['owner']
-handler.command = /^(df)$/i
+handler.command = /^(df|d(el)?(ete)?(file))$/i
 
 handler.mods = true
 

@@ -1,5 +1,5 @@
 import axios from 'axios'
-import cheerio from 'cheerio'
+import * as cheerio from 'cheerio'
 
 let handler = async (m, { conn, args }) => {
 	if (!args[0]) throw 'Input URL'

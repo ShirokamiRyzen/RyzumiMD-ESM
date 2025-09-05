@@ -1,5 +1,5 @@
 import axios from 'axios'
-import cheerio from 'cheerio'
+import * as cheerio from 'cheerio'
 
 let handler = async (m, { conn, args }) => {
     if (!args[0]) throw 'Please provide a Pixeldrain URL';
@@ -9,17 +9,11 @@ let handler = async (m, { conn, args }) => {
     m.reply(wait);
 
     try {
-        // Panggil fungsi download dari Pixeldrain
         const { url: downloadUrl, filename, filetype } = await pixeldrainDL(url);
-        
-        // Ambil file videonya
-        const { data: videoBuffer } = await axios.get(downloadUrl, { responseType: 'arraybuffer' });
-
         const caption = `Ini kak videonya @${sender}`;
-
         await conn.sendMessage(
             m.chat, {
-                video: videoBuffer,
+                video: { url: downloadUrl },
                 mimetype: filetype,
                 fileName: filename,
                 caption: caption,
@@ -37,7 +31,6 @@ let handler = async (m, { conn, args }) => {
 handler.help = ['pixeldrain <url>']
 handler.tags = ['downloader']
 handler.command = /^(pddl|pixeldrain|pixeldrain(dl)?)$/i
-
 handler.limit = true
 handler.register = true
 

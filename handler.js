@@ -13,7 +13,7 @@ const delay = ms => isNumber(ms) && new Promise(resolve => setTimeout(resolve, m
 
 /**
  * Handle messages upsert
- * @param {import('@whiskeysocket/baileys').BaileysEventMap<unknown>['messages.upsert']} groupsUpdate 
+ * @param {import('@whiskeysockets/baileys').BaileysEventMap<unknown>['messages.upsert']} groupsUpdate 
  */
 
 export async function handler(chatUpdate) {
@@ -387,7 +387,7 @@ export async function handler(chatUpdate) {
 }
 /**
  * Handle groups participants update
- * @param {import('@whiskeysocket/baileys').BaileysEventMap<unknown>['group-participants.update']} groupsUpdate 
+ * @param {import('@whiskeysockets/baileys').BaileysEventMap<unknown>['group-participants.update']} groupsUpdate 
  */
 export async function participantsUpdate({ id, participants, action, simulate = false }) {
     if (opts['self']) return
@@ -451,7 +451,7 @@ export async function participantsUpdate({ id, participants, action, simulate = 
 
 /**
  * Handler groups update
- * @param {import('@whiskeysocket/baileys').BaileysEventMap<unknown>['groups.update']} groupsUpdate 
+ * @param {import('@whiskeysockets/baileys').BaileysEventMap<unknown>['groups.update']} groupsUpdate 
  */
 export async function groupsUpdate(groupsUpdate) {
     if (opts['self']) return

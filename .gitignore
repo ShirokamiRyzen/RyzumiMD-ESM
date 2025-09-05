@@ -17,5 +17,4 @@ plugins/_autoviewonce.js
 plugins/_RyzumiAPI-IP.js
 plugins/_cf_API.js
 plugins/ai-farel.js
-RyzumiMD.zip
-RyzumiMD-ESM.zip
+*.zip

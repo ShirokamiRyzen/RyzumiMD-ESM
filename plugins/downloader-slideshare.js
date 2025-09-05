@@ -1,10 +1,7 @@
 import fetch from 'node-fetch'
 
 const handler = async (m, { conn, args, command, usedPrefix }) => {
-    if (args.length < 1) {
-        conn.reply(m.chat, `> Silakan berikan URL SlideShare\n\nContoh: \n*${usedPrefix + command} LINKNYA*\n*${usedPrefix + command} https://www.slideshare.net/StevanyStevany/materi-lengkap-tentang-power-point*`, m);
-        return;
-    }
+    if (args.length < 1) throw `> Silakan berikan URL SlideShare\n\nContoh: \n*${usedPrefix + command} LINKNYA*\n*${usedPrefix + command} https://www.slideshare.net/StevanyStevany/materi-lengkap-tentang-power-point*`
     
     const url = args[0];
     const filetypes = ['pdf', 'pptx'];
@@ -15,7 +12,6 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
         for (const filetype of filetypes) {
             const response_get = await fetch(`https://bioskop-six.vercel.app/slideshare?url=${encodeURIComponent(url)}&filetype=${filetype}`);
             const { download_url } = await response_get.json();
-            console.log(`Download URL for ${filetype.toUpperCase()}: ${download_url}`);
 
             conn.sendFile(m.chat, download_url, `${url.split('/').pop()}.${filetype}`, `> File ${filetype.toUpperCase()} berhasil diunduh dan disimpan sebagai ${url.split('/').pop()}.${filetype}`, m);
         }
@@ -28,7 +24,6 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
 handler.command = /^(slideshare|slidedl|slidesharedl|slidedownload)$/i
 handler.help = ['slideshare <link>']
 handler.tags = ['downloader']
-
 handler.register = true
 handler.limit = true
 
