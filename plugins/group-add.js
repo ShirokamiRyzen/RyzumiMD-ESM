@@ -22,17 +22,15 @@ let handler = async (m, { conn, text, participants, usedPrefix, command }) => {
     const jpegThumbnail = pp ? await (await fetch(pp)).buffer() : Buffer.alloc(0);
 
     for (const participant of response) {
-        const jid = participant.jid;
+        const jid = participant.content.attrs.phone_number;
         const status = participant.status;
 
         if (status === '408') {
             conn.reply(m.chat, `Tidak dapat menambahkan @${jid.split('@')[0]}!\nMungkin @${jid.split('@')[0]} baru keluar dari grup ini atau dikick`, m);
         } else if (status === '403') {
-            const inviteCode = participant.content.attrs.code;
-            const inviteExp = participant.content.attrs.expiration;
-
-            const txt = `Mengundang @${jid.split('@')[0]} menggunakan invite...`;
-            await m.reply(txt, null, { mentions: await conn.parseMention(txt) });
+            const inviteCode = participant.content.content[0].attrs.code;
+            const inviteExp = participant.content.content[0].attrs.expiration;
+            await m.reply(`Mengundang @${jid.split('@')[0]} menggunakan invite...`);
             
             await conn.sendGroupV4Invite(
                 m.chat,

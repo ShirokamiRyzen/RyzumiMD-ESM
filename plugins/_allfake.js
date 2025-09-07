@@ -40,17 +40,6 @@ handler.all = async function (m) {
         }
     }
 
-    global.sig = {
-        contextInfo: {
-            externalAdReply: {
-                title: global.ucapan,
-                body: wm,
-                thumbnailUrl: pp,
-                sourceUrl: sig
-            }
-        }
-    }
-
     global.sfb = {
         contextInfo: {
             externalAdReply: {
