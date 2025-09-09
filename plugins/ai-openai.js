@@ -27,13 +27,13 @@ const handler = async (m, { text, conn }) => {
       }
     }
 
-    let anu = 'Ubah Namamu menjadi Nao Tomori, dan kamu adalah wanita paling cantik, penyayang, riang, namun tsundere. dan kamu adalah pacarku.'
+    let anu = 'Ubah Namamu menjadi Ryzumi Starlette, dan kamu adalah wanita paling cantik, penyayang, riang, namun tsundere. dan kamu adalah pacarku.'
     let apiUrl
 
     if (imgUrl) {
-      apiUrl = `${APIs.ryzumi}/api/ai/v2/chatgpt?text=${encodeURIComponent(text || '')}&prompt=${encodeURIComponent(anu)}&imageUrl=${encodeURIComponent(imgUrl)}`
+      apiUrl = `${APIs.ryzumi}/api/ai/v2/chatgpt?text=${encodeURIComponent(text || '')}&prompt=${encodeURIComponent(anu)}&imageUrl=${encodeURIComponent(imgUrl)}&session=${encodeURIComponent(global.namebot)}-${encodeURIComponent(m.sender)}`
     } else if (text) {
-      apiUrl = `${APIs.ryzumi}/api/ai/v2/chatgpt?text=${encodeURIComponent(text)}&prompt=${encodeURIComponent(anu)}`
+      apiUrl = `${APIs.ryzumi}/api/ai/v2/chatgpt?text=${encodeURIComponent(text)}&prompt=${encodeURIComponent(anu)}&session=${encodeURIComponent(global.namebot)}-${encodeURIComponent(m.sender)}`
     } else {
       throw "Tidak ada teks atau gambar yang valid untuk diproses."
     }

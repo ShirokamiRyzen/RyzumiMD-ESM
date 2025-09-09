@@ -36,9 +36,9 @@ let handler = async (m, { conn, text }) => {
     }
 }
 
-handler.help = ['geminiimage']
+handler.help = ['geminiedit']
 handler.tags = ['ai']
-handler.command = /^(geminiimage)$/i
+handler.command = /^(geminiedit)$/i
 handler.register = true
 handler.limit = 2
 

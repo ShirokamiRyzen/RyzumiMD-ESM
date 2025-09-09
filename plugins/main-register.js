@@ -30,20 +30,13 @@ ${sn}
 Dengan menggunakan ${global.namebot}, Anda setuju dengan ketentuan berikut:
 
 1. *DILARANG KERAS MERUBAH TIMER/PESAN SEMENTARA*
-Bot akan secara otomatis melakukan banning terhadap nomormu, untuk unban silahkan lapor owner (+${global.nomorown}).
-
 2. *DILARANG MENGIRIM MEDIA NSFW*
-Bot akan otomatis mendeteksi media dan melakukan banning terhadap nomormu, untuk unban silahkan lapor owner (+${global.nomorown}).
-
 3. *DILARANG SPAM NOMOR BOT*
-Bot akan melakukan ban permanent jika ada indikasi spam pada nomormu.
-
 4. *CHAT OWNER BILA PERLU*
-Tidak ada gunanya chat ke nomor bot, karena nomor bot tersimpan di server dan owner tidak akan melihat chatmu.
 
 Dengan menggunakan ${global.namebot}, Anda setuju dengan semua ketentuan yang berlaku.
 
-*Ketentuan ini terakhir diperbarui pada 12 Mei 2024.*
+*Ketentuan ini terakhir diperbarui pada 9 September 2025.*
 
 Mendaftar berarti setuju dengan ketentuan
 `.trim())
