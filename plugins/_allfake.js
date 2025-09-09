@@ -22,7 +22,7 @@ handler.all = async function (m) {
     global.fs = fs
 
     global.ucapan = ucapan()
-    global.ephemeral = '86400'
+    global.ephemeral = ''
 
     global.adReply = {
         contextInfo: {
