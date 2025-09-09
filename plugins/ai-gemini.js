@@ -43,7 +43,7 @@ const handler = async (m, { text, usedPrefix, command, conn }) => {
     let result = await hasil.json();
     if (!result.success) throw new Error("Response API tidak berhasil");
 
-    let responseMessage = result.answer || "Tidak ada respons dari AI.";
+    let responseMessage = result.result || "Tidak ada respons dari AI.";
 
     await conn.sendMessage(m.chat, { text: responseMessage });
 
