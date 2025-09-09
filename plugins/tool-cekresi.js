@@ -11,29 +11,30 @@ let handler = async (m, { conn, args }) => {
     });
 
     const ekspedisiList = {
-        'shopee-express': 'SPX',
-        'ninja': 'NINJA',
-        'lion-parcel': 'LIONPARCEL',
-        'pos-indonesia': 'POS',
-        'tiki': 'TIKI',
         'acommerce': 'ACOMMERCE',
+        'anter-aja': 'ANTERAJA',
+        'ark-xpress': 'ARK',
+        'grab-express': 'GRAB',
         'gtl-goto-logistics': 'GTL',
-        'paxel': 'PAXEL',
-        'sap-express': 'SAP',
         'indah-logistik-cargo': 'INDAH',
-        'lazada-express-lex': 'LEX',
-        'lazada-logistics': 'LEL',
         'janio-asia': 'JANIO',
         'jet-express': 'JETEXPRESS',
-        'pcp-express': 'PCP',
-        'pt-ncs': 'NCS',
-        'nss-express': 'NSS',
-        'grab-express': 'GRAB',
-        'rcl-red-carpet-logistics': 'RCL',
-        'qrim-express': 'QRIM',
-        'ark-xpress': 'ARK',
-        'standard-express-lwe': 'LWE',
+        'lion-parcel': 'LIONPARCEL',
         'luar-negeri-bea-cukai': 'BEACUKAI',
+        'lazada-express-lex': 'LEX',
+        'lazada-logistics': 'LEL',
+        'ninja': 'NINJA',
+        'nss-express': 'NSS',
+        'paxel': 'PAXEL',
+        'pcp-express': 'PCP',
+        'pos-indonesia': 'POS',
+        'pt-ncs': 'NCS',
+        'qrim-express': 'QRIM',
+        'rcl-red-carpet-logistics': 'RCL',
+        'sap-express': 'SAP',
+        'shopee-express': 'SPX',
+        'standard-express-lwe': 'LWE',
+        'tiki': 'TIKI',
     };
 
     try {
@@ -43,7 +44,7 @@ let handler = async (m, { conn, args }) => {
 
         if (!result.success || !result.data) {
             if (!ekspedisi) {
-                const available = Object.keys(ekspedisiList).join(', ');
+                const available = Object.keys(ekspedisiList).join('\n');
                 throw `Gagal mendeteksi ekspedisi dari resi.\nCoba sertakan ekspedisi secara manual.\n\nContoh: \`.cekresi SPXIDxxxxxx shopee-express\`\n\nList ekspedisi:\n${available}`;
             } else {
                 throw 'Resi tidak ditemukan atau salah.';
@@ -72,7 +73,7 @@ ${historyText}
         });
 
     } catch (e) {
-        const available = Object.keys(ekspedisiList).join(', ');
+        const available = Object.keys(ekspedisiList).join('\n');
         await conn.sendMessage(m.chat, {
             text: `Gagal melacak resi:\n\nCoba sertakan ekspedisi secara manual.\n\nContoh: \`.cekresi SPXIDxxxxxx shopee-express\`\n\nList ekspedisi:\n${available}`,
         });
