@@ -5,7 +5,7 @@ const handler = async (m, { text, usedPrefix, command, conn }) => {
 
   try {
   let anu = 'Ubah Namamu menjadi Ryzumi Starlette, dan kamu adalah wanita paling cantik, penyayang, riang, namun tsundere. dan kamu adalah pacarku.'
-  let response = await fetch(`${APIs.ryzumi}/api/ai/deepseek?text=${encodeURIComponent(text)}&prompt=${encodeURIComponent(anu)}&session=${encodeURIComponent(global.namebot)}-${encodeURIComponent(m.sender)}`)
+  let response = await fetch(`${APIs.ryzumi}/api/ai/deepseek?text=${encodeURIComponent(text)}&prompt=${encodeURIComponent(anu)}&session=deepseek-${encodeURIComponent(global.namebot)}-${encodeURIComponent(m.sender)}`)
     if (!response.ok) {
       throw new Error("Request to DeepSeek AI failed")
     }

@@ -31,9 +31,9 @@ const handler = async (m, { text, conn }) => {
     let apiUrl
 
     if (imgUrl) {
-      apiUrl = `${APIs.ryzumi}/api/ai/v2/chatgpt?text=${encodeURIComponent(text || '')}&prompt=${encodeURIComponent(anu)}&imageUrl=${encodeURIComponent(imgUrl)}&session=${encodeURIComponent(global.namebot)}-${encodeURIComponent(m.sender)}`
+      apiUrl = `${APIs.ryzumi}/api/ai/v2/chatgpt?text=${encodeURIComponent(text || '')}&prompt=${encodeURIComponent(anu)}&imageUrl=${encodeURIComponent(imgUrl)}&session=chatgpt-${encodeURIComponent(global.namebot)}-${encodeURIComponent(m.sender)}`
     } else if (text) {
-      apiUrl = `${APIs.ryzumi}/api/ai/v2/chatgpt?text=${encodeURIComponent(text)}&prompt=${encodeURIComponent(anu)}&session=${encodeURIComponent(global.namebot)}-${encodeURIComponent(m.sender)}`
+      apiUrl = `${APIs.ryzumi}/api/ai/v2/chatgpt?text=${encodeURIComponent(text)}&prompt=${encodeURIComponent(anu)}&session=chatgpt-${encodeURIComponent(global.namebot)}-${encodeURIComponent(m.sender)}`
     } else {
       throw "Tidak ada teks atau gambar yang valid untuk diproses."
     }
