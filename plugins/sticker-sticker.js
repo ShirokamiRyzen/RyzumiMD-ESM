@@ -7,15 +7,19 @@ let handler = async (m, { conn, args, text, usedPrefix, command }) => {
   }
 
   if (/image|video|webp/.test(mime)) {
-    if (mime.includes('video') && q.msg.seconds > 10) {
+    // Treat GIFs as videos (WhatsApp sends them as mp4); guard for missing metadata
+    const isVideoLike = /video|gif/.test(mime) || (q.mediaType === 'videoMessage')
+    const seconds = Number(q.msg?.seconds || q.seconds || q.duration || 0)
+    if (isVideoLike && seconds > 10) {
       return m.reply('Video harus berdurasi di bawah 10 detik.')
     }
 
     let media = await q.download()
-    let exif;
+    let exif
     if (text) {
-    let [packname, author] = text.split(/[,|\-+&]/);
-    exif = { packname: packname ? packname : '', packnublish: author ? author : '' };
+      const [packname, author] = text.split(/[,|\-+&]/)
+      // Correct keys expected by writeExif: packName, packPublish
+      exif = { packName: packname?.trim() || '', packPublish: author?.trim() || '' }
     }
     return conn.sendSticker(m.chat, media, m, exif)
   }

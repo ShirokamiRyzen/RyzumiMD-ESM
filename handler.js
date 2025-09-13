@@ -27,7 +27,8 @@ export async function handler(chatUpdate) {
         m = smsg(this, m) || m
         if (!m) return
         m.exp = 0
-        m.limit = false
+        // use number for limit tracking to avoid boolean coercion bugs
+        m.limit = 0
         try {
             // TODO: use loop to insert data instead of this
             if (m.sender.endsWith('@broadcast') || m.sender.endsWith('@newsletter')) return
@@ -277,9 +278,16 @@ export async function handler(chatUpdate) {
                     console.log("ngecit -_-");
                 else
                     m.exp += xp
-                if (!isPrems && plugin.limit && global.db.data.users[m.sender].limit < plugin.limit * 1) {
-                    this.reply(m.chat, `[❗] Limit harian kamu telah habis, silahkan beli Premium melalui *${usedPrefix}premium*`, m)
-                    continue // Limit habis
+                // Normalize and enforce limit requirement strictly
+                const requiredLimit = !isPrems
+                    ? (plugin.limit === true ? 1 : Number(plugin.limit) || 0)
+                    : 0
+                if (requiredLimit > 0) {
+                    const currentLimit = Number(global.db.data.users[m.sender].limit || 0)
+                    if (currentLimit < requiredLimit) {
+                        this.reply(m.chat, `Limit harian kamu telah habis`, m)
+                        continue // Block execution when user doesn't have enough limit
+                    }
                 }
                 if (plugin.level > _user.level) {
                     this.reply(m.chat, `[💬] Diperlukan level ${plugin.level} untuk menggunakan perintah ini\n*Level mu:* ${_user.level} 📊`, m)
@@ -310,8 +318,11 @@ export async function handler(chatUpdate) {
                 }
                 try {
                     await plugin.call(this, m, extra)
-                    if (!isPrems)
-                        m.limit = m.limit || plugin.limit || false
+                    if (!isPrems) {
+                        // Always store numeric limit cost for safe deduction later
+                        const cost = plugin.limit === true ? 1 : Number(plugin.limit) || 0
+                        m.limit = Number(m.limit) || cost
+                    }
                 } catch (e) {
                     // Error occured
                     m.error = e
@@ -349,8 +360,9 @@ export async function handler(chatUpdate) {
         let user, stats = global.db.data.stats
         if (m) {
             if (m.sender && (user = global.db.data.users[m.sender])) {
-                user.exp += m.exp
-                user.limit -= m.limit * 1
+                user.exp += Number(m.exp) || 0
+                user.limit -= Number(m.limit) || 0
+                if (user.limit < 0) user.limit = 0
             }
             let stat
             if (m.plugin) {
@@ -403,7 +415,7 @@ export async function participantsUpdate({ id, participants, action, simulate = 
             if (chat.welcome) {
                 let groupMetadata = (conn.chats[id] || {}).metadata || await this.groupMetadata(id)
                 for (let user of participants) {
-                if(action === 'add') await delay(1000)
+                    if (action === 'add') await delay(1000)
                     const userJid = await this.getJid(user, id)
                     let pp;
                     try {
@@ -416,7 +428,7 @@ export async function participantsUpdate({ id, participants, action, simulate = 
                         const gcMem = groupMetadata.participants?.length || 0
                         const welcomeBg = 'https://telegra.ph/file/666ccbfc3201704454ba5.jpg'
                         const leaveBg = 'https://telegra.ph/file/0db212539fe8a014017e3.jpg'
-                        
+
                         text = (action === 'add' ? (chat.sWelcome || this.welcome || 'Welcome, @user!').replace('@subject', gcname).replace('@desc', groupMetadata.desc || '')
                             : (chat.sBye || this.bye || 'Bye, @user!')).replace('@user', '@' + userJid.split('@')[0])
 
