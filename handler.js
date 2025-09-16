@@ -285,7 +285,7 @@ export async function handler(chatUpdate) {
                 if (requiredLimit > 0) {
                     const currentLimit = Number(global.db.data.users[m.sender].limit || 0)
                     if (currentLimit < requiredLimit) {
-                        this.reply(m.chat, `Limit harian kamu telah habis`, m)
+                        this.reply(m.chat, "Limit kamu kurang,\nketik `.premium` untuk membeli Role Premium", m)
                         continue // Block execution when user doesn't have enough limit
                     }
                 }
