@@ -17,7 +17,7 @@ let handler = async (m, { conn, command, text }) => {
 }
 
 handler.help = ['brat', 'bratvid']
-handler.tags = ['sticker']
+handler.tags = ['maker']
 handler.command = /^(brat|brat(vid|video))$/i
 handler.register = true
 

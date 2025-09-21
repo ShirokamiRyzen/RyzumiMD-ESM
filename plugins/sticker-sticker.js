@@ -26,8 +26,8 @@ let handler = async (m, { conn, args, text, usedPrefix, command }) => {
   return m.reply('Kirim atau reply media untuk dijadikan stiker.')
 }
 
-handler.help = ['sticker']
-handler.tags = ['sticker']
+handler.help = ['maker']
+handler.tags = ['maker']
 handler.command = /^s(tic?ker)?(gif)?$/i
 handler.register = true
 

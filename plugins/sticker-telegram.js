@@ -30,7 +30,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 }
 
 handler.help = ['stickertele']
-handler.tags = ['sticker']
+handler.tags = ['maker']
 handler.command = /^(stic?kertele(gram)?)$/i
 handler.limit = 15
 handler.register = true

@@ -16,7 +16,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 };
 
 handler.help = ['emojimix']
-handler.tags = ['sticker']
+handler.tags = ['maker']
 handler.command = /^(emojimix|emix)$/i
 handler.register = true
 

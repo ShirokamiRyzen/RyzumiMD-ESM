@@ -10,7 +10,7 @@ let handler = async (m) => {
     }
 }
 handler.help = ['getexif']
-handler.tags = ['sticker']
+handler.tags = ['maker']
 
 handler.command = ['getexif']
 
