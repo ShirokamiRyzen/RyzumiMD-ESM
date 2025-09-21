@@ -12,13 +12,16 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
         let media = await q.download()
         let url = await uploadPomf(media)
 
-        // Mengirim permintaan ke API waifu2x dan mendapatkan buffer
+        // Coba API utama dulu
         let response = await fetch(`${APIs.ryzumi}/api/ai/upscaler?url=${url}`)
-        if (!response.ok) throw new Error('Gagal menghubungi Ryzen API')
+        if (!response.ok) {
+            response = await fetch(`${APIs.ryzumi}/api/ai/waifu2x?url=${url}`)
+            if (!response.ok) throw new Error('Error')
+        }
 
         let hasil = await response.buffer()
 
-        // Mengirim file buffer langsung ke chat
+        // Kirim hasil
         await conn.sendFile(m.chat, hasil, 'hasil.jpg', global.wm, m)
     } catch (error) {
         console.error(error)
