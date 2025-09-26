@@ -1,7 +1,6 @@
 import fetch from 'node-fetch'
 import sharp from 'sharp'
-import pkg from '@whiskeysockets/baileys'
-const { generateWAMessageContent, generateWAMessageFromContent, proto } = pkg
+import { generateWAMessageContent, generateWAMessageFromContent, proto } from '@whiskeysockets/baileys'
 
 const handler = async (m, { usedPrefix, command, conn, args }) => {
   if (!args[0]) throw `*Example:* ${usedPrefix}${command} Nao Tomori atau https://www.pixiv.net/en/artworks/92445569`
@@ -51,18 +50,18 @@ const handler = async (m, { usedPrefix, command, conn, args }) => {
     for (const imageUrl of images) {
       const imageMsg = await createImage(imageUrl);
       push.push({
-        body: proto.Message.InteractiveMessage.Body.fromObject({
+        body: proto.Message.InteractiveMessage.Body.create({
           text: caption
         }),
-        footer: proto.Message.InteractiveMessage.Footer.fromObject({
+        footer: proto.Message.InteractiveMessage.Footer.create({
           text: `Artist: ${artist}\nTags: ${tags}`
         }),
-        header: proto.Message.InteractiveMessage.Header.fromObject({
+        header: proto.Message.InteractiveMessage.Header.create({
           title: '',
           hasMediaAttachment: true,
           imageMessage: imageMsg
         }),
-        nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
+        nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.create({
           buttons: [
             {
               name: "cta_url",
@@ -84,7 +83,7 @@ const handler = async (m, { usedPrefix, command, conn, args }) => {
             deviceListMetadata: {},
             deviceListMetadataVersion: 2
           },
-          interactiveMessage: proto.Message.InteractiveMessage.fromObject({
+          interactiveMessage: proto.Message.InteractiveMessage.create({
             body: proto.Message.InteractiveMessage.Body.create({
               text: `Total results: ${images.length}`
             }),
@@ -94,7 +93,7 @@ const handler = async (m, { usedPrefix, command, conn, args }) => {
             header: proto.Message.InteractiveMessage.Header.create({
               hasMediaAttachment: false
             }),
-            carouselMessage: proto.Message.InteractiveMessage.CarouselMessage.fromObject({
+            carouselMessage: proto.Message.InteractiveMessage.CarouselMessage.create({
               cards: push
             })
           })

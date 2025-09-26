@@ -1,8 +1,8 @@
-const {
+import {
     proto,
     generateWAMessage,
     areJidsSameUser
-} = (await import('@whiskeysockets/baileys')).default
+} from '@whiskeysockets/baileys'
 
 export async function all(m, chatUpdate) {
     if (m.isBaileys)
@@ -78,11 +78,10 @@ export async function all(m, chatUpdate) {
     messages.key.fromMe = areJidsSameUser(m.sender, this.user.id)
     messages.key.id = m.key.id
     messages.pushName = m.name
-    if (m.isGroup)
-        messages.key.participant = messages.participant = m.sender
+    if (m.isGroup) messages.key.participant = messages.participant = m.sender
     let msg = {
         ...chatUpdate,
-        messages: [proto.WebMessageInfo.fromObject(messages)].map(v => (v.conn = this, v)),
+        messages: [proto.WebMessageInfo.create(messages)].map(v => (v.conn = this, v)),
         type: 'append'
     }
     this.ev.emit('messages.upsert', msg)

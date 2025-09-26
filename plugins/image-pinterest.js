@@ -1,6 +1,5 @@
 import fetch from 'node-fetch'
-import pkg from '@whiskeysockets/baileys'
-const { generateWAMessageContent, generateWAMessageFromContent, proto } = pkg
+import { generateWAMessageContent, generateWAMessageFromContent, proto } from '@whiskeysockets/baileys'
 
 const handler = async (m, { usedPrefix, command, conn, args }) => {
   if (!args[0]) throw `*Example:* ${usedPrefix}${command} Nao Tomori`;
@@ -37,14 +36,14 @@ const handler = async (m, { usedPrefix, command, conn, args }) => {
     for (const result of results) {
       const imageMsg = await createImage(result.directLink);
       push.push({
-        body: proto.Message.InteractiveMessage.Body.fromObject({ text: result.link }),
-        footer: proto.Message.InteractiveMessage.Footer.fromObject({ text: global.footer }),
-        header: proto.Message.InteractiveMessage.Header.fromObject({
+        body: proto.Message.InteractiveMessage.Body.create({ text: result.link }),
+        footer: proto.Message.InteractiveMessage.Footer.create({ text: global.footer }),
+        header: proto.Message.InteractiveMessage.Header.create({
           title: '',
           hasMediaAttachment: true,
           imageMessage: imageMsg
         }),
-        nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
+        nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.create({
           buttons: [
             {
               name: 'cta_url',
@@ -68,11 +67,11 @@ const handler = async (m, { usedPrefix, command, conn, args }) => {
               deviceListMetadata: {},
               deviceListMetadataVersion: 2
             },
-            interactiveMessage: proto.Message.InteractiveMessage.fromObject({
+            interactiveMessage: proto.Message.InteractiveMessage.create({
               body: proto.Message.InteractiveMessage.Body.create({ text: `Total results: ${push.length}` }),
               footer: proto.Message.InteractiveMessage.Footer.create({ text: `Hai\nDibawah ini adalah hasil pencarian dari:\n${nem}` }),
               header: proto.Message.InteractiveMessage.Header.create({ hasMediaAttachment: false }),
-              carouselMessage: proto.Message.InteractiveMessage.CarouselMessage.fromObject({ cards: push })
+              carouselMessage: proto.Message.InteractiveMessage.CarouselMessage.create({ cards: push })
             })
           }
         }

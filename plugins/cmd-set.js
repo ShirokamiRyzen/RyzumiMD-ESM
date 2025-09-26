@@ -4,7 +4,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     if (!m.quoted.fileSha256) throw 'SHA256 Hash Missing'
     if (!text) throw `Penggunaan:\n${usedPrefix + command} <teks>\n\nContoh:\n${usedPrefix + command} tes`
     let sticker = db.data.sticker
-    let hash = m.quoted.fileSha256.toString('base64')
+    let hash = Buffer.from(m.quoted.fileSha256).toString('hex')
     if (sticker[hash] && sticker[hash].locked) throw 'Kamu tidak memiliki izin untuk mengubah perintah stiker ini'
     sticker[hash] = {
         text,
