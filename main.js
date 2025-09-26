@@ -89,7 +89,7 @@ loadDatabase()
 const { state, saveCreds } = await useMultiFileAuthState('./sessions')
 const connectionOptions = {
   logger: pino({ level: 'fatal' }),
-  browser: ['Mac OS', 'safari', '5.1.10'],
+  browser: ["Ubuntu", "Chrome", "20.0.04"],
   auth: {
     creds: state.creds,
     keys: makeCacheableSignalKeyStore(state.keys, pino().child({
