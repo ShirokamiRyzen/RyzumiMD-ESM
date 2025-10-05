@@ -130,12 +130,12 @@ export async function handler(chatUpdate) {
         const groupMetadata = (m.isGroup ? ((conn.chats[m.chat] || {}).metadata || await this.groupMetadata(m.chat).catch(_ => null)) : {}) || {}
         const participants = (m.isGroup ? groupMetadata.participants : []) || []
         const user = (m.isGroup ? participants.find(u => {
-            const jid = conn.getJid(u.id)
+            const jid = conn.getJid(String(u.id || u.jid || '').decodeJid())
             const pn = u.phoneNumber ? (String(u.phoneNumber).replace(/[^0-9]/g, '') + '@s.whatsapp.net') : null
             return jid === m.sender || pn === m.sender
         }) : {}) || {} // User Data
         const bot = (m.isGroup ? participants.find(u => {
-            const jid = conn.getJid(u.id)
+            const jid = conn.getJid(String(u.id || u.jid || '').decodeJid())
             const pn = u.phoneNumber ? (String(u.phoneNumber).replace(/[^0-9]/g, '') + '@s.whatsapp.net') : null
             const selfJid = this.user.jid
             return jid === selfJid || pn === selfJid
