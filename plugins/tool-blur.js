@@ -1,34 +1,34 @@
 import * as Jimp from 'jimp'
 
-const { Jimp: J } = Jimp
-
-async function resolveImageToBuffer(input) {
-	if (Buffer.isBuffer(input)) return input
-	if (typeof input === 'string') {
-		const res = await fetch(input)
-		const arr = await res.arrayBuffer()
-		return Buffer.from(arr)
-	}
-	throw new Error("Unsupported image source")
-}
-
 let handler = async (m, { conn, text }) => {
-	let image =
-		m.message?.imageMessage ? await m.download()
-			: /image/.test(m.quoted?.mediaType) ? await m.quoted.download()
-				: m.mentionedJid?.[0] ? await conn.profilePictureUrl(m.mentionedJid[0], 'image')
-					: await conn.profilePictureUrl(m.quoted?.sender || m.sender, 'image')
+	let src
+	if (m.mediaType === 'imageMessage') {
+		src = await m.download()
+	} else if (/image/i.test(m.quoted?.mediaType)) {
+		src = await m.quoted.download()
+	} else if (m.mentionedJid?.[0]) {
+		const jid = conn.getJid(String(m.mentionedJid[0]).decodeJid())
+		src = await conn.profilePictureUrl(jid, 'image').catch(() => null)
+	} else {
+		const jid = conn.getJid(String(m.quoted?.sender || m.sender).decodeJid())
+		src = await conn.profilePictureUrl(jid, 'image').catch(() => null)
+	}
 
-	if (!image) throw `Couldn't fetch the required Image`
+	if (!src) throw `Couldn't fetch the required image`
 
-	const level = isNaN(text) ? 5 : parseInt(text)
-	const imgBuf = await resolveImageToBuffer(image)
+	// Parse blur level safely
+	let level = parseInt(String(text || '5').trim(), 10)
+	if (Number.isNaN(level)) level = 5
+	level = Math.max(1, Math.min(100, level))
 
-	const img = await J.read(imgBuf)
+	// Read and blur
+	const img = await Jimp.read(src)
 	img.blur(level)
+	const mime = Jimp.MIME_JPEG || 'image/jpeg'
+	const buffer = await img.getBufferAsync(mime)
 
-	const out = await img.getBufferAsync('image/jpeg')
-	await m.reply(out)
+	// Send as image
+	await conn.sendMessage(m.chat, { image: buffer }, { quoted: m })
 }
 
 handler.help = ['blur']
