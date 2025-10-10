@@ -1,18 +1,24 @@
 let handler = async (m, { conn, text }) => {
-    if (!text) throw 'Number?.'
-    let who
+    if (!text && !m.mentionedJid?.length && !m.quoted) throw 'Provide target user. Example: .delprem @user or .delprem 6281234567890'
+    let rawTarget
     if (m.isGroup) {
-        if (!m.mentionedJid) throw 'No user mentioned to ban.'
-        who = m.mentionedJid[0]
-    } else {
-        // Check if the input is a valid phone number
-        let phoneNumber = text.replace(/[^0-9]/g, '') // Remove non-numeric characters
-        who = phoneNumber + '@s.whatsapp.net'
+        rawTarget = m.mentionedJid?.[0] ? m.mentionedJid[0] : (m.quoted ? m.quoted.sender : null)
+    } else if (text) {
+        const num = text.replace(/[^0-9]/g, '')
+        if (!num) throw 'Invalid number.'
+        rawTarget = num + '@s.whatsapp.net'
     }
+
+    // Normalize to phone-based JID (avoid LID)
+    const decoded = typeof conn.decodeJid === 'function' ? conn.decodeJid(rawTarget) : rawTarget
+    const jid = typeof conn.getJid === 'function' ? conn.getJid(decoded) : decoded
+
     let users = global.db.data.users
-    if (users[who]) {
-        users[who].premium = false
-        users[who].premiumTime = 0
+    // migrate data from rawTarget if needed
+    if (!users[jid] && users[rawTarget]) users[jid] = users[rawTarget]
+    if (users[jid]) {
+        users[jid].premium = false
+        users[jid].premiumTime = 0
         conn.reply(m.chat, 'Done!', m)
     } else {
         throw 'User not found.'

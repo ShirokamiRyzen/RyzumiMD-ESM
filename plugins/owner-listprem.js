@@ -1,5 +1,5 @@
 let handler = async (m, { conn, args }) => {
-  let user = Object.entries(global.db.data.users).filter(user => user[1].premiumTime).map(([key, value]) => {
+  let user = Object.entries(global.db.data.users).filter(user => (user[1].premiumTime || 0) > 0).map(([key, value]) => {
     return { ...value, jid: key }
   })
   let name = 'Premium'

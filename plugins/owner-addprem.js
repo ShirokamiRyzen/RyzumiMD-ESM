@@ -1,36 +1,53 @@
 let handler = async (m, { conn, text, usedPrefix, command }) => {
-    let user;
+    // 1) Resolve target JID (normalize to phone-based JID, not LID)
+    let rawTarget
     if (m.isGroup) {
-        user = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : false;
+        rawTarget = m.mentionedJid?.[0] ? m.mentionedJid[0] : (m.quoted ? m.quoted.sender : null)
     } else {
-        user = text.split(' ')[0];
-        user = user.replace('@', '') + '@s.whatsapp.net';
+        const [numCandidate] = (text || '').trim().split(/\s+/)
+        if (numCandidate) rawTarget = numCandidate.replace(/[^0-9]/g, '') + '@s.whatsapp.net'
     }
 
-    let userData = db.data.users[user];
-    if (!userData) throw `User not found!`;
+    if (!rawTarget) throw `Tag/Reply target user or provide a number.\n\nExample:\n• ${usedPrefix + command} @user 7\n• ${usedPrefix + command} 6281234567890 7`
 
-    // Extract the user's phone number from the text
-    let phoneNumber = user.split('@')[0];
+    // Normalize with built-in helpers to avoid LID keys
+    const decoded = typeof conn.decodeJid === 'function' ? conn.decodeJid(rawTarget) : rawTarget
+    const jid = typeof conn.getJid === 'function' ? conn.getJid(decoded) : decoded
 
-    if (!phoneNumber) throw `where the number of days?`;
-    if (isNaN(phoneNumber)) return m.reply(`only number!\n\nexample:\n${usedPrefix + command} @${m.sender.split`@`[0]} 7`);
+    // 2) Parse duration (days)
+    let daysStr
+    if (m.isGroup) {
+        // for ".addprem @mention 7" assume last token is days
+        const tokens = (text || '').trim().split(/\s+/).filter(Boolean)
+        daysStr = tokens.length ? tokens[tokens.length - 1] : undefined
+    } else {
+        const [, d] = (text || '').trim().split(/\s+/)
+        daysStr = d
+    }
+    const days = parseInt(daysStr, 10)
+    if (!days || isNaN(days) || days <= 0) throw `Invalid days.\n\nExample:\n• ${usedPrefix + command} @user 7\n• ${usedPrefix + command} 6281234567890 30`
 
-    let txt = text.split(' ')[1]; // Extract the second part of the text (duration)
+    // 3) Ensure user record exists under the normalized JID.
+    const users = global.db?.data?.users || {}
+    // Migrate data if it's stored under a LID or another variant
+    if (!users[jid] && users[rawTarget]) users[jid] = users[rawTarget]
+    if (!users[jid]) throw `User not found in database.`
 
-    var jumlahHari = 86400000 * txt;
-    var now = new Date() * 1;
+    let userData = users[jid]
+    const now = Date.now()
+    const addMs = 86400000 * days
 
-    if (userData.role === 'Free user') userData.role = 'Premium user';
-    if (now < userData.premiumTime) userData.premiumTime += jumlahHari;
-    else userData.premiumTime = now + jumlahHari;
-    userData.premium = true;
+    if (userData.role === 'Free user') userData.role = 'Premium user'
+    if (now < (userData.premiumTime || 0)) userData.premiumTime += addMs
+    else userData.premiumTime = now + addMs
+    userData.premium = true
 
+    const countdown = userData.premiumTime - now
     m.reply(`✔️ Success
-📛 *Name:* ${userData.name}
-📆 *Days:* ${txt} days
-📉 *Countdown:* ${userData.premiumTime - now}`);
-};
+📛 Name: ${userData.name || (await conn.getName?.(jid)) || jid.split('@')[0]}
+📆 Days: ${days} day(s)
+⏳ Countdown: ${countdown}`)
+}
 
 handler.help = ['addprem <phone number> <days>']
 handler.tags = ['owner']
