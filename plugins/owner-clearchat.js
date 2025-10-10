@@ -9,7 +9,7 @@ let handler = async (m, { conn, args }) => {
           messageTimestamp: m.messageTimestamp
         }]
       }, jid);
-    conn.reply(m.chat, `Succes Cler Chat for ${jid}`, m);
+    conn.reply(m.chat, `Success Cler Chat for ${jid}`, m);
   } catch (error) {
     console.error(error);
     conn.reply(m.chat, 'Terjadi Kesalahan Saat Menghapus Chat, Mohon Perhatikan Jidnya', m);

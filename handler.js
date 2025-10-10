@@ -423,10 +423,14 @@ export async function participantsUpdate({ id, participants, action, simulate = 
         case 'remove':
             if (chat.welcome) {
                 let groupMetadata = (conn.chats[id] || {}).metadata || await this.groupMetadata(id)
+                const parts = groupMetadata.participants || []
                 for (let user of participants) {
                     if (action === 'add') await delay(1000)
-                    // Normalize the participant JID (strip device suffix/LID)
-                    let userJid = this.getJid(String(user).decodeJid()) || String(user).decodeJid()
+                    // Normalize and resolve LID -> real JID using latest group participants
+                    const raw = String(user).decodeJid()
+                    const part = parts.find(p => [p?.id, p?.jid, p?.lid].some(x => String(x || '').decodeJid() === raw))
+                    let userJid = (part?.id || part?.jid || (part?.phoneNumber ? (String(part.phoneNumber).replace(/[^0-9]/g, '') + '@s.whatsapp.net') : null) || this.getJid(raw) || raw)
+                    userJid = String(userJid).decodeJid()
                     // Fetch avatar; if upload fails, keep a safe default URL
                     let pp;
                     try {
@@ -448,7 +452,7 @@ export async function participantsUpdate({ id, participants, action, simulate = 
                     const leaveBg = 'https://telegra.ph/file/0db212539fe8a014017e3.jpg'
 
                     text = (action === 'add' ? (chat.sWelcome || this.welcome || 'Welcome, @user!').replace('@subject', gcname).replace('@desc', groupMetadata.desc || '')
-                        : (chat.sBye || this.bye || 'Bye, @user!')).replace('@user', '@' + (userJid.split('@')[0] || username))
+                        : (chat.sBye || this.bye || 'Bye, @user!')).replace('@user', '@' + (userJid.endsWith('@s.whatsapp.net') ? userJid.split('@')[0] : username))
 
                     // Encode all URL params to avoid breaking when name/desc has spaces or emojis
                     const wel = `${APIs.ryzumi}/api/image/welcome?username=${encodeURIComponent(username)}&group=${encodeURIComponent(gcname)}&avatar=${encodeURIComponent(pp || '')}&bg=${encodeURIComponent(welcomeBg)}&member=${gcMem}`
@@ -458,7 +462,7 @@ export async function participantsUpdate({ id, participants, action, simulate = 
                         image: { url: action === 'add' ? wel : lea },
                         caption: text,
                         contextInfo: {
-                            mentionedJid: [userJid]
+                            mentionedJid: userJid.endsWith('@s.whatsapp.net') ? [userJid] : []
                         },
                     })
                 }

@@ -44,7 +44,10 @@ var handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin, isR
           return await conn.reply(m.chat, 'Only admin or owner can use this command in group chat!', m);
         }
       }
-      chat.delete = isEnable;
+      // Invert logic: chat.delete=true means anti-delete OFF (do not announce)
+      // So `.disable delete` => isEnable=false => chat.delete=true (feature off)
+      // and `.enable delete` => isEnable=true => chat.delete=false (feature on)
+      chat.delete = !isEnable;
       break;
     case 'antidelete':
       if (m.isGroup) {
