@@ -27,7 +27,7 @@ ${fileUrl}
           mediaType: 2,
           title: wm,
           body: botdate,
-          thumbnail: await (await fetch(fileUrl)).buffer(),
+          thumbnail: Buffer.from(await (await fetch(fileUrl)).arrayBuffer()),
           sourceUrl: fileUrl,
         },
       },

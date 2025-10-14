@@ -25,7 +25,7 @@ const handler = async (m, { usedPrefix, command, conn, args }) => {
         }
       });
       if (!res.ok) throw new Error(`Gagal download gambar: ${res.status}`);
-      const buffer = await res.buffer();
+  const buffer = Buffer.from(await res.arrayBuffer());
       const { imageMessage } = await generateWAMessageContent(
         { image: buffer },
         { upload: conn.waUploadToServer }

@@ -19,7 +19,7 @@ let handler = async (m, { conn, text, participants, usedPrefix, command }) => {
     const response = await conn.groupParticipantsUpdate(m.chat, users, "add");
 
     const pp = await conn.profilePictureUrl(m.chat, 'image').catch(() => null);
-    const jpegThumbnail = pp ? await (await fetch(pp)).buffer() : Buffer.alloc(0);
+    const jpegThumbnail = pp ? Buffer.from(await (await fetch(pp)).arrayBuffer()) : Buffer.alloc(0);
 
     for (const participant of response) {
         const jid = participant.content.attrs.phone_number;

@@ -10,7 +10,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
                 accept: 'image/png'
             }
         });
-        let imageBuffer = await response.buffer();
+    let imageBuffer = Buffer.from(await response.arrayBuffer());
 
         await conn.sendFile(m.chat, imageBuffer, 'image.jpg', wm, m);
     } catch (error) {

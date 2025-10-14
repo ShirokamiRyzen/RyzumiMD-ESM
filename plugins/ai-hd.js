@@ -19,7 +19,7 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
             if (!response.ok) throw new Error('Error')
         }
 
-        let hasil = await response.buffer()
+    let hasil = Buffer.from(await response.arrayBuffer())
 
         // Kirim hasil
         await conn.sendFile(m.chat, hasil, 'hasil.jpg', global.wm, m)

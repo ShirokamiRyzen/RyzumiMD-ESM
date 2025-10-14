@@ -32,7 +32,7 @@ const handler = async (m, { usedPrefix, command, conn, args }) => {
 
     async function createImage(url) {
       const res = await fetch(url);
-      let buffer = await res.buffer();
+  let buffer = Buffer.from(await res.arrayBuffer());
       const threshold = 12 * 1024 * 1024;
       if (buffer.length > threshold) {
         buffer = await sharp(buffer)

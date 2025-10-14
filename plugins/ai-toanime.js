@@ -16,7 +16,7 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
 
         let response = await fetch(`${APIs.ryzumi}/api/ai/toanime?url=${url}&style=${style}`);
         if (!response.ok) throw new Error('Failed to fetch image from API');
-        let hasil = await response.buffer();
+    let hasil = Buffer.from(await response.arrayBuffer());
 
         await conn.sendFile(m.chat, hasil, 'toanime.jpg', global.wm, m);
     } catch (error) {

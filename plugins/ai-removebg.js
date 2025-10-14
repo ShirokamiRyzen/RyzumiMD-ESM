@@ -19,7 +19,7 @@ let handler = async (m, { conn, usedPrefix, text }) => {
         let response = await fetch(apiUrl);
         if (!response.ok) throw new Error('Gagal mengambil gambar dari API');
 
-        let hasil = await response.buffer();
+    let hasil = Buffer.from(await response.arrayBuffer());
 
         await conn.sendFile( m.chat, hasil, 'removedbg.jpg', global.wm, m );
 

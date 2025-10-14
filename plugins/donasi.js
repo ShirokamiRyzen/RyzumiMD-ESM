@@ -19,7 +19,7 @@ Terimakasih :D
 Contact Owner:
 wa.me/${numberowner} (Owner)
 `
-  let qris_img = await (await fetch(gambar)).buffer()
+  let qris_img = Buffer.from(await (await fetch(gambar)).arrayBuffer())
   await conn.sendFile(m.chat, qris_img, '', anu, m)
 }
 

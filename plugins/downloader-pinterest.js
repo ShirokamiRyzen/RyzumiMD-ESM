@@ -43,7 +43,7 @@ let handler = async (m, { conn, args }) => {
             try {
                 const res = await fetch(img.url);
                 if (res.ok) {
-                    imageBuffer = await res.buffer();
+                    imageBuffer = Buffer.from(await res.arrayBuffer());
                     imageUrl = img.url;
                     break;
                 }
@@ -68,7 +68,7 @@ let handler = async (m, { conn, args }) => {
         if (videos.length > 0) {
             try {
                 const videoUrl = videos[0].url;
-                const videoBuffer = await fetch(videoUrl).then(res => res.buffer());
+                const videoBuffer = await fetch(videoUrl).then(async res => Buffer.from(await res.arrayBuffer()));
 
                 await conn.sendMessage(
                     m.chat, {

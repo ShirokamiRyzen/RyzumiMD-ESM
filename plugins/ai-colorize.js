@@ -13,7 +13,7 @@ let handler = async (m, { conn, usedPrefix }) => {
 
         let response = await fetch(`${APIs.ryzumi}/api/ai/colorize?url=${url}`);
         if (!response.ok) throw new Error('Failed to fetch image from API');
-        let hasil = await response.buffer();
+    let hasil = Buffer.from(await response.arrayBuffer());
 
         await conn.sendFile(m.chat, hasil, 'kolor.jpg', global.wm, m);
     } catch (error) {
