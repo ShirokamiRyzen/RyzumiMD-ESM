@@ -11,7 +11,7 @@ database.json
 config.js
 bot.sh
 test.json
-
+.vscode
 plugins/_monitor-mc.js
 plugins/_autoviewonce.js
 plugins/_RyzumiAPI-IP.js
