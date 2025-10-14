@@ -86,10 +86,22 @@ global.loadDatabase = async function loadDatabase() {
 }
 loadDatabase()
 
+// Fetch and use the latest WhatsApp Web version from Baileys
+const { version: waVersion, isLatest } = await fetchLatestBaileysVersion().catch(err => {
+  console.error('Failed to fetch latest Baileys version:', err)
+  return { version: undefined, isLatest: false }
+})
+if (waVersion) {
+  const verStr = waVersion.join('.')
+  console.log(chalk.cyan(`Using WhatsApp Web version: v${verStr} (${isLatest ? 'latest' : 'not latest'})`))
+}
+
 const { state, saveCreds } = await useMultiFileAuthState('./sessions')
 const connectionOptions = {
   logger: pino({ level: 'fatal' }),
   browser: ["Ubuntu", "Chrome", "20.0.00"],
+  // ensure WA connection targets the correct web version from Baileys
+  ...(waVersion ? { version: waVersion } : {}),
   auth: {
     creds: state.creds,
     keys: makeCacheableSignalKeyStore(state.keys, pino().child({

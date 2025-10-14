@@ -1,0 +1,3 @@
+All visual assets (images, icons, sprites, characters, UI elements) in this repository are © Ryzumi Network.
+You may not reuse, redistribute, or modify these assets without explicit permission.
+The code remains licensed under GNU GPL v3.

@@ -13,7 +13,9 @@
 [![ONWER](https://img.shields.io/badge/Owner%20BOT-25D366?style=for-the-badge&logo=whatsapp&logoColor=white)](https://wa.me/6285174269046)
  
 
-
+# IMPORTANT!!!
+## All visual assets (images, icons, sprites, characters, UI elements) in this repository are © Ryzumi Network. You may not reuse, redistribute, or modify these assets without explicit permission.
+### The code remains licensed under GNU GPL v3.
 
 ## NOTE BEFORE USING!!
 - Edit all Owner Information on config.example.js
