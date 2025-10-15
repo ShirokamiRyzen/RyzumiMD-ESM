@@ -173,6 +173,8 @@ async function connectionUpdate(update) {
     console.log(chalk.redBright('⚡ Mengaktifkan Bot, Mohon tunggu sebentar...'));
   } else if (connection == 'open') {
     console.log(chalk.green('✅ Tersambung'));
+    // allow group-participants.update to process after initial sync
+    try { this.isInit = false } catch {}
   }
 
   if (isOnline == true) {
@@ -266,6 +268,8 @@ global.reloadHandler = async function (restatConn) {
   conn.ev.on('connection.update', conn.connectionUpdate)
   conn.ev.on('creds.update', conn.credsUpdate)
   isInit = false
+  // also clear the public conn flag used by handlers to skip initial spam
+  conn.isInit = false
   return true
 
 }

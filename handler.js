@@ -451,8 +451,25 @@ export async function participantsUpdate({ id, participants, action, simulate = 
                         : (chat.sBye || this.bye || 'Bye, @user!')).replace('@user', '@' + (userJid.split('@')[0] || username))
 
                     // Encode all URL params to avoid breaking when name/desc has spaces or emojis
-                    const wel = `${APIs.ryzumi}/api/image/welcome?username=${encodeURIComponent(username)}&group=${encodeURIComponent(gcname)}&avatar=${encodeURIComponent(pp || '')}&bg=${encodeURIComponent(welcomeBg)}&member=${gcMem}`
-                    const lea = `${APIs.ryzumi}/api/image/leave?username=${encodeURIComponent(username)}&group=${encodeURIComponent(gcname)}&avatar=${encodeURIComponent(pp || '')}&bg=${encodeURIComponent(leaveBg)}&member=${gcMem}`
+                                        // Build URL via global API helper to avoid undefined base URLs
+                                        const wel = (typeof global.API === 'function')
+                                                ? global.API('ryzumi', '/api/image/welcome', {
+                                                        username,
+                                                        group: gcname,
+                                                        avatar: pp || '',
+                                                        bg: welcomeBg,
+                                                        member: String(gcMem)
+                                                    })
+                                                : `${(global.APIs && global.APIs.ryzumi) || ''}/api/image/welcome?username=${encodeURIComponent(username)}&group=${encodeURIComponent(gcname)}&avatar=${encodeURIComponent(pp || '')}&bg=${encodeURIComponent(welcomeBg)}&member=${gcMem}`
+                                        const lea = (typeof global.API === 'function')
+                                                ? global.API('ryzumi', '/api/image/leave', {
+                                                        username,
+                                                        group: gcname,
+                                                        avatar: pp || '',
+                                                        bg: leaveBg,
+                                                        member: String(gcMem)
+                                                    })
+                                                : `${(global.APIs && global.APIs.ryzumi) || ''}/api/image/leave?username=${encodeURIComponent(username)}&group=${encodeURIComponent(gcname)}&avatar=${encodeURIComponent(pp || '')}&bg=${encodeURIComponent(leaveBg)}&member=${gcMem}`
 
                     await this.sendMessage(id, {
                         image: { url: action === 'add' ? wel : lea },
