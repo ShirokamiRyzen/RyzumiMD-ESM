@@ -42,7 +42,6 @@ const {
   useMultiFileAuthState,
   DisconnectReason,
   fetchLatestBaileysVersion,
-  makeInMemoryStore,
   jidNormalizedUser,
   makeCacheableSignalKeyStore
 } = await import('@whiskeysockets/baileys')

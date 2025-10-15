@@ -415,7 +415,7 @@ export async function participantsUpdate({ id, participants, action, simulate = 
     // if (id in conn.chats) return // First login will spam
     if (this.isInit && !simulate) return
     if (global.db.data == null)
-        await global.loadDatabase()
+        await loadDatabase()
     let chat = global.db.data.chats[id] || {}
     let text = ''
     switch (action) {
@@ -450,42 +450,17 @@ export async function participantsUpdate({ id, participants, action, simulate = 
                     text = (action === 'add' ? (chat.sWelcome || this.welcome || 'Welcome, @user!').replace('@subject', gcname).replace('@desc', groupMetadata.desc || '')
                         : (chat.sBye || this.bye || 'Bye, @user!')).replace('@user', '@' + (userJid.split('@')[0] || username))
 
-                    // Build image URLs using global.API helper if available; fallback to configured base
-                    const wel = (typeof global.API === 'function')
-                        ? global.API('ryzumi', '/api/image/welcome', {
-                            username,
-                            group: gcname,
-                            avatar: pp || '',
-                            bg: welcomeBg,
-                            member: String(gcMem)
-                          })
-                        : `${(global.APIs && global.APIs.ryzumi) || ''}/api/image/welcome?username=${encodeURIComponent(username)}&group=${encodeURIComponent(gcname)}&avatar=${encodeURIComponent(pp || '')}&bg=${encodeURIComponent(welcomeBg)}&member=${gcMem}`
-                    const lea = (typeof global.API === 'function')
-                        ? global.API('ryzumi', '/api/image/leave', {
-                            username,
-                            group: gcname,
-                            avatar: pp || '',
-                            bg: leaveBg,
-                            member: String(gcMem)
-                          })
-                        : `${(global.APIs && global.APIs.ryzumi) || ''}/api/image/leave?username=${encodeURIComponent(username)}&group=${encodeURIComponent(gcname)}&avatar=${encodeURIComponent(pp || '')}&bg=${encodeURIComponent(leaveBg)}&member=${gcMem}`
+                    // Encode all URL params to avoid breaking when name/desc has spaces or emojis
+                    const wel = `${APIs.ryzumi}/api/image/welcome?username=${encodeURIComponent(username)}&group=${encodeURIComponent(gcname)}&avatar=${encodeURIComponent(pp || '')}&bg=${encodeURIComponent(welcomeBg)}&member=${gcMem}`
+                    const lea = `${APIs.ryzumi}/api/image/leave?username=${encodeURIComponent(username)}&group=${encodeURIComponent(gcname)}&avatar=${encodeURIComponent(pp || '')}&bg=${encodeURIComponent(leaveBg)}&member=${gcMem}`
 
-                    try {
-                        await this.sendMessage(id, {
-                            image: { url: action === 'add' ? wel : lea },
-                            caption: text,
-                            contextInfo: {
-                                mentionedJid: [userJid]
-                            },
-                        })
-                    } catch (err) {
-                        console.error('Failed to send welcome/leave image:', err)
-                        // Fallback to text-only if image generation/base URL fails
-                        await this.sendMessage(id, {
-                            text,
-                            mentions: [userJid]
-                        })
-                    }
+                    await this.sendMessage(id, {
+                        image: { url: action === 'add' ? wel : lea },
+                        caption: text,
+                        contextInfo: {
+                            mentionedJid: [userJid]
+                        },
+                    })
                 }
             }
             break
@@ -525,7 +500,7 @@ export async function groupsUpdate(groupsUpdate) {
         if (groupUpdate.restrict == true) text = (chats.sRestrictOn || this.sRestrictOn || conn.sRestrictOn || '*Group has been all participants!*')
         if (groupUpdate.restrict == false) text = (chats.sRestrictOff || this.sRestrictOff || conn.sRestrictOff || '*Group has been only admin!*')
         if (!text) continue
-        this.reply(id, text.trim())
+        this.reply(id, text.trim(), m)
     }
 }
 
