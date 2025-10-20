@@ -430,7 +430,7 @@ export async function participantsUpdate({ id, participants, action, simulate = 
                     // Fetch avatar; if upload fails, keep a safe default URL
                     let pp;
                     try {
-                        const pps = await this.profilePictureUrl(userJid, 'image').catch(_ => 'https://telegra.ph/file/24fa902ead26340f3df2c.png')
+                        const pps = await this.profilePictureUrl(userJid, 'image').catch(_ => 'https://s3.ryzumi.vip/permanent-assets/pp_depresi_1.png')
                         const ppB = Buffer.from(await (await fetch(pps)).arrayBuffer())
                         if (ppB?.length) pp = await uploadPomf(ppB).catch(() => pps)
                     } catch { /* ignore */ }
@@ -444,8 +444,8 @@ export async function participantsUpdate({ id, participants, action, simulate = 
                     const username = (await safeName()) || userJid.split('@')[0]
                     const gcname = groupMetadata.subject || 'Unknown'
                     const gcMem = groupMetadata.participants?.length || 0
-                    const welcomeBg = 'https://telegra.ph/file/666ccbfc3201704454ba5.jpg'
-                    const leaveBg = 'https://telegra.ph/file/0db212539fe8a014017e3.jpg'
+                    const welcomeBg = 'https://s3.ryzumi.vip/permanent-assets/welcome_1.jpg'
+                    const leaveBg = 'https://s3.ryzumi.vip/permanent-assets/leave_1.jpg'
 
                     text = (action === 'add' ? (chat.sWelcome || this.welcome || 'Welcome, @user!').replace('@subject', gcname).replace('@desc', groupMetadata.desc || '')
                         : (chat.sBye || this.bye || 'Bye, @user!')).replace('@user', '@' + (userJid.split('@')[0] || username))
