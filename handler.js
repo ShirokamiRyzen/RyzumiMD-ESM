@@ -431,7 +431,7 @@ export async function participantsUpdate({ id, participants, action, simulate = 
                     let pp;
                     try {
                         const pps = await this.profilePictureUrl(userJid, 'image').catch(_ => 'https://telegra.ph/file/24fa902ead26340f3df2c.png')
-                        const ppB = Buffer.from(await (await fetch(pps)).arrayBuffer())
+                        const ppB = await (await fetch(pps)).buffer()
                         if (ppB?.length) pp = await uploadPomf(ppB).catch(() => pps)
                     } catch { /* ignore */ }
 
@@ -451,30 +451,12 @@ export async function participantsUpdate({ id, participants, action, simulate = 
                         : (chat.sBye || this.bye || 'Bye, @user!')).replace('@user', '@' + (userJid.split('@')[0] || username))
 
                     // Encode all URL params to avoid breaking when name/desc has spaces or emojis
-                    // Build URLs with cache-busting param to avoid stale caches/CDN quirks
-                    const wel = `${APIs.ryzumi}/api/image/welcome?username=${encodeURIComponent(username)}&group=${encodeURIComponent(gcname)}&avatar=${encodeURIComponent(pp || '')}&bg=${encodeURIComponent(welcomeBg)}&member=${gcMem}&_=${Date.now()}`
-                    const lea = `${APIs.ryzumi}/api/image/leave?username=${encodeURIComponent(username)}&group=${encodeURIComponent(gcname)}&avatar=${encodeURIComponent(pp || '')}&bg=${encodeURIComponent(leaveBg)}&member=${gcMem}&_=${Date.now()}`
-                    let imgBuf = null
-                    try {
-                        const target = action === 'add' ? wel : lea
-                        const res = await fetch(target, {
-                            headers:
-                            {
-                                'accept': 'image/*,*/*;q=0.8',
-                                'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36'
-                            }
-                        })
-                        if (res.ok) {
-                            const ab = await res.arrayBuffer()
-                            const b = Buffer.from(ab)
-                            if (b.length > 1024) imgBuf = b
-                        }
-                    } catch { }
+                    const wel = `${APIs.ryzumi}/api/image/welcome?username=${encodeURIComponent(username)}&group=${encodeURIComponent(gcname)}&avatar=${encodeURIComponent(pp || '')}&bg=${encodeURIComponent(welcomeBg)}&member=${gcMem}`
+                    const lea = `${APIs.ryzumi}/api/image/leave?username=${encodeURIComponent(username)}&group=${encodeURIComponent(gcname)}&avatar=${encodeURIComponent(pp || '')}&bg=${encodeURIComponent(leaveBg)}&member=${gcMem}`
 
-                    // If fetch failed, fall back to URL mode
-                    const message = imgBuf ? { image: imgBuf, caption: text } : { image: { url: action === 'add' ? wel : lea }, caption: text }
                     await this.sendMessage(id, {
-                        ...message,
+                        image: { url: action === 'add' ? wel : lea },
+                        caption: text,
                         contextInfo: {
                             mentionedJid: [userJid]
                         },
