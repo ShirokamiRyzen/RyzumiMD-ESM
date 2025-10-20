@@ -27,14 +27,13 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
         try {
             const meta = (conn.chats?.[m.chat]?.metadata) || (await conn.groupMetadata?.(m.chat))
             const parts = meta?.participants || []
-            const candidate = parts
-                .map(p => p?.id || p?.jid || p?.participant || p?.lid)
-                .filter(Boolean)
-                .map(x => String(x))
-                .find(x => areJidsSameUser((typeof conn.getJid === 'function' ? conn.getJid(x) : x.decodeJid ? x.decodeJid() : x), jid))
-            if (candidate && /@s\.whatsapp\.net$/.test(candidate)) {
-                jid = candidate
-            }
+            const raws = parts.flatMap(p => [p?.id, p?.jid, p?.participant, p?.lid]).filter(Boolean).map(String)
+            const matches = raws.map(raw => {
+                const norm = typeof conn.getJid === 'function' ? conn.getJid(raw) : (raw.decodeJid ? raw.decodeJid() : raw)
+                return { raw, norm, ok: areJidsSameUser(norm, jid) }
+            }).filter(x => x.ok)
+            const pick = matches.find(x => /@s\.whatsapp\.net$/.test(x.raw)) || matches.find(x => /@s\.whatsapp\.net$/.test(x.norm)) || matches[0]
+            if (pick) jid = /@s\.whatsapp\.net$/.test(pick.raw) ? pick.raw : pick.norm
         } catch {}
     }
 
