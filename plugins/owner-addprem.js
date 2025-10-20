@@ -1,10 +1,20 @@
 import { areJidsSameUser } from '@whiskeysockets/baileys'
 
 let handler = async (m, { conn, text, usedPrefix, command }) => {
-    // 1) Resolve target JID (normalize to phone-based JID, not LID)
+    // 1) Resolve target JID (prefer manual number, then mention/reply)
     let rawTarget
     if (m.isGroup) {
-        rawTarget = m.mentionedJid?.[0] ? m.mentionedJid[0] : (m.quoted ? m.quoted.sender : null)
+        const tokens = (text || '').trim().split(/\s+/).filter(Boolean)
+        // support formats: 
+        //  - .addprem 628xxxx 7
+        //  - .addprem @mention 7
+        //  - reply + .addprem 7
+        const first = tokens[0]
+        if (first && /\d{5,}/.test(first)) {
+            rawTarget = first.replace(/[^0-9]/g, '') + '@s.whatsapp.net'
+        } else {
+            rawTarget = m.mentionedJid?.[0] ? m.mentionedJid[0] : (m.quoted ? m.quoted.sender : null)
+        }
     } else {
         const [numCandidate] = (text || '').trim().split(/\s+/)
         if (numCandidate) rawTarget = numCandidate.replace(/[^0-9]/g, '') + '@s.whatsapp.net'
@@ -14,7 +24,23 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 
     // Normalize with built-in helpers to avoid LID keys where possible
     const decoded = typeof conn.decodeJid === 'function' ? conn.decodeJid(rawTarget) : rawTarget
-    const jid = typeof conn.getJid === 'function' ? conn.getJid(decoded) : decoded
+    let jid = typeof conn.getJid === 'function' ? conn.getJid(decoded) : decoded
+
+    // If still not a phone-based JID, try resolve via current group's participants
+    if (m.isGroup && (!/@s\.whatsapp\.net$/.test(jid))) {
+        try {
+            const meta = (conn.chats?.[m.chat]?.metadata) || (await conn.groupMetadata?.(m.chat))
+            const parts = meta?.participants || []
+            const candidate = parts
+                .map(p => p?.id || p?.jid || p?.participant || p?.lid)
+                .filter(Boolean)
+                .map(x => String(x))
+                .find(x => areJidsSameUser((typeof conn.getJid === 'function' ? conn.getJid(x) : x.decodeJid ? x.decodeJid() : x), jid))
+            if (candidate && /@s\.whatsapp\.net$/.test(candidate)) {
+                jid = candidate
+            }
+        } catch {}
+    }
 
     // 2) Parse duration (days)
     let daysStr
