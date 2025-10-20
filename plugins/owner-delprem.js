@@ -1,28 +1,66 @@
-let handler = async (m, { conn, text }) => {
-    if (!text && !m.mentionedJid?.length && !m.quoted) throw 'Provide target user. Example: .delprem @user or .delprem 6281234567890'
+import { areJidsSameUser } from '@whiskeysockets/baileys'
+
+let handler = async (m, { conn, text, usedPrefix, command }) => {
+    // 1) Resolve target JID (prefer manual number in group too)
     let rawTarget
     if (m.isGroup) {
-        rawTarget = m.mentionedJid?.[0] ? m.mentionedJid[0] : (m.quoted ? m.quoted.sender : null)
+        const tokens = (text || '').trim().split(/\s+/).filter(Boolean)
+        const first = tokens[0]
+        if (first && /\d{5,}/.test(first)) {
+            rawTarget = first.replace(/[^0-9]/g, '') + '@s.whatsapp.net'
+        } else {
+            rawTarget = m.mentionedJid?.[0] ? m.mentionedJid[0] : (m.quoted ? m.quoted.sender : null)
+        }
     } else if (text) {
         const num = text.replace(/[^0-9]/g, '')
-        if (!num) throw 'Invalid number.'
-        rawTarget = num + '@s.whatsapp.net'
+        if (num) rawTarget = num + '@s.whatsapp.net'
     }
 
-    // Normalize to phone-based JID (avoid LID)
+    if (!rawTarget) throw `Provide target user.\n\nExample:\n• ${usedPrefix + command} @user\n• ${usedPrefix + command} 6281234567890`
+
+    // Normalize
     const decoded = typeof conn.decodeJid === 'function' ? conn.decodeJid(rawTarget) : rawTarget
-    const jid = typeof conn.getJid === 'function' ? conn.getJid(decoded) : decoded
+    let jid = typeof conn.getJid === 'function' ? conn.getJid(decoded) : decoded
 
-    let users = global.db.data.users
-    // migrate data from rawTarget if needed
-    if (!users[jid] && users[rawTarget]) users[jid] = users[rawTarget]
-    if (users[jid]) {
-        users[jid].premium = false
-        users[jid].premiumTime = 0
-        conn.reply(m.chat, 'Done!', m)
-    } else {
-        throw 'User not found.'
+    // Resolve via participants in group if needed
+    if (m.isGroup && (!/@s\.whatsapp\.net$/.test(jid))) {
+        try {
+            const meta = (conn.chats?.[m.chat]?.metadata) || (await conn.groupMetadata?.(m.chat))
+            const parts = meta?.participants || []
+            const candidate = parts
+                .map(p => p?.id || p?.jid || p?.participant || p?.lid)
+                .filter(Boolean)
+                .map(x => String(x))
+                .find(x => areJidsSameUser((typeof conn.getJid === 'function' ? conn.getJid(x) : x.decodeJid ? x.decodeJid() : x), jid))
+            if (candidate && /@s\.whatsapp\.net$/.test(candidate)) {
+                jid = candidate
+            }
+        } catch {}
     }
+
+    // 2) Locate user in DB using phone-based key only
+    const dbRoot = (global.db && global.db.data) ? global.db.data : (global.db = { ...(global.db || {}), data: {} }).data
+    if (!dbRoot.users) dbRoot.users = {}
+    const users = dbRoot.users
+
+    let dbKey = null
+    if (typeof jid === 'string' && /@s\.whatsapp\.net$/.test(jid)) {
+        dbKey = jid
+    } else {
+        const keys = Object.keys(users)
+        const found = keys.find(k => {
+            if (!/@s\.whatsapp\.net$/.test(k)) return false
+            const kNorm = typeof conn.getJid === 'function' ? conn.getJid(k) : (k.decodeJid ? k.decodeJid() : k)
+            return areJidsSameUser(kNorm, jid)
+        })
+        if (found) dbKey = found
+    }
+
+    if (!dbKey || !users[dbKey]) throw 'User not found.'
+
+    users[dbKey].premium = false
+    users[dbKey].premiumTime = 0
+    conn.reply(m.chat, 'Done!', m)
 }
 
 handler.help = ['delprem']

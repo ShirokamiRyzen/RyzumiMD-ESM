@@ -56,7 +56,9 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     if (!days || isNaN(days) || days <= 0) throw `Invalid days.\n\nExample:\n• ${usedPrefix + command} @user 7\n• ${usedPrefix + command} 6281234567890 30`
 
     // 3) Ensure user record exists under a phone-based JID (not LID)
-    const users = global.db?.data?.users || {}
+    const dbRoot = (global.db && global.db.data) ? global.db.data : (global.db = { ...(global.db || {}), data: {} }).data
+    if (!dbRoot.users) dbRoot.users = {}
+    const users = dbRoot.users
 
     // Determine the proper DB key:
     // - Prefer normalized phone JID (xxx@s.whatsapp.net)
@@ -75,6 +77,16 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     }
 
     if (!dbKey) throw `User not found in database.`
+
+    // Create user entry if not exists
+    if (!users[dbKey]) {
+        users[dbKey] = {
+            name: (await conn.getName?.(dbKey)) || dbKey.split('@')[0],
+            premium: false,
+            premiumTime: 0,
+            role: 'Free user'
+        }
+    }
 
     let userData = users[dbKey]
     const now = Date.now()
