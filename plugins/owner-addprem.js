@@ -1,3 +1,5 @@
+import { areJidsSameUser } from '@whiskeysockets/baileys'
+
 let handler = async (m, { conn, text, usedPrefix, command }) => {
     // 1) Resolve target JID (normalize to phone-based JID, not LID)
     let rawTarget
@@ -10,7 +12,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 
     if (!rawTarget) throw `Tag/Reply target user or provide a number.\n\nExample:\n• ${usedPrefix + command} @user 7\n• ${usedPrefix + command} 6281234567890 7`
 
-    // Normalize with built-in helpers to avoid LID keys
+    // Normalize with built-in helpers to avoid LID keys where possible
     const decoded = typeof conn.decodeJid === 'function' ? conn.decodeJid(rawTarget) : rawTarget
     const jid = typeof conn.getJid === 'function' ? conn.getJid(decoded) : decoded
 
@@ -27,13 +29,28 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     const days = parseInt(daysStr, 10)
     if (!days || isNaN(days) || days <= 0) throw `Invalid days.\n\nExample:\n• ${usedPrefix + command} @user 7\n• ${usedPrefix + command} 6281234567890 30`
 
-    // 3) Ensure user record exists under the normalized JID.
+    // 3) Ensure user record exists under a phone-based JID (not LID)
     const users = global.db?.data?.users || {}
-    // Migrate data if it's stored under a LID or another variant
-    if (!users[jid] && users[rawTarget]) users[jid] = users[rawTarget]
-    if (!users[jid]) throw `User not found in database.`
 
-    let userData = users[jid]
+    // Determine the proper DB key:
+    // - Prefer normalized phone JID (xxx@s.whatsapp.net)
+    // - If target is LID or unknown format, find an existing phone JID in DB that represents the same user (areJidsSameUser)
+    let dbKey = null
+    if (typeof jid === 'string' && /@s\.whatsapp\.net$/.test(jid)) {
+        dbKey = jid
+    } else {
+        const keys = Object.keys(users)
+        const found = keys.find(k => {
+            if (!/@s\.whatsapp\.net$/.test(k)) return false
+            const kNorm = typeof conn.getJid === 'function' ? conn.getJid(k) : (k.decodeJid ? k.decodeJid() : k)
+            return areJidsSameUser(kNorm, jid)
+        })
+        if (found) dbKey = found
+    }
+
+    if (!dbKey) throw `User not found in database.`
+
+    let userData = users[dbKey]
     const now = Date.now()
     const addMs = 86400000 * days
 
@@ -43,8 +60,9 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     userData.premium = true
 
     const countdown = userData.premiumTime - now
+    const displayJid = dbKey
     m.reply(`✔️ Success
-📛 Name: ${userData.name || (await conn.getName?.(jid)) || jid.split('@')[0]}
+📛 Name: ${userData.name || (await conn.getName?.(displayJid)) || displayJid.split('@')[0]}
 📆 Days: ${days} day(s)
 ⏳ Countdown: ${countdown}`)
 }
