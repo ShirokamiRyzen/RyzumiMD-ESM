@@ -431,7 +431,7 @@ export async function participantsUpdate({ id, participants, action, simulate = 
                     let pp;
                     try {
                         const pps = await this.profilePictureUrl(userJid, 'image').catch(_ => 'https://telegra.ph/file/24fa902ead26340f3df2c.png')
-                        const ppB = await (await fetch(pps)).buffer()
+                        const ppB = Buffer.from(await (await fetch(pps)).arrayBuffer())
                         if (ppB?.length) pp = await uploadPomf(ppB).catch(() => pps)
                     } catch { /* ignore */ }
 
