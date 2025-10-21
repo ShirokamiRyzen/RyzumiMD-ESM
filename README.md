@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="./thumbnail.jpg" width="100%" style="margin-left: auto;margin-right: auto;display: block;">
+    <img src="./ryzumi.webp" width="100%" style="margin-left: auto;margin-right: auto;display: block;">
 </p>
 <h1 align="center">RyzumiMD-ESM</h1>
 
