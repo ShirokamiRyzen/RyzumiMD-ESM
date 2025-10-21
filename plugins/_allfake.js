@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
-const thumbPath = path.resolve(__dirname, '../ryzumi.webp')
+const thumbPath = path.resolve(__dirname, '../ryzumi.jpg')
 
 let handler = m => m
 handler.all = async function (m) {
