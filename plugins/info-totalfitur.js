@@ -16,7 +16,7 @@ var handler = async (m, { conn, args, command }) => {
                 title: bottime,
                 body: 'Total Cintaku Padamu',
                 previewType: 0,
-                thumbnail: fs.readFileSync("./ryzumi.jpg"),
+                thumbnail: fs.readFileSync("./thumbnail.jpg"),
                 sourceUrl: sig
             }
         }
