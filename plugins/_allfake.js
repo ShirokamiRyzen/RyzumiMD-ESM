@@ -1,25 +1,6 @@
 import fs from 'fs'
 import moment from 'moment-timezone'
-import path from 'path'
-import { fileURLToPath } from 'url'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-
-// Prefer JPEG/PNG for fields that require `jpegThumbnail`.
-// Many WhatsApp/Baileys message types ignore WebP buffers for `jpegThumbnail`.
-// We'll try to use ryzumi.jpg/jpeg/png if present; otherwise fall back to WebP
-// for fields that accept `thumbnail`.
-const resolveAsset = (names) => {
-    for (const name of names) {
-        const p = path.resolve(__dirname, `../${name}`)
-        if (fs.existsSync(p)) return p
-    }
-    return null
-}
-
-const thumbWebpPath = resolveAsset(['ryzumi.webp'])
-const thumbJpgLikePath = resolveAsset(['ryzumi.jpg', 'ryzumi.jpeg', 'ryzumi.png'])
+const thumbPath = (fs.readFileSync("./ryzumi.webp"))
 
 let handler = m => m
 handler.all = async function (m) {
@@ -38,10 +19,6 @@ handler.all = async function (m) {
     global.ucapan = ucapan()
     global.ephemeral = ''
 
-    // Helper buffers
-    const jpegThumbBuffer = thumbJpgLikePath ? fs.readFileSync(thumbJpgLikePath) : null
-    const genericThumbBuffer = (thumbWebpPath && fs.existsSync(thumbWebpPath)) ? fs.readFileSync(thumbWebpPath) : (jpegThumbBuffer || null)
-
     global.adReply = {
         contextInfo: {
             forwardingScore: 256,
@@ -52,8 +29,7 @@ handler.all = async function (m) {
                 mediaUrl: sgw,
                 description: namebot,
                 previewType: "PHOTO",
-                // externalAdReply accepts `thumbnail` and works fine with webp/png/jpg
-                thumbnail: genericThumbBuffer || undefined,
+                thumbnail: thumbPath,
                 sourceUrl: sgw,
             }
         }
@@ -99,8 +75,8 @@ handler.all = async function (m) {
             contactMessage: {
                 displayName: wm,
                 vcard: `BEGIN:VCARD\nVERSION:3.0\nN:XL;${wm},;;;\nFN:${wm},\nitem1.TEL;waid=${m.sender.split('@')[0]}:${m.sender.split('@')[0]}\nitem1.X-ABLabell:Ponsel\nEND:VCARD`,
-                jpegThumbnail: jpegThumbBuffer || undefined,
-                thumbnail: genericThumbBuffer || undefined,
+                jpegThumbnail: thumbPath,
+                thumbnail: thumbPath,
                 sendEphemeral: true
             }
         }
@@ -135,7 +111,7 @@ handler.all = async function (m) {
             extendedTextMessage: {
                 text: wm,
                 title: wm,
-                jpegThumbnail: jpegThumbBuffer || undefined
+                jpegThumbnail: thumbPath
             }
         }
     }
@@ -152,7 +128,7 @@ handler.all = async function (m) {
             liveLocationMessage: {
                 caption: "by : WH MODS DEV",
                 h: wm,
-                jpegThumbnail: jpegThumbBuffer || undefined
+                jpegThumbnail: thumbPath
             }
         }
     }
@@ -169,7 +145,7 @@ handler.all = async function (m) {
             liveLocationMessage: {
                 title: "WH MODS DEV",
                 h: wm,
-                jpegThumbnail: jpegThumbBuffer || undefined
+                jpegThumbnail: thumbPath
             }
         }
     }
@@ -187,7 +163,7 @@ handler.all = async function (m) {
                 product: {
                     productImage: {
                         mimetype: "image/jpeg",
-                        jpegThumbnail: jpegThumbBuffer || undefined
+                        jpegThumbnail: thumbPath
                     },
                     title: wm,
                     description: "Simple Bot Esm",
@@ -208,7 +184,7 @@ handler.all = async function (m) {
         message: {
             documentMessage: {
                 title: wm,
-                jpegThumbnail: jpegThumbBuffer || undefined
+                jpegThumbnail: thumbPath
             }
         }
     }
@@ -225,7 +201,7 @@ handler.all = async function (m) {
                 inviteCode: "null",
                 groupName: "Kawan WH MODS DEV",
                 caption: wm,
-                jpegThumbnail: jpegThumbBuffer || undefined
+                jpegThumbnail: thumbPath
             }
         }
     }
@@ -245,7 +221,7 @@ handler.all = async function (m) {
                 seconds: '999999999',
                 gifPlayback: 'true',
                 caption: wm,
-                jpegThumbnail: jpegThumbBuffer || undefined
+                jpegThumbnail: thumbPath
             }
         }
     }
