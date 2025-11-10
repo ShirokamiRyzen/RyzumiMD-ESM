@@ -6,26 +6,9 @@ let handler = async (m, { conn, args }) => {
 
     await conn.sendMessage(m.chat, { text: wait })
 
-    const raw = String(platInput).trim().toUpperCase().replace(/[-.]/g, ' ').replace(/\s+/g, ' ')
-    const simple = raw.replace(/\s+/g, '')
-
-    let formatted = simple
-    const re = /^([A-Z]+)(\d+)([A-Z]+)$/i
-    const mmatch = simple.match(re)
-    if (mmatch) {
-        const [, prefix, numbers, suffix] = mmatch
-        formatted = `${prefix}+${suffix}+${numbers}`
-    } else {
-        const parts = raw.split(' ').filter(Boolean)
-        if (parts.length === 3) {
-            formatted = `${parts[0]}+${parts[2]}+${parts[1]}`
-        } else {
-            formatted = raw
-        }
-    }
-
     try {
-        const url = `${APIs.ryzumi}/api/tool/cek-pajak/bapenda?plat=${encodeURIComponent(formatted)}`
+        const url = `${APIs.ryzumi}/api/tool/cek-pajak/bapenda?plat=${encodeURIComponent(platInput)}`
+
         const res = await axios.get(url)
         const result = res.data
 
