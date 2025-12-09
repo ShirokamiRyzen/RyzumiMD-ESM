@@ -29,10 +29,10 @@ const defaultMenu = {
 • *Uptime:* %muptime
 • *Database:* %rtotalreg dari %totalreg
 
-───「 *INFO CMD* 」───
+╭─────「 *INFO CMD* 」
 │ *Ⓟ* = Premium
 │ *Ⓛ* = Limit
-─────────────
+╰─────────────
   `.trimStart(),
   header: '╭─────『 %category 』',
   body: '  ⫸ %cmd %isPremium %islimit',
