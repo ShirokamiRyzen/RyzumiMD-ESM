@@ -570,6 +570,7 @@ export async function deleteUpdate(message) {
     try {
         const { fromMe, id, participant } = message
         if (fromMe) return
+        if (!message.remoteJid.endsWith('@g.us')) return
         let msg = this.serializeM(this.loadMessage(id))
         if (!msg) return
         let chat = global.db.data.chats[msg.chat] || {}
