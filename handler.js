@@ -423,60 +423,96 @@ export async function participantsUpdate({ id, participants, action, simulate = 
         case 'remove':
             if (chat.welcome) {
                 let groupMetadata = (conn.chats[id] || {}).metadata || await this.groupMetadata(id)
+
                 for (let user of participants) {
-                    if (action === 'add') await delay(1000)
-                    let userJid = String(user).decodeJid()
-                    const groupMember = groupMetadata.participants?.find(p => p.id === userJid || p.lid === userJid)
-                    if (groupMember) {
-                        // Use the phone number JID if available (preferred), otherwise stick with what we have
-                        // Baileys often gives { id: 'phone@s.whatsapp.net', lid: 'lid@lid' }
-                        if (groupMember.id && !groupMember.id.includes('@lid')) userJid = groupMember.id
-                        // fallback: if whatever we have is still LID, but we have phoneNumber in stub (not accessible here easily) or if 'id' is LID but there is no other field.
-                        // Usually groupMember.id is the phone JID.
+                    if (action === 'add') {
+                        await delay(1000)
                     }
 
-                    // Normalize just in case
+                    let userJid
+                    if (typeof user === 'string') {
+                        userJid = user
+                    } else if (typeof user === 'object' && user !== null) {
+                        userJid = user.phoneNumber || user.id || user.jid
+                    }
+                    userJid = String(userJid || '').decodeJid()
+
+                    const groupMember = groupMetadata.participants?.find(
+                        p => p.id === userJid || p.lid === userJid
+                    )
+
+                    if (groupMember) {
+                        if (groupMember.id && !groupMember.id.includes('@lid')) {
+                            userJid = groupMember.id
+                        } else {
+                            console.log('[LID JID USED — no phone JID detected]')
+                        }
+                    }
+
                     userJid = this.getJid(userJid) || userJid
 
-                    // Fetch avatar; if upload fails, keep a safe default URL
+                    // Fetch avatar
                     let pp;
                     try {
-                        const pps = await this.profilePictureUrl(userJid, 'image').catch(_ => 'https://s3.ryzumi.vip/permanent-assets/pp_depresi_1.png')
+                        const pps = await this.profilePictureUrl(userJid, 'image')
+                            .catch(_ => 'https://s3.ryzumi.vip/permanent-assets/pp_depresi_1.png')
+
                         const ppB = Buffer.from(await (await fetch(pps)).arrayBuffer())
-                        if (ppB?.length) pp = await uploadPomf(ppB).catch(() => pps)
-                    } catch { /* ignore */ }
+                        if (ppB?.length) {
+                            pp = await uploadPomf(ppB).catch(() => pps)
+                        }
+                    } catch (err) {
+                        console.log('[AVATAR ERROR]', err)
+                    }
 
                     const safeName = async () => {
                         try {
                             const nm = await Promise.resolve(this.getName(userJid))
+                            //console.log('[FETCH NAME]', nm)
                             return (nm && String(nm).trim()) || null
-                        } catch { return null }
+                        } catch {
+                            return null
+                        }
                     }
+
                     const username = (await safeName()) || userJid.split('@')[0]
                     const gcname = groupMetadata.subject || 'Unknown'
                     const gcMem = groupMetadata.participants?.length || 0
+                    //console.log('[USERNAME]', username)
+                    //console.log('[GROUP NAME]', gcname)
+                    //console.log('[GROUP MEMBER COUNT]', gcMem)
+
                     const welcomeBg = 'https://s3.ryzumi.vip/permanent-assets/welcome_1.jpg'
                     const leaveBg = 'https://s3.ryzumi.vip/permanent-assets/leave_1.jpg'
 
-                    text = (action === 'add' ? (chat.sWelcome || this.welcome || 'Welcome, @user!').replace('@subject', gcname).replace('@desc', groupMetadata.desc || '')
-                        : (chat.sBye || this.bye || 'Bye, @user!')).replace('@user', '@' + (userJid.split('@')[0] || username))
+                    text = (
+                        action === 'add'
+                            ? (chat.sWelcome || this.welcome || 'Welcome, @user!')
+                                .replace('@subject', gcname)
+                                .replace('@desc', groupMetadata.desc || '')
+                            : (chat.sBye || this.bye || 'Bye, @user!')
+                    ).replace('@user', '@' + (userJid.split('@')[0] || username))
 
-                    // Encode all URL params to avoid breaking when name/desc has spaces or emojis
+                    //console.log('[CAPTION TEXT]', text)
+
                     const wel = `${APIs.ryzumi}/api/image/welcome?username=${encodeURIComponent(username)}&group=${encodeURIComponent(gcname)}&avatar=${encodeURIComponent(pp || '')}&bg=${encodeURIComponent(welcomeBg)}&member=${gcMem}`
                     const lea = `${APIs.ryzumi}/api/image/leave?username=${encodeURIComponent(username)}&group=${encodeURIComponent(gcname)}&avatar=${encodeURIComponent(pp || '')}&bg=${encodeURIComponent(leaveBg)}&member=${gcMem}`
+
+                    //console.log('[WELCOME IMAGE URL]', wel)
+                    //console.log('[LEAVE IMAGE URL]', lea)
 
                     try {
                         await this.sendMessage(id, {
                             image: { url: action === 'add' ? wel : lea },
                             caption: text,
-                            contextInfo: {
-                                mentionedJid: [userJid]
-                            },
+                            contextInfo: { mentionedJid: [userJid] },
                         })
                     } catch (e) {
-                        console.error(e)
+                        console.log('[MESSAGE SEND ERROR]', e)
                     }
                 }
+            } else {
+                console.log('[WELCOME SYSTEM DISABLED]')
             }
             break
         case 'promote':
@@ -484,12 +520,23 @@ export async function participantsUpdate({ id, participants, action, simulate = 
         case 'demote':
             if (!text)
                 text = (chat.sDemote || this.sdemote || conn.sdemote || '@user ```is no longer Admin```')
-            text = text.replace('@user', '@' + participants[0].split('@')[0])
-            if (chat.detect)
+
+            let user0 = participants[0]
+            if (user0) {
+                // specific handling for promote/demote
+                let userJid = String(user0).decodeJid()
+                userJid = this.getJid(userJid) || userJid
+                text = text.replace('@user', '@' + userJid.split('@')[0])
+            } else {
+                text = text.replace('@user', '')
+            }
+
+            if (chat.detect) {
                 this.sendMessage(id, {
                     text,
                     mentions: this.parseMention(text)
                 })
+            }
             break
     }
 }
