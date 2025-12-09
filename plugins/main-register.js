@@ -25,24 +25,11 @@ Daftar berhasil!
 ╰────
 Serial Number: 
 ${sn}
-
-**Ketentuan Layanan (TOS) - ${global.namebot}**
-Dengan menggunakan ${global.namebot}, Anda setuju dengan ketentuan berikut:
-
-1. *DILARANG KERAS MERUBAH TIMER/PESAN SEMENTARA*
-2. *DILARANG MENGIRIM MEDIA NSFW*
-3. *DILARANG SPAM NOMOR BOT*
-4. *CHAT OWNER BILA PERLU*
-
-Dengan menggunakan ${global.namebot}, Anda setuju dengan semua ketentuan yang berlaku.
-
-*Ketentuan ini terakhir diperbarui pada 9 September 2025.*
-
-Mendaftar berarti setuju dengan ketentuan
 `.trim())
 }
 
 handler.help = ['daftar', 'register'].map(v => v + ' <nama>.<umur>')
 handler.command = /^(daftar|reg(ister)?)$/i
+handler.private = true
 
 export default handler
