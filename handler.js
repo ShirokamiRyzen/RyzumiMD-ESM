@@ -570,19 +570,33 @@ export async function deleteUpdate(message) {
     try {
         const { fromMe, id, participant } = message
         if (fromMe) return
-        if (!message.remoteJid.endsWith('@g.us')) return
-        let msg = this.serializeM(this.loadMessage(id))
+
+        const msgId = message.remoteJid;
+        if (!msgId || !msgId.endsWith('@g.us')) return
+
+        const chatJid = this.decodeJid(msgId);
+        const chat = global.db.data.chats[chatJid] || global.db.data.chats[msgId] || {}
+
+        // Check if feature is disabled. 
+        // Logic: chat.delete = true means "Anti-Delete Disabled" (Don't announce).
+        // chat.delete = false means "Anti-Delete Enabled" (Announce).
+        // Default: If undefined, we should probably follow the handler.js init default which is `delete: true` (Disabled).
+        if (typeof chat.delete === 'undefined' ? true : chat.delete) return
+
+        const msg = this.serializeM(this.loadMessage(id))
         if (!msg) return
-        let chat = global.db.data.chats[msg.chat] || {}
-        if (chat.delete) return
+
+        // Use msg.sender to get the correct user JID (handles LID/participantAlt)
+        const sender = msg.sender || participant
+
         this.reply(msg.chat, `
-Terdeteksi @${participant.split`@`[0]} telah menghapus pesan. 
+Terdeteksi @${sender.split`@`[0]} telah menghapus pesan. 
 Untuk mematikan fitur ini, ketik
-*.enable delete*
+*.disable delete*
           
 Untuk menghapus pesan yang dikirim oleh Bot, reply pesan dengan perintah
 *.delete*`, msg)
-        this.copyNForward(msg.chat, msg).catch(e => console.log(e, msg))
+        this.copyNForward(msg.chat, msg).catch(e => console.error(e))
     } catch (e) {
         console.error(e)
     }
