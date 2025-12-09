@@ -10,25 +10,24 @@ import { platform as getPlatform } from 'os'
 
 const defaultMenu = {
   before: `
-⫸ *Nama:* %name
-⫸ *Nomor:* %tag
-⫸ *Premium:* %prems
-⫸ *Limit:* %limit
-⫸ *Role:* %role
+• *Nama:* %name
+• *Premium:* %prems
+• *Limit:* %limit
+• *Role:* %role
 
 *${ucapan()}* %name!
-⫸ *Tanggal:* %week %weton
-⫸ *Date:* %date
-⫸ *Tanggal Islam:* %dateIslamic
-⫸ *Waktu:* %time
+• *Tanggal:* %week %weton
+• *Date:* %date
+• *Tanggal Islam:* %dateIslamic
+• *Waktu:* %time
 
-⫸ *Nama Bot:* %me
-⫸ *Mode:* %mode
-⫸ *Prefix:* [ *%_p* ]
-⫸ *Platform:* %platform
-⫸ *Type:* Node.JS
-⫸ *Uptime:* %muptime
-⫸ *Database:* %rtotalreg dari %totalreg
+• *Nama Bot:* %me
+• *Mode:* %mode
+• *Prefix:* [ *%_p* ]
+• *Platform:* %platform
+• *Type:* Node.JS
+• *Uptime:* %muptime
+• *Database:* %rtotalreg dari %totalreg
 
 ───「 *INFO CMD* 」───
 │ *Ⓟ* = Premium
@@ -82,7 +81,6 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname, args, command }) => {
     let locale = 'id'
     let week = d.toLocaleDateString(locale, { weekday: 'long' })
     let date = d.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })
-    let who = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.fromMe ? conn.user.jid : m.sender
     let weton = ['Pahing', 'Pon', 'Wage', 'Kliwon', 'Legi'][Math.floor(d / 84600000) % 5]
     let dateIslamic = Intl.DateTimeFormat(locale + '-TN-u-ca-islamic', {
       day: 'numeric',
