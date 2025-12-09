@@ -10,25 +10,25 @@ import { platform as getPlatform } from 'os'
 
 const defaultMenu = {
   before: `
-• *Nama:* %name
-• *Nomor:* %tag
-• *Premium:* %prems
-• *Limit:* %limit
-• *Role:* %role
+⫸ *Nama:* %name
+⫸ *Nomor:* %tag
+⫸ *Premium:* %prems
+⫸ *Limit:* %limit
+⫸ *Role:* %role
 
-*${ucapan()} %name!*
-• *Tanggal:* %week %weton
-• *Date:* %date
-• *Tanggal Islam:* %dateIslamic
-• *Waktu:* %time
+*${ucapan()}* %name!
+⫸ *Tanggal:* %week %weton
+⫸ *Date:* %date
+⫸ *Tanggal Islam:* %dateIslamic
+⫸ *Waktu:* %time
 
-• *Nama Bot:* %me
-• *Mode:* %mode
-• *Prefix:* [ *%_p* ]
-• *Platform:* %platform
-• *Type:* Node.JS
-• *Uptime:* %muptime
-• *Database:* %rtotalreg dari %totalreg
+⫸ *Nama Bot:* %me
+⫸ *Mode:* %mode
+⫸ *Prefix:* [ *%_p* ]
+⫸ *Platform:* %platform
+⫸ *Type:* Node.JS
+⫸ *Uptime:* %muptime
+⫸ *Database:* %rtotalreg dari %totalreg
 
 ───「 *INFO CMD* 」───
 │ *Ⓟ* = Premium
