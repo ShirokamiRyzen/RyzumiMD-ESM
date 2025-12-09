@@ -5,7 +5,7 @@ import path from 'path'
 let handler = async (m, { conn, command, text, usedPrefix }) => {
   if (!text) throw `Usage: ${usedPrefix}${command} <YouTube Video URL> <resolution>`
 
-
+  await m.react('🕓')
 
   const args = text.split(' ')
   const videoUrl = args[0]

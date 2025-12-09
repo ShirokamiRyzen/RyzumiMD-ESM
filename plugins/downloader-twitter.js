@@ -7,6 +7,9 @@ let handler = async (m, { conn, args }) => {
 
 
 
+
+  await m.react('🕓')
+
   try {
     let downloadResult = (await axios.get(`${APIs.ryzumi}/api/downloader/twitter?url=${url}`)).data;
 

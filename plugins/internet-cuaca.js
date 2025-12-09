@@ -9,6 +9,7 @@ let handler = async (m, {
         throw `Penggunaan:\n${usedPrefix + command} <teks>\n\nContoh:\n${usedPrefix + command} Jakarta`;
     }
 
+    await m.react('🕓')
 
     let teksenc = encodeURIComponent(text);
 

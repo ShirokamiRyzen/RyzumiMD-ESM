@@ -7,6 +7,7 @@ let handler = async (m, { conn, args }) => {
 
 
     try {
+        await m.react('🕓')
         let q = m.quoted ? m.quoted : m;
         let mime = (q.msg || q).mimetype || '';
         if (!mime) throw 'Kirim/Reply Gambar dengan caption .hitamkan';

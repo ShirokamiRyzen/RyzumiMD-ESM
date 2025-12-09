@@ -3,6 +3,7 @@ import { uploadPomf } from '../lib/uploadImage.js'
 
 let handler = async (m, { conn, usedPrefix }) => {
     try {
+        await m.react('🕓')
         let q = m.quoted ? m.quoted : m;
         let mime = (q.msg || q).mimetype || '';
         if (!mime) throw `Kirim/Reply Gambar dengan caption ${usedPrefix}colorize`;

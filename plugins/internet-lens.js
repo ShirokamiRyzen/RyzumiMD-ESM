@@ -3,6 +3,7 @@ import { ryzenCDN } from '../lib/uploadFile.js'
 
 let handler = async (m, { conn }) => {
 
+    await m.react('🕓')
 
     try {
         let q = m.quoted ? m.quoted : m

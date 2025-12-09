@@ -6,9 +6,7 @@ let handler = async (m, { conn, args }) => {
 
     if (!code) {
         return conn.reply(m.chat, `Please provide the code to generate the image.`, m);
-    }
-
-
+    } await m.react('🕓')
 
     try {
         const response = await axios.get(`${APIs.ryzumi}/api/tool/carbon?code=${encodeURIComponent(code)}`, {

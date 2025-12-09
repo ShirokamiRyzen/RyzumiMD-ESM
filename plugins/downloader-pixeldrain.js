@@ -7,6 +7,7 @@ let handler = async (m, { conn, args }) => {
     const url = args[0];
 
 
+    await m.react('🕓')
 
     try {
         const { url: downloadUrl, filename, filetype } = await pixeldrainDL(url);

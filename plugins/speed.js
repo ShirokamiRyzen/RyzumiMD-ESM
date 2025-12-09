@@ -84,7 +84,7 @@ var handler = async (m, { conn, isRowner }) => {
   })
 
   let old = performance.now()
-
+  await m.react('🕓')
   let neww = performance.now()
   let speed = neww - old
 

@@ -11,6 +11,7 @@ let handler = async (m, { conn, text }) => {
     if (!uid) throw `Enter a valid Genshin UID!\nExample: .genshinstalk 819226311`
 
 
+    await m.react('🕓')
 
     try {
         const { data } = await axios.get(`${APIs.ryzumi}/api/stalk/genshin?userId=${uid}`, {

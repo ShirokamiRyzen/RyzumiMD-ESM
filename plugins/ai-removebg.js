@@ -3,6 +3,7 @@ import { uploadPomf } from '../lib/uploadImage.js'
 
 let handler = async (m, { conn, usedPrefix, text }) => {
     try {
+        await m.react('🕓')
         let args = text.trim().split(/\s+/);
         let upscale = (args[1] && args[1].toLowerCase() === 'hd') ? "true" : "false";
 

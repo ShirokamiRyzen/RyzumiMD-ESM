@@ -3,6 +3,7 @@ import { uploadPomf } from '../lib/uploadImage.js'
 
 let handler = async (m, { conn, usedPrefix, command, text }) => {
     try {
+        await m.react('🕓')
         let who = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.fromMe ? conn.user.jid : m.sender
         let name = await conn.getName(who)
         let q = m.quoted ? m.quoted : m

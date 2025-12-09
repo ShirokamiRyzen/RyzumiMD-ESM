@@ -9,7 +9,7 @@ const streamPipeline = promisify(pipeline)
 let handler = async (m, { conn, command, text, usedPrefix }) => {
   if (!text) throw `Usage: ${usedPrefix}${command} <YouTube Video URL>`
 
-
+  await m.react('🕓')
 
   const videoUrl = text
   const apiUrl = `${APIs.ryzumi}/api/downloader/ytmp3?url=${encodeURIComponent(videoUrl)}`

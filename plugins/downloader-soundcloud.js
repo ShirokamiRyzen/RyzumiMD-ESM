@@ -4,6 +4,9 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 	if (!args[0]) throw `Usage: ${usedPrefix + command} <url>`
 
 
+
+	await m.react('🕓')
+
 	try {
 		const { data } = await axios.get(`${APIs.ryzumi}/api/downloader/soundcloud?url=${encodeURIComponent(args[0])}`)
 		const { title, thumbnail, filesize, download_url } = data || {}

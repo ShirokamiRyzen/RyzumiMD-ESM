@@ -3,6 +3,7 @@ import { uploadPomf } from '../lib/uploadImage.js'
 
 let handler = async (m, { conn, usedPrefix, command, text }) => {
   try {
+    await m.react('🕓')
     const arg = (text || '').trim().split(/\s+/)[0]
     let scale = Number(arg)
     if (!arg) {

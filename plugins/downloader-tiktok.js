@@ -6,6 +6,9 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 
 
 
+
+  await m.react('🕓')
+
   try {
     const isDouyin = args[0].includes("douyin")
     const API = isDouyin

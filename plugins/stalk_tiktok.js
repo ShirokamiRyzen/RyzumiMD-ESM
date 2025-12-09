@@ -5,6 +5,7 @@ let handler = async (m, { conn, text }) => {
     let username = text.trim()
 
 
+    await m.react('🕓')
 
     try {
         const { data } = await axios.get(`${APIs.ryzumi}/api/stalk/tiktok?username=${username}`)

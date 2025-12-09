@@ -3,6 +3,7 @@ import { uploadPomf } from '../lib/uploadImage.js'
 
 let handler = async (m, { conn, usedPrefix, command, text }) => {
     try {
+        await m.react('🕓')
         let args = text.trim().split(/\s+/);
         let style = args[1] || "anime";
 

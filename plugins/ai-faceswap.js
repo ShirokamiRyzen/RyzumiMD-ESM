@@ -3,6 +3,7 @@ import { ryzenCDN } from '../lib/uploadFile.js'
 
 let handler = async (m, { conn, args }) => {
     try {
+        await m.react('🕓')
         if (!args[0]) throw 'Masukkan link gambar original'
         let q = m.quoted ? m.quoted : m
         let mime = (q.msg || q).mimetype || ''

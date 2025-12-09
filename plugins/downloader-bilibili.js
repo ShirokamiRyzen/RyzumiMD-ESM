@@ -12,6 +12,7 @@ let handler = async (m, { conn, args }) => {
     const url = args[0];
 
 
+    await m.react('🕓')
 
     try {
         const { data } = await axios.get(`${APIs.ryzumi}/api/downloader/bilibili?url=${encodeURIComponent(url)}`);

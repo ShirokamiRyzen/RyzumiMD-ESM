@@ -4,6 +4,9 @@ import moment from 'moment-timezone'
 let handler = async (m, { conn }) => {
 
 
+
+  await m.react('🕓')
+
   try {
     const { data } = await axios.get(`${APIs.ryzumi}/api/tool/growagarden`)
     const garden = data.data

@@ -3,6 +3,7 @@ import { ryzenCDN } from '../lib/uploadFile.js'
 
 let handler = async (m, { conn, text }) => {
 
+    await m.react('🕓')
 
     try {
         if (!text) throw 'Masukkan text!'

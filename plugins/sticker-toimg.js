@@ -29,6 +29,9 @@ let handler = async (m, { conn, usedPrefix, command }) => {
       const media = await q.download();
 
 
+
+      await m.react('🕓')
+
       const decodedBuffer = await sharp(media).toFormat('png')
         .png({ quality: 100, progressive: true, compressionLevel: 9 })
         .toBuffer();

@@ -7,6 +7,7 @@ const handler = async (m, { conn, args, command, usedPrefix }) => {
     const filetypes = ['pdf', 'pptx'];
 
 
+    await m.react('🕓')
 
     try {
         for (const filetype of filetypes) {

@@ -5,6 +5,9 @@ const handler = async (m, { usedPrefix, command, conn, args }) => {
   if (!args[0]) throw `*Example:* ${usedPrefix}${command} Nao Tomori`;
 
 
+
+  await m.react('🕓')
+
   try {
     const q = encodeURIComponent(args.join(' '));
     const response = await fetch(`${APIs.ryzumi}/api/search/pinterest?query=${q}`);

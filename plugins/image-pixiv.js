@@ -6,6 +6,9 @@ const handler = async (m, { usedPrefix, command, conn, args }) => {
   if (!args[0]) throw `*Example:* ${usedPrefix}${command} Nao Tomori atau https://www.pixiv.net/en/artworks/92445569`
 
 
+
+  await m.react('🕓')
+
   try {
     const q = encodeURIComponent(args.join(' '));
     const response = await fetch(`${APIs.ryzumi}/api/search/pixiv?query=${q}`);

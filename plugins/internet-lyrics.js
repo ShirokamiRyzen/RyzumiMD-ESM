@@ -4,6 +4,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     if (!text) throw `Contoh\n*${usedPrefix}${command} Seven oops - Orange*`;
 
 
+    await m.react('🕓')
 
     try {
         const response = await axios.get(`${APIs.ryzumi}/api/search/lyrics?query=${encodeURIComponent(text)}`);

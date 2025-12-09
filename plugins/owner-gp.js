@@ -5,6 +5,7 @@ let exec = promisify(_exec).bind(cp)
 let handler = async (m, { conn, isROwner, usedPrefix, command, text }) => {
 
     if (!isROwner) return
+    await m.react('🕓')
     let ar = Object.keys(plugins)
     let ar1 = ar.map(v => v.replace('.js', ''))
     if (!text) throw `uhm.. where the text?\n\nexample:\n${usedPrefix + command} info`
