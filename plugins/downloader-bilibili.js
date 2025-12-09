@@ -11,7 +11,7 @@ let handler = async (m, { conn, args }) => {
     const sender = m.sender.split('@')[0];
     const url = args[0];
 
-    m.reply(wait);
+
 
     try {
         const { data } = await axios.get(`${APIs.ryzumi}/api/downloader/bilibili?url=${encodeURIComponent(url)}`);
@@ -49,14 +49,14 @@ let handler = async (m, { conn, args }) => {
             // Send the video with correct metadata
             await conn.sendMessage(
                 m.chat, {
-                    video: fixedVideoBuffer,
-                    mimetype: "video/mp4",
-                    fileName: video.filename,
-                    caption: caption,
-                    mentions: [m.sender],
-                }, {
-                    quoted: m
-                }
+                video: fixedVideoBuffer,
+                mimetype: "video/mp4",
+                fileName: video.filename,
+                caption: caption,
+                mentions: [m.sender],
+            }, {
+                quoted: m
+            }
             );
 
             await fs.unlink(tempFilePath);

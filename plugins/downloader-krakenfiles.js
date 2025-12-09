@@ -6,7 +6,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 
     let kf = `${APIs.ryzumi}/api/downloader/kfiles?url=${encodeURIComponent(args[0])}`;
 
-    m.reply(wait);
+
 
     try {
         let res = await axios.get(kf);

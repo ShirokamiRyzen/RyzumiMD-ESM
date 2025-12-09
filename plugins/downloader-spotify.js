@@ -2,7 +2,7 @@ import axios from 'axios'
 
 let handler = async (m, { conn, args, usedPrefix, command }) => {
     if (!args[0]) throw `Usage: ${usedPrefix + command} <url>`
-    m.reply(wait)
+
 
     try {
         let response = await axios.get(`${APIs.ryzumi}/api/downloader/spotify?url=${encodeURIComponent(args[0])}`)
@@ -21,7 +21,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 
                     if (track.success) {
                         let { title, artists, album, cover, releaseDate } = track.metadata
-                         conn.sendMessage(m.chat, {
+                        conn.sendMessage(m.chat, {
                             document: { url: track.link },
                             mimetype: 'audio/mpeg',
                             fileName: `${title}.mp3`,
@@ -42,7 +42,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
             } else {
                 // Jika URL yang diberikan adalah track tunggal
                 let { title, artists, album, cover, releaseDate } = data.metadata
-                 conn.sendMessage(m.chat, {
+                conn.sendMessage(m.chat, {
                     document: { url: data.link },
                     mimetype: 'audio/mpeg',
                     fileName: `${title}.mp3`,

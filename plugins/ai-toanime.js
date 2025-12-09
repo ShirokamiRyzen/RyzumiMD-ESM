@@ -9,14 +9,14 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
         let q = m.quoted ? m.quoted : m;
         let mime = (q.msg || q).mimetype || '';
         if (!mime) throw `Kirim/Reply Gambar dengan caption ${usedPrefix}toanime`;
-        m.reply(wait);
+
 
         let media = await q.download();
         let url = await uploadPomf(media);
 
         let response = await fetch(`${APIs.ryzumi}/api/ai/toanime?url=${url}&style=${style}`);
         if (!response.ok) throw new Error('Failed to fetch image from API');
-    let hasil = Buffer.from(await response.arrayBuffer());
+        let hasil = Buffer.from(await response.arrayBuffer());
 
         await conn.sendFile(m.chat, hasil, 'toanime.jpg', global.wm, m);
     } catch (error) {

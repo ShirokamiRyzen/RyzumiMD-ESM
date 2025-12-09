@@ -2,7 +2,7 @@ import axios from "axios"
 
 let handler = async (m, { conn, args, usedPrefix, command }) => {
     if (!args[0]) throw `Usage: ${usedPrefix + command} <url>`;
-    m.reply(wait);
+
 
     try {
         let response = await axios.get(`${APIs.ryzumi}/api/downloader/aiodown?url=${encodeURIComponent(args[0])}`);

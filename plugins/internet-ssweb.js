@@ -2,8 +2,8 @@ import axios from 'axios'
 
 let handler = async (m, { conn, text, command, usedPrefix }) => {
     if (!text) return m.reply(`Gunakan format ${usedPrefix + command} <url>\n\n*Contoh :* ${usedPrefix + command} https://github.com/ShirokamiRyzen`);
-    
-    m.reply(wait);
+
+
 
     if (!text.startsWith('https://') && !text.startsWith('http://')) {
         text = 'https://' + text;

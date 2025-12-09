@@ -5,7 +5,7 @@ import axios from 'axios'
 
 let handler = async (m, { conn, args }) => {
     if (!args[0]) throw 'Please provide a Facebook video URL';
-    m.reply(wait);
+
 
     try {
         const { data } = await axios.get(`${APIs.ryzumi}/api/downloader/fbdl?url=${encodeURIComponent(args[0])}`);
@@ -14,9 +14,9 @@ let handler = async (m, { conn, args }) => {
 
         // Prioritize 720p (HD) and fallback to 360p (SD)
         let video = data.data.find(v => v.resolution === '720p (HD)') || data.data.find(v => v.resolution === '360p (SD)');
-        
+
         if (video && video.url) {
-             conn.sendMessage(
+            conn.sendMessage(
                 m.chat, {
                 video: { url: video.url },
                 mimetype: "video/mp4",

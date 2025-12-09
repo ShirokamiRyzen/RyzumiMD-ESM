@@ -5,7 +5,7 @@ let handler = async (m, { conn, args }) => {
   const sender = m.sender.split('@')[0];
   const url = args[0];
 
-  m.reply(wait);
+
 
   try {
     let downloadResult = (await axios.get(`${APIs.ryzumi}/api/downloader/twitter?url=${url}`)).data;

@@ -5,7 +5,7 @@ import path from 'path'
 let handler = async (m, { conn, command, text, usedPrefix }) => {
   if (!text) throw `Usage: ${usedPrefix}${command} <YouTube Video URL> <resolution>`
 
-  m.reply(wait)
+
 
   const args = text.split(' ')
   const videoUrl = args[0]
@@ -71,7 +71,7 @@ let handler = async (m, { conn, command, text, usedPrefix }) => {
       },
     }, { quoted: m })
 
-    fs.unlink(filePath, () => {})
+    fs.unlink(filePath, () => { })
 
   } catch (error) {
     console.error(`Error: ${error.message}`)

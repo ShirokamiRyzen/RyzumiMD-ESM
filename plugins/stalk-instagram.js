@@ -4,7 +4,7 @@ let handler = async (m, { conn, text }) => {
     if (!text || !text.trim()) throw 'Masukkan username yang valid!'
     let username = text.trim()
 
-    m.reply(wait)
+
 
     try {
         const { data } = await axios.get(`${APIs.ryzumi}/api/stalk/instagram?username=${username}`)

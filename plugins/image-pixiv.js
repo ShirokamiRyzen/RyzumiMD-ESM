@@ -4,7 +4,7 @@ import { generateWAMessageContent, generateWAMessageFromContent, proto } from '@
 
 const handler = async (m, { usedPrefix, command, conn, args }) => {
   if (!args[0]) throw `*Example:* ${usedPrefix}${command} Nao Tomori atau https://www.pixiv.net/en/artworks/92445569`
-  m.reply(wait);
+
 
   try {
     const q = encodeURIComponent(args.join(' '));
@@ -22,7 +22,7 @@ const handler = async (m, { usedPrefix, command, conn, args }) => {
     } else {
       pageLink = `https://www.pixiv.net/search.php?s_mode=s_tag&word=${encodeURIComponent(args.join(' '))}`;
     }
-    
+
     const caption = data.caption || '';
     const artist = data.artist || '';
     const tags = data.tags ? data.tags.join(', ') : '';
@@ -32,7 +32,7 @@ const handler = async (m, { usedPrefix, command, conn, args }) => {
 
     async function createImage(url) {
       const res = await fetch(url);
-  let buffer = Buffer.from(await res.arrayBuffer());
+      let buffer = Buffer.from(await res.arrayBuffer());
       const threshold = 12 * 1024 * 1024;
       if (buffer.length > threshold) {
         buffer = await sharp(buffer)

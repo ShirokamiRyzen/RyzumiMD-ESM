@@ -10,7 +10,7 @@ let handler = async (m, { conn, usedPrefix, text }) => {
         let mime = (q.msg || q).mimetype || '';
         if (!mime || !mime.startsWith('image/')) throw `Kirim/Reply Gambar dengan caption ${usedPrefix}removebg`;
 
-        m.reply(wait);
+
 
         let media = await q.download();
         let url = await uploadPomf(media);
@@ -19,15 +19,15 @@ let handler = async (m, { conn, usedPrefix, text }) => {
         let response = await fetch(apiUrl);
         if (!response.ok) throw new Error('Gagal mengambil gambar dari API');
 
-    let hasil = Buffer.from(await response.arrayBuffer());
+        let hasil = Buffer.from(await response.arrayBuffer());
 
-        await conn.sendFile( m.chat, hasil, 'removedbg.jpg', global.wm, m );
+        await conn.sendFile(m.chat, hasil, 'removedbg.jpg', global.wm, m);
 
         let epoch = Date.now();
         let random = Math.floor(Math.random() * 99999);
         let filename = `removedbg_${random}_${epoch}_file.png`;
 
-        await conn.sendFile( m.chat, hasil, filename, '', m, null, { mimetype: 'image/png', asDocument: true } );
+        await conn.sendFile(m.chat, hasil, filename, '', m, null, { mimetype: 'image/png', asDocument: true });
     } catch (error) {
         m.reply(`Error: ${error.message}`);
     }

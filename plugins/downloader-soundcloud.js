@@ -2,7 +2,7 @@ import axios from 'axios'
 
 let handler = async (m, { conn, args, usedPrefix, command }) => {
 	if (!args[0]) throw `Usage: ${usedPrefix + command} <url>`
-	m.reply(wait)
+
 
 	try {
 		const { data } = await axios.get(`${APIs.ryzumi}/api/downloader/soundcloud?url=${encodeURIComponent(args[0])}`)
@@ -10,7 +10,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 
 		if (!download_url || !title) throw 'Failed to fetch SoundCloud data. Please verify the URL.'
 
-	      conn.sendMessage(m.chat, {
+		conn.sendMessage(m.chat, {
 			document: { url: download_url },
 			mimetype: 'audio/mpeg',
 			fileName: `${title}.mp3`,

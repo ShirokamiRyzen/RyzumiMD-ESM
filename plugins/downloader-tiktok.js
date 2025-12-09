@@ -4,7 +4,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
   if (!args[0])
     throw `[❗] Contoh: ${usedPrefix + command} https://www.tiktok.com/@m4uryy/video/7350083403556883745\n\natau\n\n${usedPrefix + command} https://v.douyin.com/i5GhvkBY/`
 
-  conn.reply(m.chat, wait, m)
+
 
   try {
     const isDouyin = args[0].includes("douyin")

@@ -2,7 +2,7 @@ import axios from 'axios'
 
 let handler = async (m, { conn, args, usedPrefix, command }) => {
     if (!args[0]) throw `Gunakan contoh: ${usedPrefix}${command} https://www.mediafire.com/file/in5j3u2zwoq1x33/BLUR_BLUR_ASIK.zip/file`;
-    m.reply(wait);
+
 
     try {
         let res = await axios.get(`${APIs.ryzumi}/api/downloader/mediafire?url=${encodeURIComponent(args[0])}`);

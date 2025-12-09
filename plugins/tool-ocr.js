@@ -21,7 +21,7 @@ let handler = async (m, { conn, text, command, usedPrefix }) => {
     let img = await q.download()
     let url = await uploadPomf(img)
 
-    m.reply(wait)
+
 
     let maxRetries = 99
     let retryCount = 0

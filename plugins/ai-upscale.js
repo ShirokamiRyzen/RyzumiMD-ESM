@@ -20,7 +20,7 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
     let mime = (q.msg || q).mimetype || ''
     if (!mime) throw 'Kirim/Reply Gambar dengan caption .upscale <1|2|3|4>'
 
-    m.reply(wait)
+
 
     let media = await q.download()
     let url = await uploadPomf(media)

@@ -9,7 +9,7 @@ let handler = async (m, {
         throw `Penggunaan:\n${usedPrefix + command} <teks>\n\nContoh:\n${usedPrefix + command} Jakarta`;
     }
 
-    await m.reply(`${global.wait}`);
+
     let teksenc = encodeURIComponent(text);
 
     let res = await fetch(API('https://api.openweathermap.org', '/data/2.5/weather', {

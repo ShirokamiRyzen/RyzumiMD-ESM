@@ -3,7 +3,7 @@ import { promisify } from 'util'
 let exec = promisify(_exec).bind(cp)
 
 let handler = async (m, { conn, isROwner, usedPrefix, command, text }) => {
-await m.reply(global.wait)
+
     if (!isROwner) return
     let ar = Object.keys(plugins)
     let ar1 = ar.map(v => v.replace('.js', ''))

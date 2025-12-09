@@ -2,7 +2,7 @@ import axios from 'axios'
 import moment from 'moment-timezone'
 
 let handler = async (m, { conn }) => {
-  m.reply(wait)
+
 
   try {
     const { data } = await axios.get(`${APIs.ryzumi}/api/tool/growagarden`)

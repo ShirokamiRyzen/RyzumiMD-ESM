@@ -10,7 +10,7 @@ let handler = async (m, { conn, usedPrefix, command }) => {
         let mime = (q.msg || q).mimetype || '';
         if (!mime) throw `Kirim/Reply Gambar dengan caption ${usedPrefix + command}`;
 
-        m.reply(wait);
+
 
         let media = await q.download();
         let url = await uploadPomf(media);

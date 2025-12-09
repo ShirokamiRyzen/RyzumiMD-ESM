@@ -2,7 +2,7 @@ import axios from 'axios'
 import { ryzenCDN } from '../lib/uploadFile.js'
 
 let handler = async (m, { conn, text }) => {
-    m.reply(wait)
+
 
     try {
         if (!text) throw 'Masukkan text!'

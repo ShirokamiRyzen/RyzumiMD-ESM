@@ -3,7 +3,7 @@ import { generateWAMessageContent, generateWAMessageFromContent, proto } from '@
 
 const handler = async (m, { usedPrefix, command, conn, args }) => {
   if (!args[0]) throw `*Example:* ${usedPrefix}${command} Nao Tomori`;
-  m.reply(wait);
+
 
   try {
     const q = encodeURIComponent(args.join(' '));
@@ -25,7 +25,7 @@ const handler = async (m, { usedPrefix, command, conn, args }) => {
         }
       });
       if (!res.ok) throw new Error(`Gagal download gambar: ${res.status}`);
-  const buffer = Buffer.from(await res.arrayBuffer());
+      const buffer = Buffer.from(await res.arrayBuffer());
       const { imageMessage } = await generateWAMessageContent(
         { image: buffer },
         { upload: conn.waUploadToServer }

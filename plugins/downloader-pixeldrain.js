@@ -6,21 +6,21 @@ let handler = async (m, { conn, args }) => {
     const sender = m.sender.split('@')[0];
     const url = args[0];
 
-    m.reply(wait);
+
 
     try {
         const { url: downloadUrl, filename, filetype } = await pixeldrainDL(url);
         const caption = `Ini kak videonya @${sender}`;
         await conn.sendMessage(
             m.chat, {
-                video: { url: downloadUrl },
-                mimetype: filetype,
-                fileName: filename,
-                caption: caption,
-                mentions: [m.sender],
-            }, {
-                quoted: m
-            }
+            video: { url: downloadUrl },
+            mimetype: filetype,
+            fileName: filename,
+            caption: caption,
+            mentions: [m.sender],
+        }, {
+            quoted: m
+        }
         );
     } catch (error) {
         console.error('Handler Error:', error);

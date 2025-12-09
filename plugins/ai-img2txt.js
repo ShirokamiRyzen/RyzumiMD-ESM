@@ -6,7 +6,7 @@ let handler = async (m, { conn, usedPrefix }) => {
         let q = m.quoted ? m.quoted : m;
         let mime = (q.msg || q).mimetype || '';
         if (!mime) throw `Kirim/Reply Gambar dengan caption ${usedPrefix}img2txt`;
-        m.reply(wait);
+
 
         let media = await q.download();
         let url = await uploadPomf(media);

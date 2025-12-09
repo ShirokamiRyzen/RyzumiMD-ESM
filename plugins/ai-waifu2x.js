@@ -8,7 +8,7 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
         let q = m.quoted ? m.quoted : m
         let mime = (q.msg || q).mimetype || ''
         if (!mime) throw 'Kirim/Reply Gambar dengan caption .toanime'
-        m.reply(wait)
+
         let media = await q.download()
         let url = await uploadPomf(media)
 
@@ -16,7 +16,7 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
         let response = await fetch(`${APIs.ryzumi}/api/ai/waifu2x?url=${url}`)
         if (!response.ok) throw new Error('Gagal menghubungi API waifu2x')
 
-    let hasil = Buffer.from(await response.arrayBuffer())
+        let hasil = Buffer.from(await response.arrayBuffer())
 
         // Mengirim file buffer langsung ke chat
         await conn.sendFile(m.chat, hasil, 'hasil.jpg', global.wm, m)

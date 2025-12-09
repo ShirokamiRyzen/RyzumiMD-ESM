@@ -5,7 +5,7 @@ import axios from 'axios'
 
 let handler = async (m, { conn, args }) => {
     if (!args[0]) throw 'Please provide a Threads URL';
-    m.reply(wait);
+
 
     try {
         const { data } = await axios.get(`${APIs.ryzumi}/api/downloader/threads?url=${encodeURIComponent(args[0])}`);

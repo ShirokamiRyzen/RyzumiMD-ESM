@@ -4,7 +4,7 @@ import { ryzenCDN } from '../lib/uploadFile.js'
 const validFilters = ["coklat", "hitam", "nerd", "piggy", "carbon", "botak"];
 
 let handler = async (m, { conn, args }) => {
-    m.reply(wait);
+
 
     try {
         let q = m.quoted ? m.quoted : m;

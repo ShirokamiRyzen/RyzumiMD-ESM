@@ -4,7 +4,7 @@ let handler = async (m, { conn, text }) => {
     if (!text || !text.trim()) throw 'Masukkan username yang valid!'
     let username = text.trim()
 
-    m.reply(wait)
+
 
     try {
         const { data } = await axios.get(`${APIs.ryzumi}/api/stalk/youtube?username=${username}`)
@@ -28,7 +28,7 @@ Family Safe: ${channel.isFamilySafe ? 'Yes' : 'No'}
             })
         }
 
-        await conn.sendMessage( m.chat, { image: { url: channel.avatarUrl }, caption }, { quoted: m } )
+        await conn.sendMessage(m.chat, { image: { url: channel.avatarUrl }, caption }, { quoted: m })
     } catch (err) {
         m.reply('Error: ' + err.message)
     }

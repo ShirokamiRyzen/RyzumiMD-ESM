@@ -8,7 +8,7 @@ let handler = async (m, { conn, args }) => {
     const sender = m.sender.split('@')[0];
     const url = args[0];
 
-    m.reply(wait);
+
 
     try {
         const { data } = await axios.get(`${APIs.ryzumi}/api/downloader/igdl?url=${encodeURIComponent(url)}`);

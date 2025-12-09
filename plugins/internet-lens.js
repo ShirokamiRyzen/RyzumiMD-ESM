@@ -2,7 +2,7 @@ import axios from 'axios'
 import { ryzenCDN } from '../lib/uploadFile.js'
 
 let handler = async (m, { conn }) => {
-    m.reply(wait)
+
 
     try {
         let q = m.quoted ? m.quoted : m
