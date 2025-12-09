@@ -6,7 +6,6 @@ handler.before = async function (m) {
         '265': '(+265)',
         '91': '(+91)',
         '90': '(+90)',
-        '1': '(+1)',
     };
 
     for (let countryCode in regionData) {
