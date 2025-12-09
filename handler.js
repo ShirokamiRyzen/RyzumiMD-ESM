@@ -425,8 +425,19 @@ export async function participantsUpdate({ id, participants, action, simulate = 
                 let groupMetadata = (conn.chats[id] || {}).metadata || await this.groupMetadata(id)
                 for (let user of participants) {
                     if (action === 'add') await delay(1000)
-                    // Normalize the participant JID (strip device suffix/LID)
-                    let userJid = this.getJid(String(user).decodeJid()) || String(user).decodeJid()
+                    let userJid = String(user).decodeJid()
+                    const groupMember = groupMetadata.participants?.find(p => p.id === userJid || p.lid === userJid)
+                    if (groupMember) {
+                        // Use the phone number JID if available (preferred), otherwise stick with what we have
+                        // Baileys often gives { id: 'phone@s.whatsapp.net', lid: 'lid@lid' }
+                        if (groupMember.id && !groupMember.id.includes('@lid')) userJid = groupMember.id
+                        // fallback: if whatever we have is still LID, but we have phoneNumber in stub (not accessible here easily) or if 'id' is LID but there is no other field.
+                        // Usually groupMember.id is the phone JID.
+                    }
+
+                    // Normalize just in case
+                    userJid = this.getJid(userJid) || userJid
+
                     // Fetch avatar; if upload fails, keep a safe default URL
                     let pp;
                     try {
@@ -454,13 +465,17 @@ export async function participantsUpdate({ id, participants, action, simulate = 
                     const wel = `${APIs.ryzumi}/api/image/welcome?username=${encodeURIComponent(username)}&group=${encodeURIComponent(gcname)}&avatar=${encodeURIComponent(pp || '')}&bg=${encodeURIComponent(welcomeBg)}&member=${gcMem}`
                     const lea = `${APIs.ryzumi}/api/image/leave?username=${encodeURIComponent(username)}&group=${encodeURIComponent(gcname)}&avatar=${encodeURIComponent(pp || '')}&bg=${encodeURIComponent(leaveBg)}&member=${gcMem}`
 
-                    await this.sendMessage(id, {
-                        image: { url: action === 'add' ? wel : lea },
-                        caption: text,
-                        contextInfo: {
-                            mentionedJid: [userJid]
-                        },
-                    })
+                    try {
+                        await this.sendMessage(id, {
+                            image: { url: action === 'add' ? wel : lea },
+                            caption: text,
+                            contextInfo: {
+                                mentionedJid: [userJid]
+                            },
+                        })
+                    } catch (e) {
+                        console.error(e)
+                    }
                 }
             }
             break
