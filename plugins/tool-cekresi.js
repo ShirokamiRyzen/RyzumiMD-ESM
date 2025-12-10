@@ -6,9 +6,7 @@ let handler = async (m, { conn, args }) => {
 
     if (!noResi) throw 'Masukkan nomor resi pengiriman.\nContoh: `.cekresi SPXID054330680586 shopee-express`'
 
-    await conn.sendMessage(m.chat, {
-        text: wait,
-    });
+    await m.react('🕓')
 
     const ekspedisiList = {
         'acommerce': 'ACOMMERCE',

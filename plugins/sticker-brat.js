@@ -1,4 +1,4 @@
-import fetch from 'node-fetch'
+import axios from 'axios'
 
 let handler = async (m, { conn, command, text }) => {
   if (!text || !text.trim()) throw 'Masukkan teks yang valid!'
@@ -9,7 +9,8 @@ let handler = async (m, { conn, command, text }) => {
       end = '/api/image/brat/animated?text='
     }
     let url = APIs.ryzumi + end + encodeURIComponent(text.trim())
-    conn.sendSticker(m.chat, url, m)
+    const { data } = await axios.get(url, { responseType: 'arraybuffer' })
+    await conn.sendSticker(m.chat, data, m)
   } catch (err) {
     console.error('Error:', err)
     await m.reply(`Error: ${err.message || 'Gagal mengambil gambar.'}`)
@@ -19,6 +20,7 @@ let handler = async (m, { conn, command, text }) => {
 handler.help = ['brat', 'bratvid']
 handler.tags = ['maker']
 handler.command = /^(brat|brat(vid|video))$/i
+
 handler.register = true
 
 export default handler

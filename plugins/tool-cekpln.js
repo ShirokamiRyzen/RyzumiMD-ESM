@@ -5,9 +5,7 @@ let handler = async (m, { conn, args }) => {
 
     if (!id) throw 'Masukkan ID Pelanggan PLN Pascabayar\nContoh: `.cekpln 1234567890`'
 
-    await conn.sendMessage(m.chat, {
-        text: wait,
-    });
+    await m.react('🕓')
 
     try {
         let res = await axios.get(`${APIs.ryzumi}/api/tool/cek-pln?id=${id}`)

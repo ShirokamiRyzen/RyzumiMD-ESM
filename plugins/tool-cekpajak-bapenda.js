@@ -4,7 +4,7 @@ let handler = async (m, { conn, args }) => {
     const platInput = args.join(' ') || args[0] || ''
     if (!platInput) throw 'Masukkan nomor plat. Contoh: `.cekpajak T1234CD` atau `.cekpajak T 1234 CD`'
 
-    await conn.sendMessage(m.chat, { text: wait })
+    await m.react('🕓')
 
     try {
         const url = `${APIs.ryzumi}/api/tool/cek-pajak/bapenda?plat=${encodeURIComponent(platInput)}`
