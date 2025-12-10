@@ -11,6 +11,7 @@ import { platform as getPlatform } from 'os'
 const defaultMenu = {
   before: `
 • *Nama:* %name
+• *Nomor:* %phoneNumber
 • *Premium:* %prems
 • *Limit:* %limit
 • *Role:* %role
@@ -118,7 +119,8 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname, args, command }) => {
 
     let { age, exp, limit, level, role, registered, money } = global.db.data.users[m.sender]
     let { min, xp, max } = xpRange(level, global.multiplier)
-    let name = await conn.getName(m.sender)
+    let name = m.pushName || await conn.getName(m.sender)
+    let phoneNumber = m.sender.split('@')[0]
     let premium = global.db.data.users[m.sender].premiumTime
     let prems = `${premium > 0 ? 'Premium' : 'Free'}`
     let sysPlatform = getPlatform() // ✅ Fix disini
@@ -183,7 +185,7 @@ let handler = async (m, { conn, usedPrefix: _p, __dirname, args, command }) => {
       xp4levelup: max - exp,
       github: _package.homepage ? _package.homepage.url || _package.homepage : '[unknown github url]',
       tag, dash, m1, m2, m3, m4, cc, c1, c2, c3, c4, lprem, llim,
-      ucpn, platform: sysPlatform, wib, mode, _p, money, age, name, prems, level, limit, weton, week, date, dateIslamic, time, totalreg, rtotalreg, role,
+      ucpn, platform: sysPlatform, wib, mode, _p, money, age, name, phoneNumber, prems, level, limit, weton, week, date, dateIslamic, time, totalreg, rtotalreg, role,
       readmore: readMore
     }
 
