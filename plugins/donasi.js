@@ -9,8 +9,8 @@ Kalian bisa membeli paket premium melalui:
 ├ QRIS : ${qris}
 └────
 List Premium:
-10k = Premium 15 Hari
-15k = Premium 30 Hari
+10k = Premium 20 Hari
+20k = Premium 40 Hari
 25k = Premium 60 Hari
 50k = Premium 180 Hari
 
