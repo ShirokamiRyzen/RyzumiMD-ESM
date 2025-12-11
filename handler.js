@@ -455,7 +455,7 @@ export async function participantsUpdate({ id, participants, action, simulate = 
                     let pp;
                     try {
                         const pps = await this.profilePictureUrl(userJid, 'image')
-                            .catch(_ => 'https://s3.ryzumi.vip/permanent-assets/pp_depresi_1.png')
+                            .catch(_ => 'https://s3.ryzumi.vip/permanent-assets/avatar_contact.png')
 
                         const ppB = Buffer.from(await (await fetch(pps)).arrayBuffer())
                         if (ppB?.length) {
