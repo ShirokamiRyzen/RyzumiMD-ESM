@@ -41,9 +41,9 @@ let handler = async (m, { conn, text }) => {
     }
 }
 
-handler.help = ['deleteuser']
+handler.help = ['deluser']
 handler.tags = ['owner']
-handler.command = /^(d(el)?(ete)?(user)?|ha?pu?su(ser)?)$/i
+handler.command = /^(deluser|deleteuser|ha?pu?su(ser)?)$/i
 
 handler.owner = true
 
