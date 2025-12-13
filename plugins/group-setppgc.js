@@ -34,7 +34,7 @@ export default handler;
 
 async function generateProfilePicture(mediaUpload) {
   let bufferOrFilePath;
-  
+
   if (Buffer.isBuffer(mediaUpload)) {
     bufferOrFilePath = mediaUpload;
   } else if (typeof mediaUpload === 'object' && 'url' in mediaUpload) {
@@ -45,10 +45,10 @@ async function generateProfilePicture(mediaUpload) {
     bufferOrFilePath = Buffer.from(mediaUpload.stream);
   }
 
-  const { read, MIME_JPEG, AUTO } = (await import('jimp')).default;
-  const jimp = await read(bufferOrFilePath);
+  const { Jimp } = await import('jimp');
+  const jimp = await Jimp.read(bufferOrFilePath);
   const min = jimp.getWidth();
   const max = jimp.getHeight();
   const cropped = jimp.crop(0, 0, min, max);
-  return await cropped.quality(100).scaleToFit(720, 720, AUTO).getBufferAsync(MIME_JPEG);
+  return await cropped.quality(100).scaleToFit(720, 720, -1).getBufferAsync('image/jpeg');
 }

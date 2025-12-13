@@ -8,7 +8,7 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
         let name = await conn.getName(who)
         let q = m.quoted ? m.quoted : m
         let mime = (q.msg || q).mimetype || ''
-        if (!mime) throw 'Kirim/Reply Gambar dengan caption .toanime'
+        if (!mime) throw 'Kirim/Reply Gambar dengan caption .waifu2x'
 
         let media = await q.download()
         let url = await uploadPomf(media)
@@ -28,7 +28,7 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
 }
 
 handler.help = ['waifu2x']
-handler.tags = ['anime', 'ai']
+handler.tags = ['ai']
 handler.command = /^(waifu2x)$/i
 
 handler.register = true
