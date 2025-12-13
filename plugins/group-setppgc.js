@@ -50,7 +50,7 @@ async function generateProfilePicture(mediaUpload) {
   const min = jimp.bitmap.width;
   const max = jimp.bitmap.height;
   const cropped = jimp.crop({ x: 0, y: 0, w: min, h: max });
-  const scaled = cropped.quality(100).scaleToFit({ w: 720, h: 720 });
+  const scaled = cropped.scaleToFit({ w: 720, h: 720 });
 
   return new Promise((resolve, reject) => {
     scaled.getBuffer('image/jpeg', (err, buffer) => {
