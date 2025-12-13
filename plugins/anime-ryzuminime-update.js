@@ -84,7 +84,7 @@ let handler = async (m) => {
 }
 
 handler.help = ['checkryzumi']
-handler.tags = ['internet']
+handler.tags = ['anime']
 handler.command = /^(checkryzumi)$/i
 handler.owner = true
 

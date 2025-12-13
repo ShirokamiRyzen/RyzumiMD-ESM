@@ -193,6 +193,10 @@ var handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin, isR
           return await conn.reply(m.chat, 'Only admin or owner can use this command in group chat!', m);
         }
       }
+      if (!chat) {
+        global.db.data.chats[m.chat] = {}
+        chat = global.db.data.chats[m.chat]
+      }
       chat.ryzuminimeUpdate = isEnable;
       break;
     default:
