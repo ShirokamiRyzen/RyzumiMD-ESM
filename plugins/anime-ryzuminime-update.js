@@ -8,7 +8,7 @@ if (global.animeUpdateInterval) clearInterval(global.animeUpdateInterval)
 
 global.animeUpdateInterval = setInterval(async () => {
     try {
-        const response = await fetch(`${APIs.ryzuminime}/anime/anime?type=ongoing`)
+        const response = await fetch(`${APIs.ryzumi}/api/otakudesu/anime?type=ongoing`)
         if (!response.ok) return // Silently fail on network error to avoid spamming logs
         const currentData = await response.json()
 
