@@ -21,8 +21,6 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 
 *Lyrics:*
 ${firstResult.plainLyrics}
-
-*Url:* ${APIs.ryzumi}/api/search/lyrics?query=${encodeURIComponent(text)}
 `.trim());
         } else {
             throw new Error('Lirik tidak ditemukan');
