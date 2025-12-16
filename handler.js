@@ -31,7 +31,7 @@ export async function handler(chatUpdate) {
         m.limit = 0
         try {
             // TODO: use loop to insert data instead of this
-            if (m.sender.endsWith('@broadcast') || m.sender.endsWith('@newsletter')) return
+            if (m.sender.endsWith('@broadcast') || m.sender.endsWith('@newsletter') || m.sender.endsWith('@g.us')) return
             let user = global.db.data.users[m.sender]
             if (typeof user !== 'object')
                 global.db.data.users[m.sender] = {}
