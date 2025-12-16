@@ -26,6 +26,43 @@ export async function handler(chatUpdate) {
     try {
         m = smsg(this, m) || m
         if (!m) return
+        // Force resolve LID to Phone JID
+        if (m.sender && m.sender.endsWith('@lid')) {
+            const lid = m.sender
+            let resolvedJid = this.isLid?.[lid] || (m.key?.participantAlt || m.key?.remoteJidAlt)?.toString().decodeJid()
+
+            // If not found in cache or key, search in known chats
+            if (!resolvedJid || resolvedJid.endsWith('@lid')) {
+                const searchChats = () => {
+                    for (const chat of Object.values(this.chats)) {
+                        if (chat.metadata?.participants) {
+                            const p = chat.metadata.participants.find(p => p.lid === lid || p.id === lid)
+                            if (p?.id && !p.id.endsWith('@lid')) return p.id
+                            if (p?.lid === lid && p.id && !p.id.endsWith('@lid')) return p.id // explicit check
+                        }
+                    }
+                    return null
+                }
+
+                resolvedJid = searchChats()
+
+                // If still not found, and we suspect missing metadata (startup), fetch common groups
+                if (!resolvedJid && (!this.chats || Object.keys(this.chats).length < 5)) {
+                    await this.insertAllGroup().catch(() => { })
+                    resolvedJid = searchChats()
+                }
+            }
+
+            if (resolvedJid && !resolvedJid.endsWith('@lid')) {
+                if (!this.isLid) this.isLid = {}
+                this.isLid[lid] = resolvedJid
+                Object.defineProperty(m, 'sender', {
+                    value: resolvedJid,
+                    writable: true,
+                    enumerable: true
+                })
+            }
+        }
         m.exp = 0
         // use number for limit tracking to avoid boolean coercion bugs
         m.limit = 0
