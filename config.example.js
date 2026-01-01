@@ -30,39 +30,39 @@ const more = String.fromCharCode(8206)
 const readMore = more.repeat(4001)
 
 /*============= MAIN INFO =============*/
-global.pairing = '6285864034767'
-global.owner = [['6285174269046', 'ShirokamiRyzen', true]]
+global.pairing = '6285880489075'
+global.owner = [['628888175783', 'GharlyXI', true]]
 global.mods = []
 global.prems = []
-global.nomorbot = '6285864034767'
-global.nomorown = '6285174269046'
+global.nomorbot = '6285880489075'
+global.nomorown = '628888175783'
 
 /*============= WATERMARK =============*/
 global.readMore = readMore
-global.author = 'Shirokami Ryzen'
-global.namebot = 'Ryzumi-MD ESM'
-global.wm = '© Ryzumi-MD By Shirokami Ryzen'
+global.author = 'GluzzBotz'
+global.namebot = 'GluzzBotz-MD'
+global.wm = '© GluzzBotz-MD By GharlyXI'
 global.watermark = wm
 global.botdate = `⫹⫺ DATE: ${week} ${date}\n⫹⫺ 𝗧𝗶𝗺𝗲: ${wktuwib}`
 global.bottime = `T I M E : ${wktuwib}`
 global.stickpack = `Sticker Dibuat dengan ${namebot}\ngithub.com/ShirokamiRyzen\n\nRyzumi-MD ESM\n+${nomorbot}`
-global.stickauth = `© Ryzumi-MD By Shirokami Ryzen`
+global.stickauth = `© GluzzBotz-MD By GharlyXI`
 global.week = `${week} ${date}`
 global.wibb = `${wktuwib}`
 
 /*============== SOCIAL ==============*/
-global.sig = 'https://www.instagram.com/fatih_frdaus'
-global.sgh = 'https://github.com/ShirokamiRyzen'
+global.sig = 'https://www.instagram.com/gharlyanakbaik'
+global.sgh = 'https://github.com/GharlyCihuy'
 global.sgc = 'https://whatsapp.com/channel/0029Vb2qO9Q5vKAGd2t7ap1F'
 global.sgw = 'https://ryzumi.vip'
 global.sdc = '-'
-global.sfb = 'https://www.facebook.com/Nao.Tomori.UwU'
-global.snh = 'https://www.instagram.com/fatih_frdaus'
+global.sfb = 'https://www.facebook.com/'
+global.snh = 'https://www.instagram.com/gharlyanakbaik'
 
 /*============== PAYMENT ==============*/
-global.pdana = '085174269046'
-global.qris = 'https://api.ryzumi.vip/images/qris.png'
-global.psaweria = 'https://saweria.co/shirokamiryzen'
+global.pdana = '085780215555'
+global.qris = '-'
+global.psaweria = '-'
 
 /*============= RESPON =============*/
 global.wait = 'Please Wait...'
