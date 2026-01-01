@@ -3,7 +3,7 @@ import axios from 'axios'
 var handler = async (m, { conn, text }) => {
   if (!text) throw `*_Masukkan Nama Mahasiswa/Siswa Yang Ingin Kamu Cari !_*`;
 
-  conn.reply(m.chat, 'Sedang mencari orangnya... Silahkan tunggu.', m);
+  await m.react('🕓')
 
   const url = `${APIs.ryzumi}/api/search/mahasiswa?query=${encodeURIComponent(text)}`;
 
@@ -16,7 +16,7 @@ var handler = async (m, { conn, text }) => {
       throw 'Tidak ditemukan data untuk nama tersebut.';
     }
 
-    let message = `Hasil pencarian untuk nama "${text}":\n\n`;
+    let message = `Hasil pencarian untuk "${text}":\n\n`;
 
     data.forEach((mahasiswa, index) => {
       const nama = mahasiswa.nama || 'Tidak Diketahui';

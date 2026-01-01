@@ -3,7 +3,6 @@ import axios from 'axios'
 let handler = async (m, { conn, text, usedPrefix, command }) => {
     if (!text) throw `Contoh\n*${usedPrefix}${command} Seven oops - Orange*`;
 
-
     await m.react('🕓')
 
     try {
