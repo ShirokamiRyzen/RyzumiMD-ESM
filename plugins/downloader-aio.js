@@ -6,41 +6,48 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
     await m.react('🕓')
 
     try {
-        let response = await axios.get(`${APIs.ryzumi}/api/downloader/aiodown?url=${encodeURIComponent(args[0])}`);
+        let response = await axios.get(`${APIs.ryzumi}/api/downloader/all-in-one?url=${encodeURIComponent(args[0])}`);
         let data = response.data;
 
-        if (!data.success) throw 'Gagal mengambil data video';
+        if (!data || !data.medias || data.medias.length === 0) throw 'Media not found or API error';
 
-        // Cek prioritas kualitas video
-        let videoUrl;
-        let qualities = ["hd", "sd", "720p"];
-        for (let quality of qualities) {
-            let video = data.quality.find(v => v.quality.toLowerCase() === quality.toLowerCase());
-            if (video) {
-                videoUrl = video.url;
-                break;
+        let { title, source, author, medias } = data;
+        let caption = `*${title || 'Desc not found...'}*\n\n*Source:* ${source || 'Unknown'}\n*Author:* ${author?.name || author?.username || 'Unknown'}`.trim();
+
+        for (let i = 0; i < medias.length; i++) {
+            let media = medias[i];
+            let msgCaption = i === 0 ? caption : '';
+
+            if (media.type === 'video') {
+                await conn.sendMessage(m.chat, {
+                    video: { url: media.url },
+                    caption: msgCaption,
+                    mimetype: 'video/mp4'
+                }, { quoted: m });
+            } else if (media.type === 'image') {
+                await conn.sendMessage(m.chat, {
+                    image: { url: media.url },
+                    caption: msgCaption
+                }, { quoted: m });
+            } else if (media.type === 'audio') {
+                await conn.sendMessage(m.chat, {
+                    audio: { url: media.url },
+                    mimetype: media.extension === 'm4a' ? 'audio/mp4' : 'audio/mpeg',
+                    ptt: false
+                }, { quoted: m });
             }
         }
 
-        if (!videoUrl) {
-            let lowestQuality = data.quality.reduce((prev, curr) => {
-                return parseInt(curr.quality) < parseInt(prev.quality) ? curr : prev;
-            });
-            videoUrl = lowestQuality.url;
-        }
-
-        let caption = `Ini kak videonya @${m.sender.split('@')[0]}`.trim();
-        await conn.sendMessage(m.chat, { video: { url: videoUrl }, caption: caption, mentions: [m.sender], quoted: m });
-
     } catch (e) {
-        throw `Error: ${e.message}`;
+        console.error(e)
+        throw `Error: ${e.response?.data?.message || e.message}`;
     }
 }
 
-handler.help = ['aio <url>']
+handler.help = ['aio']
 handler.tags = ['downloader']
-handler.command = /^(aio)$/i
+handler.command = /^(aio|aiodl)$/i
 handler.register = true
-handler.limit = 1
+handler.limit = 2
 
 export default handler
