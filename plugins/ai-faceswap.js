@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { ryzenCDN } from '../lib/uploadFile.js'
+import { ryzumiCDN } from '../lib/uploadFile.js'
 
 let handler = async (m, { conn, args }) => {
     try {
@@ -10,7 +10,7 @@ let handler = async (m, { conn, args }) => {
         if (!mime) throw 'Kirim/Reply Gambar dengan caption .faceswap'
         let media = await q.download()
         if (!media) throw 'Gagal mendownload media!'
-        let cdnResult = await ryzenCDN(media)
+        let cdnResult = await ryzumiCDN(media)
         let url = cdnResult.url || cdnResult
         if (!url) throw 'Gagal upload ke RyzenCDN!'
 

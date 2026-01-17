@@ -1,5 +1,5 @@
 import fetch from 'node-fetch'
-import { ryzenCDN } from '../lib/uploadFile.js'
+import { ryzumiCDN } from '../lib/uploadFile.js'
 
 let handler = async (m) => {
   try {
@@ -9,7 +9,7 @@ let handler = async (m) => {
 
     let media = await q.download();
 
-    let link = await ryzenCDN(media);
+    let link = await ryzumiCDN(media);
     if (!link) throw 'Failed to upload media';
     let fileUrl = typeof link === 'object' ? link.url : link;
 

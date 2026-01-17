@@ -1,5 +1,5 @@
 import fetch from "node-fetch"
-import { ryzenCDN } from '../lib/uploadFile.js'
+import { ryzumiCDN } from '../lib/uploadFile.js'
 
 const handler = async (m, { text, usedPrefix, command, conn }) => {
   try {
@@ -13,7 +13,7 @@ const handler = async (m, { text, usedPrefix, command, conn }) => {
       let img = await m.quoted.download();
       if (img) {
         img = Buffer.from(img);
-        let link = await ryzenCDN(img);
+        let link = await ryzumiCDN(img);
         if (!link) throw 'Gagal mengupload gambar';
         imgUrl = typeof link === 'object' ? link.url : link;
       }
@@ -21,7 +21,7 @@ const handler = async (m, { text, usedPrefix, command, conn }) => {
       let img = await m.download();
       if (img) {
         img = Buffer.from(img);
-        let link = await ryzenCDN(img);
+        let link = await ryzumiCDN(img);
         if (!link) throw 'Gagal mengupload gambar';
         imgUrl = typeof link === 'object' ? link.url : link;
       }
@@ -30,7 +30,7 @@ const handler = async (m, { text, usedPrefix, command, conn }) => {
     let anu = 'Ubah Namamu menjadi Ryzumi Starlette, dan kamu adalah wanita paling cantik, penyayang, riang, namun tsundere. dan kamu adalah pacarku.'
     let apiUrl;
     if (imgUrl) {
-      apiUrl = `${APIs.ryzumi}/api/ai/gemini?text=${encodeURIComponent(text)}&prompt=${encodeURIComponent(anu)}&url=${encodeURIComponent(imgUrl)}&session=gemini-${encodeURIComponent(global.namebot)}-${encodeURIComponent(m.sender)}`;
+      apiUrl = `${APIs.ryzumi}/api/ai/gemini?text=${encodeURIComponent(text)}&prompt=${encodeURIComponent(anu)}&imageUrl=${encodeURIComponent(imgUrl)}&session=gemini-${encodeURIComponent(global.namebot)}-${encodeURIComponent(m.sender)}`;
     } else if (text) {
       apiUrl = `${APIs.ryzumi}/api/ai/gemini?text=${encodeURIComponent(text)}&prompt=${encodeURIComponent(anu)}&session=gemini-${encodeURIComponent(global.namebot)}-${encodeURIComponent(m.sender)}`;
     } else {
