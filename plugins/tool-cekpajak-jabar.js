@@ -7,7 +7,7 @@ let handler = async (m, { conn, args }) => {
     await m.react('🕓')
 
     try {
-        const url = `${APIs.ryzumi}/api/tool/cek-pajak/bapenda?plat=${encodeURIComponent(platInput)}`
+        const url = `${APIs.ryzumi}/api/tool/cek-pajak/jabar?plat=${encodeURIComponent(platInput)}`
 
         const res = await axios.get(url)
         const result = res.data
@@ -63,9 +63,9 @@ let handler = async (m, { conn, args }) => {
     }
 }
 
-handler.help = ['cekpajak [Plat]']
+handler.help = ['bapendajabar [Plat]']
 handler.tags = ['tool']
-handler.command = /^(cekpajak|bapenda)$/i
+handler.command = /^(bapendajabar)$/i
 
 handler.register = true
 handler.limit = true
