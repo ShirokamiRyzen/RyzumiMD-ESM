@@ -14,86 +14,73 @@ let handler = async (m, { conn, args }) => {
     try {
         const { data } = await axios.get(`${APIs.ryzumi}/api/downloader/pinterest?url=${encodeURIComponent(url)}`);
 
-        if (!data.success || !data.media || data.media.length === 0) {
+        if (!data || (!data.image && !data.video)) {
             throw 'No available media found';
         }
 
-        const mediaData = data.media;
+        const { title, description, isImage, image, video } = data;
+        const caption = `${title || 'No Title'}\n\n${description || 'No Description'}`;
 
-        // Pisahkan video dan gambar
-        const videos = mediaData
-            .filter(item => item.extension === 'mp4')
-            .sort((a, b) => (b.size || 0) - (a.size || 0));
-
-        const images = mediaData
-            .filter(item => item.extension === 'jpg')
-            .sort((a, b) => {
-                // urutkan berdasarkan x paling tinggi (di URL) jika tidak "original"
-                if (a.quality === 'original') return -1;
-                if (b.quality === 'original') return 1;
-                const ax = parseInt(a.quality) || 0;
-                const bx = parseInt(b.quality) || 0;
-                return bx - ax;
-            });
-
-        // Ambil gambar terbaik
+        // Fetch image (always required as per instructions)
         let imageBuffer = null;
-        let imageUrl = null;
-
-        for (const img of images) {
+        if (image && image.url) {
             try {
-                const res = await fetch(img.url);
+                const res = await fetch(image.url);
                 if (res.ok) {
                     imageBuffer = Buffer.from(await res.arrayBuffer());
-                    imageUrl = img.url;
-                    break;
                 }
             } catch (e) {
-                console.warn('Failed image fetch, trying next:', img.url);
+                // console.warn('Failed to fetch image:', image.url);
             }
         }
 
-        // Kirim gambar
-        if (imageBuffer) {
-            await conn.sendMessage(
-                m.chat, {
-                image: imageBuffer,
-                caption: `Ini gambarnya, @${sender}`,
-                mentions: [m.sender]
-            },
-                { quoted: m }
-            );
-        }
-
-        // Kirim video (jika ada)
-        if (videos.length > 0) {
-            try {
-                const videoUrl = videos[0].url;
-                const videoBuffer = await fetch(videoUrl).then(async res => Buffer.from(await res.arrayBuffer()));
-
+        if (isImage) {
+            // Case: isImage = true -> Send image only
+            if (imageBuffer) {
                 await conn.sendMessage(
                     m.chat, {
-                    video: videoBuffer,
-                    mimetype: "video/mp4",
-                    fileName: `video.mp4`,
-                    caption: `Dan ini videonya, @${sender}`,
-                    mentions: [m.sender],
-                }, {
-                    quoted: m
-                }
+                    image: imageBuffer,
+                    caption: caption + `\n\n@${sender}`,
+                    mentions: [m.sender]
+                }, { quoted: m }
                 );
-            } catch (error) {
-                console.error('Error sending video:', error);
-                await conn.reply(m.chat, `Gagal mengirim video: ${error.message}`, m);
+            } else {
+                throw 'Failed to download image';
             }
-        }
+        } else {
+            // Case: isImage = false -> Send image AND video
+            if (imageBuffer) {
+                await conn.sendMessage(
+                    m.chat, {
+                    image: imageBuffer,
+                    caption: caption + `\n\nPreview Image | @${sender}`,
+                    mentions: [m.sender]
+                }, { quoted: m }
+                );
+            }
 
-        if (!imageBuffer && videos.length === 0) {
-            throw 'Tidak ada gambar atau video yang bisa diunduh';
+            if (video && video.url) {
+                try {
+                    const videoBuffer = await fetch(video.url).then(async res => Buffer.from(await res.arrayBuffer()));
+
+                    await conn.sendMessage(
+                        m.chat, {
+                        video: videoBuffer,
+                        mimetype: "video/mp4",
+                        fileName: `video.mp4`,
+                        caption: `Ini videonya, @${sender}`,
+                        mentions: [m.sender],
+                    }, { quoted: m }
+                    );
+                } catch (error) {
+                    // console.error('Error sending video:', error);
+                    await conn.reply(m.chat, `Gagal mengirim video: ${error.message}`, m);
+                }
+            }
         }
 
     } catch (error) {
-        console.error('Handler Error:', error);
+        // console.error('Handler Error:', error);
         conn.reply(m.chat, `Terjadi kesalahan: ${error}`, m);
     }
 }
