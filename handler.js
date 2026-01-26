@@ -109,6 +109,7 @@ export async function handler(chatUpdate) {
                     if (!('premium' in chat)) chat.premium = false
                     if (!('premiumTime' in chat)) chat.premiumTime = false
                     if (!('premnsfw' in chat)) chat.premnsfw = false
+                    if (!('disableLimit' in chat)) chat.disableLimit = false
                     if (!isNumber(chat.expired)) chat.expired = 0
                 } else
                     global.db.data.chats[m.chat] = {
@@ -128,6 +129,7 @@ export async function handler(chatUpdate) {
                         premium: false,
                         premiumTime: false,
                         premnsfw: false,
+                        disableLimit: false,
                     }
             }
             let settings = global.db.data.settings[this.user.jid]
@@ -325,7 +327,9 @@ export async function handler(chatUpdate) {
                 else
                     m.exp += xp
                 // Normalize and enforce limit requirement strictly
-                const requiredLimit = !isPrems
+                // Check if this group has disabled limit
+                const isGroupLimitDisabled = m.isGroup && chat && chat.disableLimit
+                const requiredLimit = !isPrems && !isGroupLimitDisabled
                     ? (plugin.limit === true ? 1 : Number(plugin.limit) || 0)
                     : 0
                 if (requiredLimit > 0) {
@@ -364,7 +368,7 @@ export async function handler(chatUpdate) {
                 }
                 try {
                     await plugin.call(this, m, extra)
-                    if (!isPrems) {
+                    if (!isPrems && !isGroupLimitDisabled) {
                         // Always store numeric limit cost for safe deduction later
                         const cost = plugin.limit === true ? 1 : Number(plugin.limit) || 0
                         m.limit = Number(m.limit) || cost
@@ -492,7 +496,7 @@ export async function participantsUpdate({ id, participants, action, simulate = 
                     let pp;
                     try {
                         const pps = await this.profilePictureUrl(userJid, 'image')
-                            .catch(_ => 'https://s3.ryzumi.vip/permanent-assets/avatar_contact.png')
+                            .catch(_ => 'https://s3.ryzumi.vip/ryzumi-wa-bot/2e49a9842b8c9bed0a83522959b2a114.png')
 
                         const ppB = Buffer.from(await (await fetch(pps)).arrayBuffer())
                         if (ppB?.length) {
@@ -519,8 +523,8 @@ export async function participantsUpdate({ id, participants, action, simulate = 
                     //console.log('[GROUP NAME]', gcname)
                     //console.log('[GROUP MEMBER COUNT]', gcMem)
 
-                    const welcomeBg = 'https://s3.ryzumi.vip/permanent-assets/welcome_1.jpg'
-                    const leaveBg = 'https://s3.ryzumi.vip/permanent-assets/leave_1.jpg'
+                    const welcomeBg = 'https://s3.ryzumi.vip/ryzumi-wa-bot/287e595e515453a8723d67bd36aace33.jpg'
+                    const leaveBg = 'https://s3.ryzumi.vip/ryzumi-wa-bot/44261b12b4d87439b42632d1f1fa9aa3.jpg'
 
                     text = (
                         action === 'add'

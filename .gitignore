@@ -13,6 +13,7 @@ bot.sh
 test.json
 .vscode
 *.zip
+.gemini
 
 #Plugins
 plugins/_monitor-mc.js

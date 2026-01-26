@@ -1,5 +1,5 @@
 var handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin, isROwner }) => {
-  const sections = "List Options :\n✨ | Welcome\n🚫 | Delete\n👁 | Antiviewonce\n🤖 | Self\n🌎 | Public\n🗣️ | Simi\n🔞 | Nsfw\n🌟 | PremNsfwChat\n🔗 | Antilink\n☎ | AntiCall\n🚫 | Antidelete\n📩 | Antispam\n🖼 | Autosticker\n⏏️ | Autolevelup\n🔎 | Detect\n❗ | Restrict\n😐 | Nyimak\n☑️ | Autoread\n💬 | PcOnly\n🏢 | GcOnly\n📷 | SwOnly\n🎌| AnimeUpdate\n📺 | Ryzuminime Update\n";
+  const sections = "List Options :\n✨ | Welcome\n🚫 | Delete\n👁 | Antiviewonce\n🤖 | Self\n🌎 | Public\n🗣️ | Simi\n🔞 | Nsfw\n🌟 | PremNsfwChat\n🔗 | Antilink\n☎ | AntiCall\n🚫 | Antidelete\n📩 | Antispam\n🖼 | Autosticker\n⏏️ | Autolevelup\n🔎 | Detect\n❗ | Restrict\n😐 | Nyimak\n☑️ | Autoread\n💬 | PcOnly\n🏢 | GcOnly\n📷 | SwOnly\n🎌| AnimeUpdate\n📺 | Ryzuminime Update\n🎫 | Limit\n";
   const contoh = sections + usedPrefix + "enable self";
   let isEnable = /true|enable|(turn)?on/i.test(command);
   let chat = global.db.data.chats[m.chat];
@@ -198,6 +198,17 @@ var handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin, isR
         chat = global.db.data.chats[m.chat]
       }
       chat.ryzuminimeUpdate = isEnable;
+      break;
+    case 'limit':
+      if (!m.isGroup) {
+        return await conn.reply(m.chat, '❌ *Fitur ini hanya bisa digunakan di dalam grup!*', m);
+      }
+      if (!(isAdmin || isOwner)) {
+        return await conn.reply(m.chat, '❌ *Hanya admin atau owner yang bisa menggunakan command ini!*', m);
+      }
+      // Logic terbalik: disable limit = tidak kena limit (free)
+      // enable limit = kena limit normal
+      chat.disableLimit = !isEnable;
       break;
     default:
       if (!/[01]/.test(command)) return await conn.reply(m.chat, contoh, m);
