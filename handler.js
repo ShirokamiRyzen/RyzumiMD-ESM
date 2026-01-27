@@ -66,6 +66,7 @@ export async function handler(chatUpdate) {
         m.exp = 0
         // use number for limit tracking to avoid boolean coercion bugs
         m.limit = 0
+        let chat = global.db.data.chats[m.chat]
         try {
             // TODO: use loop to insert data instead of this
             if (m.sender.endsWith('@broadcast') || m.sender.endsWith('@newsletter') || m.sender.endsWith('@g.us')) return
@@ -88,7 +89,7 @@ export async function handler(chatUpdate) {
                     afkReason: '',
                     banned: false,
                 }
-            let chat = global.db.data.chats[m.chat]
+            chat = global.db.data.chats[m.chat]
             if (m.isGroup) {
                 if (typeof chat !== 'object')
                     global.db.data.chats[m.chat] = {}
@@ -275,9 +276,11 @@ export async function handler(chatUpdate) {
                     continue
                 m.plugin = name
                 if (m.chat in global.db.data.chats || m.sender in global.db.data.users) {
-                    if (name != 'owner-unbanchat.js' && name != 'owner-exec.js' && name != 'owner-exec2.js' && name != 'tool-delete.js' && chat?.isBanned)
+                    let _chat = global.db.data.chats[m.chat]
+                    let _dbUser = global.db.data.users[m.sender]
+                    if (name != 'owner-unbanchat.js' && name != 'owner-exec.js' && name != 'owner-exec2.js' && name != 'tool-delete.js' && _chat?.isBanned)
                         return // Except this
-                    if (name != 'owner-unbanuser.js' && user?.banned)
+                    if (name != 'owner-unbanuser.js' && _dbUser?.banned)
                         return
                 }
                 if (plugin.rowner && plugin.owner && !(isROwner || isOwner)) { // Both Owner
