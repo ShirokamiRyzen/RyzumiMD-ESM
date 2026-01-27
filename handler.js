@@ -88,10 +88,11 @@ export async function handler(chatUpdate) {
                     afkReason: '',
                     banned: false,
                 }
+            let chat = global.db.data.chats[m.chat]
             if (m.isGroup) {
-                let chat = global.db.data.chats[m.chat]
                 if (typeof chat !== 'object')
                     global.db.data.chats[m.chat] = {}
+                chat = global.db.data.chats[m.chat]
                 if (chat) {
                     if (!('isBanned' in chat)) chat.isBanned = false
                     if (!('welcome' in chat)) chat.welcome = false
@@ -274,8 +275,6 @@ export async function handler(chatUpdate) {
                     continue
                 m.plugin = name
                 if (m.chat in global.db.data.chats || m.sender in global.db.data.users) {
-                    let chat = global.db.data.chats[m.chat]
-                    let user = global.db.data.users[m.sender]
                     if (name != 'owner-unbanchat.js' && name != 'owner-exec.js' && name != 'owner-exec2.js' && name != 'tool-delete.js' && chat?.isBanned)
                         return // Except this
                     if (name != 'owner-unbanuser.js' && user?.banned)
