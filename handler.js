@@ -498,7 +498,7 @@ export async function participantsUpdate({ id, participants, action, simulate = 
                     let pp;
                     try {
                         const pps = await this.profilePictureUrl(userJid, 'image')
-                            .catch(_ => 'https://s3.ryzumi.vip/ryzumi-wa-bot/2e49a9842b8c9bed0a83522959b2a114.png')
+                            .catch(_ => 'https://s3.ryzumi.vip/perm-bucket/ryzumi-wa-bot/33bac083ba44f180c1435fc41975bf36.jpg')
 
                         const ppB = Buffer.from(await (await fetch(pps)).arrayBuffer())
                         if (ppB?.length) {
@@ -525,8 +525,8 @@ export async function participantsUpdate({ id, participants, action, simulate = 
                     //console.log('[GROUP NAME]', gcname)
                     //console.log('[GROUP MEMBER COUNT]', gcMem)
 
-                    const welcomeBg = 'https://s3.ryzumi.vip/ryzumi-wa-bot/287e595e515453a8723d67bd36aace33.jpg'
-                    const leaveBg = 'https://s3.ryzumi.vip/ryzumi-wa-bot/44261b12b4d87439b42632d1f1fa9aa3.jpg'
+                    const welcomeBg = 'https://s3.ryzumi.vip/perm-bucket/ryzumi-wa-bot/2987689.jpg'
+                    const leaveBg = 'https://s3.ryzumi.vip/perm-bucket/ryzumi-wa-bot/1387694.jpg'
 
                     text = (
                         action === 'add'
