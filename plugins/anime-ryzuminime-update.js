@@ -56,7 +56,7 @@ global.animeUpdateInterval = setInterval(async () => {
                     caption += `📺 *Judul:* ${up.judul}\n`
                     caption += `🔢 *Episode:* ${up.eps && up.eps.length > 1 ? up.eps[1].trim() : '?'}\n`
                     caption += `📅 *Hari:* ${up.rate && up.rate.length > 1 ? up.rate[1] : '?'}\n`
-                    caption += `🔗 *Link:* https://ryzumi.vip/anime/${up.slug}\n`
+                    caption += `🔗 *Link:* https://ryzumi.net/anime/${up.slug}\n`
                     caption += `\n_${time}_`
 
                     // Use global.conn to send
