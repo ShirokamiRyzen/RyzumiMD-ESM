@@ -1,7 +1,8 @@
 import { tmpdir } from 'os'
-import { readdirSync, statSync, unlinkSync, existsSync } from 'fs'
+import { readdirSync, statSync, unlinkSync } from 'fs'
+import { join } from 'path'
 
-let handler = async (m, { conn, usedPrefix: _p, __dirname, args }) => {
+let handler = async (m, { conn, usedPrefix: _p, __dirname }) => {
 
   const tmp = [tmpdir(), join(__dirname, '../tmp')];
   const filenames = [];

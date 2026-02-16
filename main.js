@@ -80,7 +80,7 @@ global.loadDatabase = async function loadDatabase() {
     msgs: {},
     sticker: {},
     settings: {},
-      ...(db.data || {})
+    ...(db.data || {})
   }
 }
 loadDatabase()
@@ -151,14 +151,36 @@ if (!conn.authState.creds.registered) {
   }, 3000)
 }
 
-if(global.db) {
-   setInterval(async () => {
-    if(global.db.data) await global.db.write().catch(console.error);
+if (global.db) {
+  setInterval(async () => {
+    if (global.db.data) await global.db.write().catch(console.error);
     if ((global.support || {}).find) {
       const tmp = [tmpdir(), 'tmp'];
       tmp.forEach(filename => spawn('find', [filename, '-amin', '3', '-type', 'f', '-delete']));
     }
   }, 2000);
+}
+
+if (global.opts['autocleartmp']) {
+  setInterval(async () => {
+    const tmp = [tmpdir(), join(__dirname, 'tmp')]
+    tmp.forEach(dirname => {
+      if (existsSync(dirname)) {
+        readdirSync(dirname).forEach(file => {
+          const filePath = join(dirname, file)
+          try {
+            const stats = statSync(filePath)
+            if (!stats.isDirectory()) {
+              unlinkSync(filePath)
+            }
+          } catch (e) {
+            console.error(e)
+          }
+        })
+      }
+    })
+    console.log(chalk.cyan('Auto cleartmp success...'))
+  }, 5 * 60 * 1000)
 }
 
 async function connectionUpdate(update) {

@@ -58,12 +58,15 @@ $ npm i
 ---------
 
 ## Run
-
 ```bash
 npm start
 ```
 
----------
+### Flags
+- `--autocleartmp` : Automatically clear tmp folder every 5 minutes.
+
+
+
 
 #
 ### Terms
