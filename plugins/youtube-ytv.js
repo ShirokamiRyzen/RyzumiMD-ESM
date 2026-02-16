@@ -51,7 +51,11 @@ let handler = async (m, { conn, command, text, usedPrefix }) => {
     })
 
     await new Promise((resolve, reject) => {
-      exec(`ffmpeg -y -i "${filePath}" -c:v libx264 -preset ultrafast -crf 32 -pix_fmt yuv420p -c:a copy "${fixedFilePath}"`, (err) => {
+      const command = process.platform === 'win32'
+        ? `ffmpeg -y -threads 2 -i "${filePath}" -c:v libx264 -preset ultrafast -crf 32 -pix_fmt yuv420p -c:a copy "${fixedFilePath}"`
+        : `taskset -c 6,7 ffmpeg -y -threads 2 -i "${filePath}" -c:v libx264 -preset ultrafast -crf 32 -pix_fmt yuv420p -c:a copy "${fixedFilePath}"`
+
+      exec(command, (err) => {
         if (err) reject(err)
         else resolve()
       })

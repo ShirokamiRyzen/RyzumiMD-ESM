@@ -31,12 +31,15 @@ let handler = async (m, { conn, args }) => {
             const tempFilePath = path.join('/tmp', `${video.filename || 'video'}.mp4`);
             const outputFilePath = path.join('/tmp', `${video.filename || 'video'}_fixed.mp4`);
 
-            // Write the video buffer to a temporary file
             await fs.writeFile(tempFilePath, videoBuffer);
 
-            // Use ffmpeg command to copy the video without re-encoding
             await new Promise((resolve, reject) => {
-                exec(`ffmpeg -i ${tempFilePath} -c copy ${outputFilePath}`, (error) => {
+                const isWin = process.platform === 'win32';
+                const command = isWin
+                    ? `ffmpeg -y -threads 2 -i "${tempFilePath}" -c:v libx264 -preset ultrafast -crf 32 -pix_fmt yuv420p -c:a copy "${outputFilePath}"`
+                    : `taskset -c 6,7 ffmpeg -y -threads 2 -i "${tempFilePath}" -c:v libx264 -preset ultrafast -crf 32 -pix_fmt yuv420p -c:a copy "${outputFilePath}"`;
+
+                exec(command, (error) => {
                     if (error) reject(error);
                     else resolve();
                 });
