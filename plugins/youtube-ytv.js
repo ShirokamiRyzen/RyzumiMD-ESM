@@ -51,7 +51,7 @@ let handler = async (m, { conn, command, text, usedPrefix }) => {
     })
 
     await new Promise((resolve, reject) => {
-      exec(`ffmpeg -y -i "${filePath}" -c:v libx264 -preset ultrafast -pix_fmt yuv420p -c:a aac -b:a 128k "${fixedFilePath}"`, (err) => {
+      exec(`ffmpeg -y -i "${filePath}" -c:v libx264 -preset superfast -crf 28 -pix_fmt yuv420p -c:a aac -b:a 128k "${fixedFilePath}"`, (err) => {
         if (err) reject(err)
         else resolve()
       })
