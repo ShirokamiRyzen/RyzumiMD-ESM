@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { exec } from 'child_process'
 import fs from 'fs'
 import path from 'path'
 
@@ -27,6 +28,7 @@ let handler = async (m, { conn, command, text, usedPrefix }) => {
     const safeTitle = data.title.replace(/[\\/:*?"<>|]/g, '').slice(0, 50)
     const filenameId = `${Date.now()}`
     const filePath = path.join(tmpDir, `${filenameId}.mp4`)
+    const fixedFilePath = path.join(tmpDir, `${filenameId}_fixed.mp4`)
 
 
     const writer = fs.createWriteStream(filePath)
@@ -48,6 +50,13 @@ let handler = async (m, { conn, command, text, usedPrefix }) => {
       writer.on('error', reject)
     })
 
+    await new Promise((resolve, reject) => {
+      exec(`ffmpeg -y -i "${filePath}" -c:v libx264 -preset ultrafast -pix_fmt yuv420p -c:a aac -b:a 128k "${fixedFilePath}"`, (err) => {
+        if (err) reject(err)
+        else resolve()
+      })
+    })
+
     const caption = `Ini kak videonya @${m.sender.split('@')[0]}
 
 *Title*: ${data.title}
@@ -60,7 +69,7 @@ let handler = async (m, { conn, command, text, usedPrefix }) => {
 *Description*: ${data.description}`
 
     await conn.sendMessage(m.chat, {
-      video: { url: filePath },
+      video: { url: fixedFilePath },
       mimetype: 'video/mp4',
       fileName: `${safeTitle}.mp4`,
       caption,
@@ -79,6 +88,7 @@ let handler = async (m, { conn, command, text, usedPrefix }) => {
     }, { quoted: m })
 
     fs.unlink(filePath, () => { })
+    fs.unlink(fixedFilePath, () => { })
 
 
   } catch (error) {
