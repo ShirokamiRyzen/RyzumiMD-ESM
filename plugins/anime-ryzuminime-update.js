@@ -61,11 +61,22 @@ global.animeUpdateInterval = setInterval(async () => {
 
                     // Use global.conn to send
                     if (global.conn) {
-                        await global.conn.sendMessage(jid, {
-                            image: { url: up.gambar },
-                            caption: caption
-                        }).catch(e => console.log(`Error sending anime update to ${jid}:`, e))
-
+                        try {
+                            const res = await fetch(up.gambar)
+                            if (!res.ok) throw new Error(`Failed to fetch image: ${res.statusText}`)
+                            const buffer = Buffer.from(await res.arrayBuffer())
+                            await global.conn.sendMessage(jid, {
+                                image: buffer,
+                                caption: caption
+                            })
+                        } catch (e) {
+                            console.log(`Error sending anime update to ${jid}:`, e)
+                            // Fallback to URL if buffer fails
+                            await global.conn.sendMessage(jid, {
+                                image: { url: up.gambar },
+                                caption: caption
+                            }).catch(err => console.log(`Fallback error sending to ${jid}:`, err))
+                        }
                         // Delay to prevent spam/ban
                         await new Promise(r => setTimeout(r, 2000))
                     }

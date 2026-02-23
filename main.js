@@ -11,6 +11,16 @@
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
 // process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1';
 
+import { Readable } from 'stream'
+
+const origFromWeb = Readable.fromWeb
+if (origFromWeb) {
+  Readable.fromWeb = function (rs, options) {
+    if (rs && typeof rs.getReader !== 'function') return rs
+    return origFromWeb(rs, options)
+  }
+}
+
 import './config.js'
 
 import path, { join } from 'path'
