@@ -34,8 +34,7 @@ import {
   unlinkSync,
   existsSync,
   readFileSync,
-  watch,
-  rmSync
+  watch
 } from 'fs'
 
 import yargs from 'yargs/yargs';
@@ -218,23 +217,11 @@ async function connectionUpdate(update) {
   }
 
   if (connection == 'close') {
-    const statusCode = lastDisconnect?.error?.output?.statusCode || lastDisconnect?.error?.output?.payload?.statusCode
-    console.log(chalk.red(`⏱️ Koneksi terputus (Reason Code: ${statusCode}) & mencoba menyambung ulang...`));
+    console.log(chalk.red('⏱️ Koneksi terputus & mencoba menyambung ulang...'));
+  }
 
-    if (statusCode === DisconnectReason.loggedOut || statusCode === DisconnectReason.badSession) {
-      console.log(chalk.redBright('❌ Sesi tidak valid atau telah keluar. Menghapus folder sesi dan memulai ulang...'));
-      try {
-        if (existsSync('./sessions')) {
-          rmSync('./sessions', { recursive: true, force: true });
-        }
-        process.exit(1);
-      } catch (e) {
-        console.error('Gagal menghapus folder sesi:', e);
-        process.exit(1);
-      }
-    } else if (lastDisconnect && lastDisconnect.error && conn.ws.readyState !== CONNECTING) {
-      console.log(await global.reloadHandler(true));
-    }
+  if (lastDisconnect && lastDisconnect.error && lastDisconnect.error.output && lastDisconnect.error.output.statusCode !== DisconnectReason.loggedOut && conn.ws.readyState !== CONNECTING) {
+    console.log(await global.reloadHandler(true));
   }
 
   if (global.db.data == null) {
