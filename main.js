@@ -96,10 +96,12 @@ global.loadDatabase = async function loadDatabase() {
 loadDatabase()
 
 // Fetch and use the latest WhatsApp Web version from Baileys
-const { version: waVersion, isLatest } = await fetchLatestBaileysVersion().catch(err => {
-  console.error('Failed to fetch latest Baileys version:', err)
-  return { version: undefined, isLatest: false }
-})
+//const { version: waVersion, isLatest } = await fetchLatestBaileysVersion().catch(err => {
+//  console.error('Failed to fetch latest Baileys version:', err)
+//  return { version: undefined, isLatest: false }
+//})
+const waVersion = [2, 3000, 1033893291]
+const isLatest = false
 if (waVersion) {
   const verStr = waVersion.join('.')
   console.log(chalk.cyan(`Using WhatsApp Web version: v${verStr} (${isLatest ? 'latest' : 'not latest'})`))
