@@ -39,7 +39,7 @@
     "license": "GPL-3.0-or-later",
     "dependencies": {
         "@vitalets/google-translate-api": "^9.2.0",
-        "@whiskeysockets/baileys": "^7.0.0-rc.9",
+        "@whiskeysockets/baileys": "^7.0.0-rc.6",
         "awesome-phonenumber": "^3.4.0",
         "axios": "^1.12.2",
         "cfonts": "^2.10.0",
