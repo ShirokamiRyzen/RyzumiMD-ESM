@@ -100,7 +100,7 @@ loadDatabase()
 //  console.error('Failed to fetch latest Baileys version:', err)
 //  return { version: undefined, isLatest: false }
 //})
-const waVersion = [2, 3000, 1033893291]
+const waVersion = [2, 3000, 1034074495]
 const isLatest = false
 if (waVersion) {
   const verStr = waVersion.join('.')
@@ -110,7 +110,7 @@ if (waVersion) {
 const { state, saveCreds } = await useMultiFileAuthState('./sessions')
 const connectionOptions = {
   logger: pino({ level: 'fatal' }),
-  browser: ["Ubuntu", "Chrome", "20.0.00"],
+  browser: ["macOS", "Safari", "20.0.00"],
   // ensure WA connection targets the correct web version from Baileys
   ...(waVersion ? { version: waVersion } : {}),
   auth: {
