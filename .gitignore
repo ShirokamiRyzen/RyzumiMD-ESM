@@ -14,6 +14,7 @@ test.json
 .vscode
 *.zip
 .gemini
+package-lock.json
 
 #Plugins
 plugins/_monitor-mc.js
