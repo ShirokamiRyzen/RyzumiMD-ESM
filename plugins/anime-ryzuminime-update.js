@@ -51,37 +51,39 @@ global.animeUpdateInterval = setInterval(async () => {
             if (chats.length === 0) return
 
             for (let [jid, chat] of chats) {
-                for (let up of updates) {
-                    let caption = `*🎬 ANIME UPDATE*\n\n`
-                    caption += `📺 *Judul:* ${up.judul}\n`
-                    caption += `🔢 *Episode:* ${up.eps && up.eps.length > 1 ? up.eps[1].trim() : '?'}\n`
-                    caption += `📅 *Hari:* ${up.rate && up.rate.length > 1 ? up.rate[1] : '?'}\n`
-                    caption += `🔗 *Link:* https://ryzumi.net/anime/${up.slug}\n`
-                    caption += `\n_${time}_`
-
-                    // Use global.conn to send
-                    if (global.conn) {
-                        try {
-                            const res = await fetch(up.gambar)
-                            if (!res.ok) throw new Error(`Failed to fetch image: ${res.statusText}`)
-                            const buffer = Buffer.from(await res.arrayBuffer())
-                            await global.conn.sendMessage(jid, {
-                                image: buffer,
-                                caption: caption
-                            })
-                        } catch (e) {
-                            console.log(`Error sending anime update to ${jid}:`, e)
-                            // Fallback to URL if buffer fails
-                            await global.conn.sendMessage(jid, {
-                                image: { url: up.gambar },
-                                caption: caption
-                            }).catch(err => console.log(`Fallback error sending to ${jid}:`, err))
-                        }
-                        // Delay to prevent spam/ban
-                        await new Promise(r => setTimeout(r, 2000))
-                    }
+        for (let up of updates) {
+            let caption = `*🎬 ANIME UPDATE*\n\n`
+            caption += `📺 *Judul:* ${up.judul}\n`
+            caption += `🔢 *Episode:* ${up.eps && up.eps.length > 1 ? up.eps[1].trim() : '?'}\n`
+            caption += `📅 *Hari:* ${up.rate && up.rate.length > 1 ? up.rate[1] : '?'}\n`
+            caption += `🔗 *Link:* https://ryzumi.net/anime/${up.slug}\n`
+            caption += `\n_${time}_`
+        
+            // Gunakan DuckDuckGo External Content Proxy
+            const proxyUrl = `https://external-content.duckduckgo.com/iu/?u=${encodeURIComponent(up.gambar)}&f=1&nofb=1`
+        
+            if (global.conn) {
+                try {
+                    const res = await fetch(proxyUrl)
+                    if (!res.ok) throw new Error(`Proxy failed: ${res.statusText}`)
+                    
+                    const buffer = Buffer.from(await res.arrayBuffer())
+                    await global.conn.sendMessage(jid, {
+                        image: buffer,
+                        caption: caption
+                    })
+                } catch (e) {
+                    console.log(`Error sending with proxy to ${jid}:`, e)
+                    // Fallback tetap menggunakan proxy tapi via URL direct jika buffer gagal
+                    await global.conn.sendMessage(jid, {
+                        image: { url: proxyUrl },
+                        caption: caption
+                    }).catch(err => console.log(`Final fallback error:`, err))
                 }
+                await new Promise(r => setTimeout(r, 2000))
             }
+        }
+    }
         }
 
     } catch (e) {
