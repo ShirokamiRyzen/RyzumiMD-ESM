@@ -1,22 +1,17 @@
 import fetch from 'node-fetch'
 import { uploadPomf } from '../lib/uploadImage.js'
 
-let handler = async (m, { conn, usedPrefix, text }) => {
+let handler = async (m, { conn, usedPrefix }) => {
     try {
         await m.react('🕓')
-        let args = text.trim().split(/\s+/);
-        let upscale = (args[1] && args[1].toLowerCase() === 'hd') ? "true" : "false";
-
         let q = m.quoted ? m.quoted : m;
         let mime = (q.msg || q).mimetype || '';
         if (!mime || !mime.startsWith('image/')) throw `Kirim/Reply Gambar dengan caption ${usedPrefix}removebg`;
 
-
-
         let media = await q.download();
         let url = await uploadPomf(media);
 
-        let apiUrl = `${APIs.ryzumi}/api/ai/v2/removebg?url=${url}&upscale=${upscale}`;
+        let apiUrl = `${APIs.ryzumi}/api/ai/removebg?url=${url}`;
         let response = await fetch(apiUrl);
         if (!response.ok) throw new Error('Gagal mengambil gambar dari API');
 

@@ -1,47 +1,33 @@
 import fetch from 'node-fetch'
 import { uploadPomf } from '../lib/uploadImage.js'
 
-let handler = async (m, { conn, usedPrefix, command, text }) => {
+let handler = async (m, { conn, usedPrefix }) => {
   try {
     await m.react('🕓')
-    const arg = (text || '').trim().split(/\s+/)[0]
-    let scale = Number(arg)
-    if (!arg) {
-      scale = 2
-    } else if (!Number.isInteger(scale) || ![1, 2, 3, 4].includes(scale)) {
-      return m.reply(
-        `Pilihan tidak valid.\nGunakan angka 1-4.\nContoh:\n• ${usedPrefix + command} 2\n• ${usedPrefix + command} 4`
-      )
-    }
+    let q = m.quoted ? m.quoted : m;
+    let mime = (q.msg || q).mimetype || '';
+    if (!mime || !mime.startsWith('image/')) throw `Kirim/Reply Gambar dengan caption ${usedPrefix}upscale`;
 
-    let who = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.fromMe ? conn.user.jid : m.sender
-    await conn.getName(who)
+    let media = await q.download();
+    let url = await uploadPomf(media);
 
-    let q = m.quoted ? m.quoted : m
-    let mime = (q.msg || q).mimetype || ''
-    if (!mime) throw 'Kirim/Reply Gambar dengan caption .upscale <1|2|3|4>'
+    let apiUrl = `${APIs.ryzumi}/api/ai/upscaler?url=${url}`;
+    let response = await fetch(apiUrl);
+    if (!response.ok) throw new Error('Gagal mengambil gambar dari API');
 
+    let hasil = Buffer.from(await response.arrayBuffer());
 
+    await conn.sendFile(m.chat, hasil, 'upscale.jpg', global.wm, m);
 
-    let media = await q.download()
-    let url = await uploadPomf(media)
+    let epoch = Date.now();
+    let random = Math.floor(Math.random() * 99999);
+    let filename = `upscale_${random}_${epoch}_file.png`;
 
-    const apiUrl = `https://api.siputzx.my.id/api/tools/upscale?url=${encodeURIComponent(url)}&scale=${scale}`
-
-    const response = await fetch(apiUrl)
-    if (!response.ok) {
-      const txt = await response.text().catch(() => '')
-      throw new Error(`Upscale gagal (${response.status}). ${txt || ''}`.trim())
-    }
-
-    const hasil = Buffer.from(await response.arrayBuffer())
-
-    await conn.sendFile(m.chat, hasil, 'hasil.png', global.wm, m)
+    await conn.sendFile(m.chat, hasil, filename, '', m, null, { mimetype: 'image/png', asDocument: true });
   } catch (error) {
-    console.error(error)
-    m.reply('Internal server error')
+    m.reply(`Error: ${error.message}`);
   }
-}
+};
 
 handler.help = ['upscale']
 handler.tags = ['ai']
