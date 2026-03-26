@@ -17,13 +17,11 @@ let handler = async (m, { conn, usedPrefix }) => {
 
         let hasil = Buffer.from(await response.arrayBuffer());
 
-        await conn.sendFile(m.chat, hasil, 'removedbg.jpg', global.wm, m);
-
         let epoch = Date.now();
         let random = Math.floor(Math.random() * 99999);
         let filename = `removedbg_${random}_${epoch}_file.png`;
 
-        await conn.sendFile(m.chat, hasil, filename, '', m, null, { mimetype: 'image/png', asDocument: true });
+        await conn.sendFile(m.chat, hasil, filename, global.wm, m, null, { mimetype: 'image/png', asDocument: false });
     } catch (error) {
         m.reply(`Error: ${error.message}`);
     }
