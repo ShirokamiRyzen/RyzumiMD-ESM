@@ -11,26 +11,33 @@ let handler = async (m, { conn, args }) => {
     try {
         const { data } = await axios.get(`${APIs.ryzumi}/api/downloader/threads?url=${encodeURIComponent(args[0])}`);
 
-        if (!data.success) throw 'Gagal mengambil data dari API';
+        if (!data.success || !data.result) throw 'Gagal mengambil data dari API';
 
-        const medias = data.medias || [];
+        const medias = data.result.media || [];
 
         if (medias.length === 0) {
             throw 'No media found in that Threads post';
         }
 
-        for (const item of medias) {
+        for (let i = 0; i < medias.length; i++) {
+            const item = medias[i];
             const isVideo = item.type === 'video';
             const isImage = item.type === 'image';
 
             if (!isVideo && !isImage) continue;
 
+            // Only send caption on the first media to avoid spamming the chat
+            let msgCaption = '';
+            if (i === 0) {
+                msgCaption = `Ini ${isVideo ? 'videonya' : 'fotonya'} kak @${m.sender.split('@')[0]}\n\n*Caption:* ${data.result.caption || ''}`;
+            }
+
             await conn.sendMessage(
                 m.chat,
                 {
                     [isVideo ? 'video' : 'image']: { url: item.url },
-                    caption: `Ini ${isVideo ? 'videonya' : 'fotonya'} kak @${m.sender.split('@')[0]}`,
-                    mentions: [m.sender],
+                    caption: msgCaption.trim(),
+                    mentions: i === 0 ? [m.sender] : [],
                 },
                 { quoted: m }
             );
