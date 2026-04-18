@@ -29,20 +29,52 @@ let handler = async (m, { conn, args }) => {
         for (const item of allMedia) {
             const caption = first ? (result.caption || result.title || `Ini kak videonya @${m.sender.split('@')[0]}`) : '';
             
-            if (item.type === 'video') {
-                await conn.sendMessage(m.chat, {
-                    video: { url: item.url },
-                    mimetype: "video/mp4",
-                    fileName: `video.mp4`,
-                    caption: caption,
-                    mentions: [m.sender],
-                }, { quoted: m });
-            } else if (item.type === 'image') {
-                await conn.sendMessage(m.chat, {
-                    image: { url: item.url },
-                    caption: caption,
-                    mentions: [m.sender],
-                }, { quoted: m });
+            try {
+                if (item.type === 'video') {
+                    await conn.sendMessage(m.chat, {
+                        video: { url: item.url },
+                        mimetype: "video/mp4",
+                        fileName: `video.mp4`,
+                        caption: caption,
+                        mentions: [m.sender],
+                    }, { quoted: m });
+                } else if (item.type === 'image') {
+                    await conn.sendMessage(m.chat, {
+                        image: { url: item.url },
+                        caption: caption,
+                        mentions: [m.sender],
+                    }, { quoted: m });
+                }
+            } catch (e) {
+                console.error('Error sending media item, trying fallback:', e);
+                try {
+                    const res = await axios.get(item.url, { 
+                        responseType: 'arraybuffer', 
+                        timeout: 30000,
+                        headers: {
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'
+                        }
+                    });
+                    const buffer = Buffer.from(res.data);
+                    if (item.type === 'video') {
+                        await conn.sendMessage(m.chat, {
+                            video: buffer,
+                            mimetype: "video/mp4",
+                            fileName: `video.mp4`,
+                            caption: caption,
+                            mentions: [m.sender],
+                        }, { quoted: m });
+                    } else if (item.type === 'image') {
+                        await conn.sendMessage(m.chat, {
+                            image: buffer,
+                            caption: caption,
+                            mentions: [m.sender],
+                        }, { quoted: m });
+                    }
+                } catch (e2) {
+                    console.error('Fallback failed:', e2);
+                    if (allMedia.length === 1) throw e2;
+                }
             }
             first = false;
         }
