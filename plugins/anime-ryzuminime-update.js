@@ -11,9 +11,10 @@ global.animeUpdateInterval = setInterval(async () => {
         const response = await fetch(`${APIs.ryzumi}/api/otakudesu/anime?type=ongoing`)
         if (!response.ok) return // Silently fail on network error to avoid spamming logs
         const currentData = await response.json()
+        if (!Array.isArray(currentData)) return
 
         // Initialize if empty
-        if (!previousData || previousData.length === 0) {
+        if (!Array.isArray(previousData) || previousData.length === 0) {
             previousData = currentData
             return
         }
@@ -21,6 +22,7 @@ global.animeUpdateInterval = setInterval(async () => {
         let updates = []
         for (let item of currentData) {
             // Find in previous
+            if (!Array.isArray(previousData)) break
             const oldItem = previousData.find(i => i.slug === item.slug)
 
             // New anime or episode update
