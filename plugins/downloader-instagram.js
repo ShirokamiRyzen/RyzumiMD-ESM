@@ -12,7 +12,7 @@ let handler = async (m, { conn, args }) => {
     await m.react('🕓')
 
     try {
-        const { data } = await axios.get(`${APIs.ryzumi}/api/downloader/igdl?url=${encodeURIComponent(url)}`);
+        const { data } = await axios.get(`${APIs.ryzumi}/api/downloader/instagram?url=${encodeURIComponent(url)}`);
 
         if (!data.status || !Array.isArray(data.data) || data.data.length === 0) {
             throw 'No available media found';

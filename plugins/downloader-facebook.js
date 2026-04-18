@@ -4,34 +4,52 @@
 import axios from 'axios'
 
 let handler = async (m, { conn, args }) => {
-    if (!args[0]) throw 'Please provide a Facebook video URL';
+    if (!args[0]) throw 'Please provide a Facebook URL';
 
     await m.react('🕓')
 
     try {
-        const { data } = await axios.get(`${APIs.ryzumi}/api/downloader/fbdl?url=${encodeURIComponent(args[0])}`);
+        const { data } = await axios.get(`${APIs.ryzumi}/api/downloader/facebook?url=${encodeURIComponent(args[0])}`);
 
-        if (!data.status || !data.data || data.data.length === 0) throw 'No available video found';
+        if (!data.success || !data.result) throw 'No available media found';
 
-        // Prioritize 720p (HD) and fallback to 360p (SD)
-        let video = data.data.find(v => v.resolution === '720p (HD)') || data.data.find(v => v.resolution === '360p (SD)');
+        const result = data.result;
+        const media = result.media;
+        
+        // Filter videos: HD first, then fallback to SD
+        let selectedVideos = (media.videos || []).filter(v => v.quality === 'hd');
+        if (selectedVideos.length === 0) selectedVideos = (media.videos || []).filter(v => v.quality === 'sd');
+        
+        const selectedImages = media.images || [];
+        const allMedia = [...selectedVideos, ...selectedImages];
 
-        if (video && video.url) {
-            conn.sendMessage(
-                m.chat, {
-                video: { url: video.url },
-                mimetype: "video/mp4",
-                fileName: `video.mp4`,
-                caption: `Ini kak videonya @${m.sender.split('@')[0]}`,
-                mentions: [m.sender],
-            }, { quoted: m });
+        if (allMedia.length === 0) throw 'No available media found';
 
-        } else {
-            throw 'No available video found';
+        let first = true;
+        for (const item of allMedia) {
+            const caption = first ? (result.caption || result.title || `Ini kak videonya @${m.sender.split('@')[0]}`) : '';
+            
+            if (item.type === 'video') {
+                await conn.sendMessage(m.chat, {
+                    video: { url: item.url },
+                    mimetype: "video/mp4",
+                    fileName: `video.mp4`,
+                    caption: caption,
+                    mentions: [m.sender],
+                }, { quoted: m });
+            } else if (item.type === 'image') {
+                await conn.sendMessage(m.chat, {
+                    image: { url: item.url },
+                    caption: caption,
+                    mentions: [m.sender],
+                }, { quoted: m });
+            }
+            first = false;
         }
+        
     } catch (error) {
         console.error('Handler Error:', error);
-        conn.reply(m.chat, `An error occurred: ${error}`, m);
+        conn.reply(m.chat, `An error occurred: ${error.message || error}`, m);
     }
 }
 
@@ -42,3 +60,4 @@ handler.limit = true
 handler.register = true
 
 export default handler
+
